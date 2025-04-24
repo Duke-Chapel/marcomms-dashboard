@@ -151,6 +151,11 @@
                     
                     <ul class="nav flex-column">
                         <li class="nav-item">
+  <a class="nav-link" href="#executive-summary" data-bs-toggle="tab">
+    <i class="bi bi-briefcase"></i> Executive Summary
+  </a>
+</li>
+                        <li class="nav-item">
                             <a class="nav-link active" href="#overview" data-bs-toggle="tab">
                                 <i class="bi bi-house-door"></i> Overview
                             </a>
@@ -198,6 +203,128 @@
             
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-3">
+            <!-- Executive Summary Section -->
+<div class="tab-pane fade" id="executive-summary">
+  <h2 class="mb-4">Executive Summary</h2>
+  
+  <!-- Period-over-period metrics -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card dashboard-card">
+        <div class="card-header d-flex justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">Performance Snapshot</h6>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="periodDropdown" data-bs-toggle="dropdown">
+              vs Previous Period
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item period-selector" data-period="week">vs Last Week</a></li>
+              <li><a class="dropdown-item period-selector" data-period="month">vs Last Month</a></li>
+              <li><a class="dropdown-item period-selector" data-period="quarter">vs Last Quarter</a></li>
+              <li><a class="dropdown-item period-selector" data-period="year">vs Last Year</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Web traffic with period comparison -->
+            <div class="col-md-3 mb-4">
+              <div class="metric-card web p-3">
+                <h5>Web Traffic</h5>
+                <h3 id="web-traffic-current">-</h3>
+                <div class="metric-change" id="web-traffic-change">-</div>
+              </div>
+            </div>
+            
+            <!-- Social engagement with period comparison -->
+            <div class="col-md-3 mb-4">
+              <div class="metric-card social p-3">
+                <h5>Social Engagement</h5>
+                <h3 id="social-engagement-current">-</h3>
+                <div class="metric-change" id="social-engagement-change">-</div>
+              </div>
+            </div>
+            
+            <!-- Email performance with period comparison -->
+            <div class="col-md-3 mb-4">
+              <div class="metric-card email p-3">
+                <h5>Email CTR</h5>
+                <h3 id="email-ctr-current">-</h3>
+                <div class="metric-change" id="email-ctr-change">-</div>
+              </div>
+            </div>
+            
+            <!-- Video views with period comparison -->
+            <div class="col-md-3 mb-4">
+              <div class="metric-card youtube p-3">
+                <h5>Video Views</h5>
+                <h3 id="video-views-current">-</h3>
+                <div class="metric-change" id="video-views-change">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Cross-channel funnel visualization -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h6 class="m-0 font-weight-bold text-primary">Marketing Funnel Performance</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="funnel-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h6 class="m-0 font-weight-bold text-primary">Channel Distribution</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="channel-distribution-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Top performing content across channels -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h6 class="m-0 font-weight-bold text-primary">Top Performing Content</h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" id="top-content-table">
+              <thead>
+                <tr>
+                  <th>Content</th>
+                  <th>Channel</th>
+                  <th>Views</th>
+                  <th>Engagement</th>
+                  <th>Conversion</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Table will be populated with JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
                 <div class="tab-content">
                     <!-- Overview Tab -->
                     <div class="tab-pane fade show active" id="overview">
@@ -1073,18 +1200,192 @@
                 return null;
             }
         }
-        
+        // Load and display executive summary data
+function updateExecutiveSummary(data, comparisonPeriod = 'month') {
+  // Format numbers with commas and +/- signs
+  const formatNumber = num => num.toLocaleString();
+  const formatChange = (current, previous) => {
+    if (!previous) return '0%';
+    const change = ((current - previous) / previous) * 100;
+    return `${change > 0 ? '+' : ''}${change.toFixed(1)}%`;
+  };
+  
+  // Set current values
+  document.getElementById('web-traffic-current').textContent = formatNumber(data.overview.web.total_sessions);
+  document.getElementById('social-engagement-current').textContent = formatNumber(
+    data.overview.social.facebook_engagement + data.overview.social.instagram_engagement
+  );
+  document.getElementById('email-ctr-current').textContent = `${(data.overview.email.avg_click_rate * 100).toFixed(1)}%`;
+  document.getElementById('video-views-current').textContent = formatNumber(data.overview.youtube.total_views);
+  
+  // Mock previous period data (would be fetched from historical data in reality)
+  const previousData = {
+    web_traffic: data.overview.web.total_sessions * 0.9,
+    social_engagement: (data.overview.social.facebook_engagement + data.overview.social.instagram_engagement) * 0.85,
+    email_ctr: data.overview.email.avg_click_rate * 0.95,
+    video_views: data.overview.youtube.total_views * 0.8
+  };
+  
+  // Set change indicators
+  document.getElementById('web-traffic-change').textContent = formatChange(
+    data.overview.web.total_sessions, previousData.web_traffic
+  );
+  document.getElementById('social-engagement-change').textContent = formatChange(
+    data.overview.social.facebook_engagement + data.overview.social.instagram_engagement, 
+    previousData.social_engagement
+  );
+  document.getElementById('email-ctr-change').textContent = formatChange(
+    data.overview.email.avg_click_rate, previousData.email_ctr
+  );
+  document.getElementById('video-views-change').textContent = formatChange(
+    data.overview.youtube.total_views, previousData.video_views
+  );
+  
+  // Style the change indicators
+  document.querySelectorAll('.metric-change').forEach(el => {
+    const value = parseFloat(el.textContent);
+    if (value > 0) {
+      el.classList.add('text-success');
+      el.innerHTML = `<i class="bi bi-arrow-up"></i> ${el.textContent}`;
+    } else if (value < 0) {
+      el.classList.add('text-danger');
+      el.innerHTML = `<i class="bi bi-arrow-down"></i> ${el.textContent}`;
+    } else {
+      el.classList.add('text-muted');
+    }
+  });
+  
+  // Create funnel chart
+  createMarketingFunnelChart();
+  
+  // Create channel distribution chart
+  createChannelDistributionChart(data);
+  
+  // Populate top content table
+  populateTopContentTable();
+}
+
+// Marketing funnel visualization
+function createMarketingFunnelChart() {
+  const ctx = document.getElementById('funnel-chart').getContext('2d');
+  
+  // Mock funnel data
+  const labels = ['Awareness', 'Engagement', 'Consideration', 'Conversion', 'Retention'];
+  const values = [10000, 5000, 2500, 1000, 800];
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Users',
+        data: values,
+        backgroundColor: [
+          'rgba(78, 115, 223, 0.8)',
+          'rgba(54, 185, 204, 0.8)',
+          'rgba(246, 194, 62, 0.8)',
+          'rgba(28, 200, 138, 0.8)',
+          'rgba(231, 74, 59, 0.8)'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+// Channel distribution chart
+function createChannelDistributionChart(data) {
+  const ctx = document.getElementById('channel-distribution-chart').getContext('2d');
+  
+  // Extract values
+  const webTraffic = data.overview.web.total_sessions;
+  const socialTraffic = data.overview.social.facebook_engagement + data.overview.social.instagram_engagement;
+  const emailTraffic = data.overview.email.total_sent * (data.overview.email.avg_click_rate || 0.1);
+  const videoTraffic = data.overview.youtube.total_views;
+  
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Web', 'Social', 'Email', 'Video'],
+      datasets: [{
+        data: [webTraffic, socialTraffic, emailTraffic, videoTraffic],
+        backgroundColor: [
+          '#4e73df',
+          '#1cc88a',
+          '#f6c23e',
+          '#e74a3b'
+        ]
+      }]
+    },
+    options: {
+      maintainAspectRatio: false
+    }
+  });
+}
+
+// Populate top content table
+function populateTopContentTable() {
+  const table = document.getElementById('top-content-table').querySelector('tbody');
+  table.innerHTML = ''; // Clear existing content
+  
+  // Mock data for top content
+  const topContent = [
+    { content: 'Product Launch Video', channel: 'YouTube', views: 4500, engagement: '12.5%', conversion: '3.2%' },
+    { content: 'Summer Sale Announcement', channel: 'Facebook', views: 3800, engagement: '8.3%', conversion: '4.7%' },
+    { content: 'Industry Report PDF', channel: 'Email', views: 2200, engagement: '15.1%', conversion: '8.3%' },
+    { content: 'How-To Guide', channel: 'Website', views: 1900, engagement: '10.2%', conversion: '5.9%' },
+    { content: 'Customer Story', channel: 'Instagram', views: 1650, engagement: '9.7%', conversion: '2.8%' }
+  ];
+  
+  // Add rows to table
+  topContent.forEach(item => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${item.content}</td>
+      <td><span class="badge bg-${getChannelColor(item.channel)}">${item.channel}</span></td>
+      <td>${item.views.toLocaleString()}</td>
+      <td>${item.engagement}</td>
+      <td>${item.conversion}</td>
+    `;
+    table.appendChild(row);
+  });
+}
+
+// Helper function to get channel color
+function getChannelColor(channel) {
+  switch(channel) {
+    case 'YouTube': return 'danger';
+    case 'Facebook': return 'primary';
+    case 'Instagram': return 'info';
+    case 'Email': return 'warning';
+    case 'Website': return 'success';
+    default: return 'secondary';
+  }
+}
+
         // Initialize dashboard
-        async function initDashboard() {
-            const data = await loadData();
-            if (!data) {
-                alert('Error loading dashboard data. Please check console for details.');
-                return;
-            }
-            
-            // Update last updated timestamp
-            document.getElementById('last-updated').textContent = `Last updated: ${data.overview.last_updated}`;
-            
+async function initDashboard() {
+  const data = await loadData();
+  if (!data) {
+    alert('Error loading dashboard data. Please check console for details.');
+    return;
+  }
+  
+  // Update last updated timestamp
+  document.getElementById('last-updated').textContent = `Last updated: ${data.overview.last_updated}`;
+  
+  // *** NEW: EXECUTIVE SUMMARY SECTION ***
+  updateExecutiveSummary(data);
+              
             // *** OVERVIEW SECTION ***
             updateOverviewMetrics(data.overview);
             createChannelPerformanceChart(data);
