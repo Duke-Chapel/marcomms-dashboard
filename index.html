@@ -4,139 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprehensive Marketing Dashboard</title>
+    <title>Marketing Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #1cc88a;
-            --info-color: #36b9cc;
-            --warning-color: #f6c23e;
-            --danger-color: #e74a3b;
-        }
-        
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Nunito', sans-serif;
-        }
-        
-        .dashboard-card {
-            margin-bottom: 20px;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            border: none;
-        }
-        
-        .card-header {
-            background-color: #f8f9fc;
-            border-bottom: 1px solid #e3e6f0;
-            padding: 0.75rem 1.25rem;
-        }
-        
-        .metric-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #5a5c69;
-        }
-        
-        .metric-label {
-            font-size: 0.8rem;
-            font-weight: 400;
-            color: #858796;
-            text-transform: uppercase;
-        }
-        
-        .chart-container {
-            height: 300px;
-            position: relative;
-        }
-        
-        .channel-icon {
-            font-size: 2rem;
-            margin-right: 10px;
-        }
-        
-        .nav-tabs .nav-link {
-            color: #6c757d;
-            font-weight: 600;
-        }
-        
-        .nav-tabs .nav-link.active {
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-        
-        .metric-card {
-            text-align: center;
-            padding: 1rem;
-            border-left: 0.25rem solid var(--primary-color);
-        }
-        
-        .metric-card.web {
-            border-left-color: var(--primary-color);
-        }
-        
-        .metric-card.social {
-            border-left-color: var(--secondary-color);
-        }
-        
-        .metric-card.email {
-            border-left-color: var(--warning-color);
-        }
-        
-        .metric-card.youtube {
-            border-left-color: var(--danger-color);
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #4e73df;
-            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
-            background-size: cover;
-        }
-        
-        .sidebar-sticky {
-            height: calc(100vh - 48px);
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        
-        .sidebar .nav-link {
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0.5rem;
-        }
-        
-        .sidebar .nav-link:hover {
-            color: #fff;
-        }
-        
-        .sidebar .nav-link.active {
-            color: #fff;
-        }
-        
-        .sidebar-heading {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
-            padding: 0.5rem 1rem;
-        }
-        
-        #date-range {
-            padding: 0.375rem 0.75rem;
-            border: 1px solid #d1d3e2;
-            border-radius: 0.35rem;
-            color: #6e707e;
-        }
-    </style>
 </head>
 <body>
     <div class="container-fluid">
@@ -146,42 +18,37 @@
                 <div class="position-sticky sidebar-sticky pt-3">
                     <div class="text-center mb-4">
                         <h5 class="text-white">Marketing Dashboard</h5>
-                        <p class="text-white-50" id="last-updated">Last updated: Loading...</p>
+                        <p class="text-white-50" id="last-updated">Last updated: 2025-04-25 09:43:57</p>
                     </div>
                     
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="#executive-summary" data-bs-toggle="tab">
-                                <i class="bi bi-briefcase"></i> Executive Summary
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#overview" data-bs-toggle="tab">
+                            <a class="nav-link active" href="#" data-view="overview">
                                 <i class="bi bi-house-door"></i> Overview
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#web" data-bs-toggle="tab">
+                            <a class="nav-link" href="#" data-view="web">
                                 <i class="bi bi-globe"></i> Web Analytics
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#social" data-bs-toggle="tab">
-                                <i class="bi bi-facebook"></i> Social Media
+                            <a class="nav-link" href="#" data-view="social">
+                                <i class="bi bi-people"></i> Social Media
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#email" data-bs-toggle="tab">
+                            <a class="nav-link" href="#" data-view="email">
                                 <i class="bi bi-envelope"></i> Email Marketing
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#youtube" data-bs-toggle="tab">
+                            <a class="nav-link" href="#" data-view="youtube">
                                 <i class="bi bi-youtube"></i> YouTube
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#cross-channel" data-bs-toggle="tab">
+                            <a class="nav-link" href="#" data-view="cross-channel">
                                 <i class="bi bi-bar-chart"></i> Cross-Channel
                             </a>
                         </li>
@@ -190,213 +57,121 @@
                     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-white">
                         <span>Date Range</span>
                     </h6>
+                    <div class="px-3 mb-3">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="date" id="date-range-start" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <input type="date" id="date-range-end" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                        <button id="apply-date-range" class="btn btn-light btn-sm w-100 mt-2">Apply</button>
+                    </div>
+                    
                     <div class="px-3">
-                        <select id="date-range" class="form-select">
-                            <option value="7">Last 7 days</option>
-                            <option value="30" selected>Last 30 days</option>
-                            <option value="90">Last 90 days</option>
-                            <option value="365">Last year</option>
-                        </select>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-light btn-sm dropdown-toggle w-100" type="button" id="periodDropdown" data-bs-toggle="dropdown">
+                                Quick Select
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item period-selector" href="#" data-days="7">Last 7 days</a></li>
+                                <li><a class="dropdown-item period-selector" href="#" data-days="30">Last 30 days</a></li>
+                                <li><a class="dropdown-item period-selector" href="#" data-days="90">Last 90 days</a></li>
+                                <li><a class="dropdown-item period-selector" href="#" data-days="365">Last year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="px-3 mt-4">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-light btn-sm dropdown-toggle w-100" type="button" id="exportDropdown" data-bs-toggle="dropdown">
+                                Export Data
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item export-data" href="#" data-format="csv">Export as CSV</a></li>
+                                <li><a class="dropdown-item export-data" href="#" data-format="json">Export as JSON</a></li>
+                                <li><a class="dropdown-item export-data" href="#" data-format="pdf">Export as PDF</a></li>
+                                <li><a class="dropdown-item export-data" href="#" data-format="excel">Export as Excel</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="px-3 mt-4">
+                        <button id="theme-toggle" class="btn btn-outline-light btn-sm w-100">
+                            <i class="bi bi-moon"></i> Toggle Dark Mode
+                        </button>
                     </div>
                 </div>
             </nav>
             
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-3">
-                <div class="tab-content">
-                <!-- Executive Summary Tab -->
-<div class="tab-pane fade" id="executive-summary">
-    <h2 class="mb-4">Executive Summary</h2>
-    
-    <!-- Period-over-period metrics -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card dashboard-card">
-                <div class="card-header d-flex justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Performance Snapshot</h6>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="periodDropdown" data-bs-toggle="dropdown">
-                            vs Previous Period
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item period-selector" data-period="week">vs Last Week</a></li>
-                            <li><a class="dropdown-item period-selector" data-period="month">vs Last Month</a></li>
-                            <li><a class="dropdown-item period-selector" data-period="quarter">vs Last Quarter</a></li>
-                            <li><a class="dropdown-item period-selector" data-period="year">vs Last Year</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="card-body">
+                <div id="error-container" class="alert alert-danger d-none" role="alert"></div>
+                
+                <!-- Overview View -->
+                <div id="overview-view" class="dashboard-view">
+                    <h2 class="mb-4">Marketing Overview</h2>
+                    
                     <div class="row">
-                        <div class="col-md-3 mb-4">
-                            <div class="metric-card web p-3">
-                                <h5>Web Traffic</h5>
-                                <h3 id="web-traffic-current">-</h3>
-                                <div class="metric-change" id="web-traffic-change">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-4">
-                            <div class="metric-card social p-3">
-                                <h5>Social Engagement</h5>
-                                <h3 id="social-engagement-current">-</h3>
-                                <div class="metric-change" id="social-engagement-change">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-4">
-                            <div class="metric-card email p-3">
-                                <h5>Email CTR</h5>
-                                <h3 id="email-ctr-current">-</h3>
-                                <div class="metric-change" id="email-ctr-change">-</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-4">
-                            <div class="metric-card youtube p-3">
-                                <h5>Video Views</h5>
-                                <h3 id="video-views-current">-</h3>
-                                <div class="metric-change" id="video-views-change">-</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Marketing Funnel and Channel Distribution -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card dashboard-card">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-primary">Marketing Funnel Performance</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="funnel-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card dashboard-card">
-                <div class="card-header">
-                    <h6 class="m-0 font-weight-bold text-primary">Channel Distribution</h6>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="channel-distribution-chart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-                    <!-- Overview Tab -->
-                    <div class="tab-pane fade show active" id="overview">
-                        <h2 class="mb-4">Marketing Overview</h2>
-                        
-                        <div class="row">
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-body metric-card web">
-                                        <div class="row align-items-center">
-                                            <div class="col-3">
-                                                <i class="bi bi-globe text-primary channel-icon"></i>
-                                            </div>
-                                            <div class="col-9 text-start">
-                                                <div class="metric-label">Website Sessions</div>
-                                                <div class="metric-value" id="overview-sessions">-</div>
-                                            </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-3">
+                                            <i class="bi bi-globe text-primary fs-1"></i>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-body metric-card social">
-                                        <div class="row align-items-center">
-                                            <div class="col-3">
-                                                <i class="bi bi-people text-success channel-icon"></i>
-                                            </div>
-                                            <div class="col-9 text-start">
-                                                <div class="metric-label">Total Followers</div>
-                                                <div class="metric-value" id="overview-followers">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-body metric-card email">
-                                        <div class="row align-items-center">
-                                            <div class="col-3">
-                                                <i class="bi bi-envelope text-warning channel-icon"></i>
-                                            </div>
-                                            <div class="col-9 text-start">
-                                                <div class="metric-label">Email Open Rate</div>
-                                                <div class="metric-value" id="overview-open-rate">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-body metric-card youtube">
-                                        <div class="row align-items-center">
-                                            <div class="col-3">
-                                                <i class="bi bi-youtube text-danger channel-icon"></i>
-                                            </div>
-                                            <div class="col-9 text-start">
-                                                <div class="metric-label">YouTube Views</div>
-                                                <div class="metric-value" id="overview-yt-views">-</div>
-                                            </div>
+                                        <div class="col-9 text-end">
+                                            <div class="metric-label">Web Sessions</div>
+                                            <div class="metric-value" id="kpi-web_sessions">-</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h6 class="m-0 font-weight-bold text-primary">Channel Performance</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="channel-performance-chart"></canvas>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-3">
+                                            <i class="bi bi-people text-success fs-1"></i>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-lg-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h6 class="m-0 font-weight-bold text-primary">Audience Growth</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="audience-growth-chart"></canvas>
+                                        <div class="col-9 text-end">
+                                            <div class="metric-label">Social Engagement</div>
+                                            <div class="metric-value" id="kpi-social_engagement">-</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h6 class="m-0 font-weight-bold text-primary">Performance Over Time</h6>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-3">
+                                            <i class="bi bi-envelope text-warning fs-1"></i>
+                                        </div>
+                                        <div class="col-9 text-end">
+                                            <div class="metric-label">Email Open Rate</div>
+                                            <div class="metric-value" id="kpi-email_open_rate">-</div>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="performance-time-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-3">
+                                            <i class="bi bi-youtube text-danger fs-1"></i>
+                                        </div>
+                                        <div class="col-9 text-end">
+                                            <div class="metric-label">YouTube Views</div>
+                                            <div class="metric-value" id="kpi-youtube_views">-</div>
                                         </div>
                                     </div>
                                 </div>
@@ -404,2498 +179,204 @@
                         </div>
                     </div>
                     
-                    <!-- Web Analytics Tab -->
-                    <div class="tab-pane fade" id="web">
-                        <h2 class="mb-4">Web Analytics</h2>
-                        
-                        <ul class="nav nav-tabs mb-4">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-bs-toggle="tab" href="#web-audience">Audience</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#web-content">Content</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#web-acquisition">Acquisition</a>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="web-audience">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Demographics</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="web-demographics-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">New vs Returning Visitors</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="web-visitors-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Channel Performance</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">User Engagement</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="web-engagement-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="channel-performance-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="tab-pane fade" id="web-content">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top Landing Pages by Sessions</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="top-pages-sessions-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top Landing Pages by Engagement Time</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="top-pages-engagement-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Audience Growth</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Page Bounce Rates</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="page-bounce-rates-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Exit Rates by Page</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="exit-rates-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="tab-pane fade" id="web-acquisition">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Traffic Sources</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="traffic-sources-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Channel Performance</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="channel-performance-web-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Campaign Performance</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="campaign-performance-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="audience-growth-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Social Media Tab -->
-                    <div class="tab-pane fade" id="social">
-                        <h2 class="mb-4">Social Media</h2>
-                        
-                        <ul class="nav nav-tabs mb-4">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-bs-toggle="tab" href="#social-facebook">Facebook</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#social-instagram">Instagram</a>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="social-facebook">
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Followers</div>
-                                                <div class="metric-value" id="facebook-followers">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Engagement Rate</div>
-                                                <div class="metric-value" id="facebook-engagement">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Total Reach</div>
-                                                <div class="metric-value" id="facebook-reach">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Link Clicks</div>
-                                                <div class="metric-value" id="facebook-clicks">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Performance Over Time</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Audience Growth</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="facebook-growth-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Engagement Metrics</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="facebook-engagement-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top Posts</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="facebook-top-posts-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="performance-time-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="tab-pane fade" id="social-instagram">
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Followers</div>
-                                                <div class="metric-value" id="instagram-followers">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Engagement Rate</div>
-                                                <div class="metric-value" id="instagram-engagement">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Total Reach</div>
-                                                <div class="metric-value" id="instagram-reach">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Link Clicks</div>
-                                                <div class="metric-value" id="instagram-clicks">-</div>
-                                            </div>
-                                        </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Web Analytics View -->
+                <div id="web-view" class="dashboard-view d-none">
+                    <h2 class="mb-4">Web Analytics</h2>
+                    
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Traffic Sources</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="web-traffic-sources-chart"></canvas>
                                     </div>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Audience Growth</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="instagram-growth-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Engagement Metrics</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="instagram-engagement-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Page Performance</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top Posts</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="instagram-top-posts-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="web-page-performance-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Email Marketing Tab -->
-                    <div class="tab-pane fade" id="email">
-                        <h2 class="mb-4">Email Marketing</h2>
-                        
-                        <ul class="nav nav-tabs mb-4">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-bs-toggle="tab" href="#email-campaign">Campaign Performance</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#email-subscriber">Subscriber Metrics</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#email-engagement">Engagement Segmentation</a>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="email-campaign">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top 5 Campaigns by Open Rate</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="email-open-rate-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top 5 Campaigns by Click Rate</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="email-click-rate-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <!-- More web analytics charts... -->
+                </div>
+                
+                <!-- Social Media View -->
+                <div id="social-view" class="dashboard-view d-none">
+                    <h2 class="mb-4">Social Media Analytics</h2>
+                    
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Engagement Metrics</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Email Delivery Rate</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="email-delivery-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="social-engagement-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="tab-pane fade" id="email-subscriber">
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Total Subscribers</div>
-                                                <div class="metric-value" id="email-subscribers">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Growth Rate</div>
-                                                <div class="metric-value" id="email-growth-rate">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Unsubscribe Rate</div>
-                                                <div class="metric-value" id="email-unsubscribe-rate">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Avg. Open Rate</div>
-                                                <div class="metric-value" id="email-avg-open">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Audience Growth</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Subscriber Growth</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="subscriber-growth-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Subscriber Demographics</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="subscriber-demographics-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="tab-pane fade" id="email-engagement">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Engagement Segments</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="engagement-segments-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Engagement Trends</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="engagement-trends-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Engagement by Campaign</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="engagement-campaign-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="social-growth-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- YouTube Tab -->
-                    <div class="tab-pane fade" id="youtube">
-                        <h2 class="mb-4">YouTube Analytics</h2>
-                        
-                        <ul class="nav nav-tabs mb-4">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-bs-toggle="tab" href="#youtube-audience">Audience</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#youtube-content">Content</a>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="youtube-audience">
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Total Views</div>
-                                                <div class="metric-value" id="youtube-total-views">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Avg. View Duration</div>
-                                                <div class="metric-value" id="youtube-view-duration">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Subscriber Views</div>
-                                                <div class="metric-value" id="youtube-sub-views">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-body text-center">
-                                                <div class="metric-label">Mobile Views</div>
-                                                <div class="metric-value" id="youtube-mobile-views">-</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <!-- More social media charts... -->
+                </div>
+                
+                <!-- Email Marketing View -->
+                <div id="email-view" class="dashboard-view d-none">
+                    <h2 class="mb-4">Email Marketing Analytics</h2>
+                    
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Campaign Performance</h6>
                                 </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Viewer Age Demographics</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-age-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Viewer Gender</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-gender-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Subscriber Status</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-subscriber-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Device Type</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-device-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="tab-pane fade" id="youtube-content">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top Videos by Views</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-top-videos-views"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-6">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Top Videos by Watch Time</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-top-videos-watchtime"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="card dashboard-card mb-4">
-                                            <div class="card-header">
-                                                <h6 class="m-0 font-weight-bold text-primary">Audience Retention</h6>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="chart-container">
-                                                    <canvas id="youtube-retention-chart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="email-performance-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Cross-Channel Tab -->
-                    <div class="tab-pane fade" id="cross-channel">
-                        <h2 class="mb-4">Cross-Channel Analysis</h2>
-                        
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="m-0 font-weight-bold text-primary">Channel Comparison</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="channel-comparison-chart"></canvas>
-                                        </div>
-                                    </div>
+                    <!-- More email marketing charts... -->
+                </div>
+                
+                <!-- YouTube View -->
+                <div id="youtube-view" class="dashboard-view d-none">
+                    <h2 class="mb-4">YouTube Analytics</h2>
+                    
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Views Over Time</h6>
                                 </div>
-                            </div>
-                            
-                            <div class="col-lg-6">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="m-0 font-weight-bold text-primary">Audience Overlap</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="audience-overlap-chart"></canvas>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="youtube-views-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="card dashboard-card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="m-0 font-weight-bold text-primary">Performance Trends</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="performance-trends-chart"></canvas>
-                                        </div>
+                        <div class="col-lg-6">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Audience Demographics</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="youtube-demographics-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- More YouTube charts... -->
+                </div>
+                
+                <!-- Cross-Channel View -->
+                <div id="cross-channel-view" class="dashboard-view d-none">
+                    <h2 class="mb-4">Cross-Channel Analysis</h2>
+                    
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card dashboard-card mb-4">
+                                <div class="card-header">
+                                    <h6 class="m-0 font-weight-bold text-primary">Channel Comparison</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="channel-comparison-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- More cross-channel charts... -->
                 </div>
             </main>
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Load data files
-        async function loadData() {
-            try {
-                const webData = await fetch('data/web_data.json').then(response => response.json());
-                const socialData = await fetch('data/social_data.json').then(response => response.json());
-                const emailData = await fetch('data/email_data.json').then(response => response.json());
-                const youtubeData = await fetch('data/youtube_data.json').then(response => response.json());
-                const crossChannelData = await fetch('data/cross_channel_data.json').then(response => response.json());
-                const overview = await fetch('data/overview.json').then(response => response.json());
-                
-                return {
-                    webData,
-                    socialData,
-                    emailData,
-                    youtubeData,
-                    crossChannelData,
-                    overview
-                };
-            } catch (error) {
-                console.error('Error loading data:', error);
-                return null;
-            }
-        }
-        
-        // Executive Summary Functions
-function updateExecutiveSummary(data) {
-    // Format numbers with commas
-    const formatNumber = num => num.toLocaleString();
-    
-    // Mock comparison data (would come from historical data in reality)
-    const mockPreviousPeriod = {
-        webTraffic: data.overview.web.total_sessions * 0.85,
-        socialEngagement: (data.overview.social.facebook_engagement + data.overview.social.instagram_engagement) * 0.9,
-        emailCTR: data.overview.email.avg_click_rate * 0.92,
-        videoViews: data.overview.youtube.total_views * 0.8
-    };
-    
-    // Update current values
-    document.getElementById('web-traffic-current').textContent = formatNumber(data.overview.web.total_sessions);
-    document.getElementById('social-engagement-current').textContent = formatNumber(
-        data.overview.social.facebook_engagement + data.overview.social.instagram_engagement
-    );
-    document.getElementById('email-ctr-current').textContent = 
-        `${(data.overview.email.avg_click_rate * 100).toFixed(1)}%`;
-    document.getElementById('video-views-current').textContent = 
-        formatNumber(data.overview.youtube.total_views);
-    
-    // Calculate and display changes
-    updateChangeIndicator('web-traffic-change', data.overview.web.total_sessions, mockPreviousPeriod.webTraffic);
-    updateChangeIndicator('social-engagement-change', 
-        data.overview.social.facebook_engagement + data.overview.social.instagram_engagement, 
-        mockPreviousPeriod.socialEngagement);
-    updateChangeIndicator('email-ctr-change', data.overview.email.avg_click_rate, mockPreviousPeriod.emailCTR);
-    updateChangeIndicator('video-views-change', data.overview.youtube.total_views, mockPreviousPeriod.videoViews);
-    
-    // Create funnel chart
-    createFunnelChart();
-    
-    // Create channel distribution chart
-    createChannelDistributionChart(data);
-}
-
-function updateChangeIndicator(elementId, currentValue, previousValue) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    const percentChange = ((currentValue - previousValue) / previousValue) * 100;
-    element.textContent = `${percentChange > 0 ? '+' : ''}${percentChange.toFixed(1)}%`;
-    
-    // Add color and icon
-    element.className = 'metric-change'; // Reset classes
-    if (percentChange > 0) {
-        element.classList.add('text-success');
-        element.innerHTML = `<i class="bi bi-arrow-up"></i> ${element.textContent}`;
-    } else if (percentChange < 0) {
-        element.classList.add('text-danger');
-        element.innerHTML = `<i class="bi bi-arrow-down"></i> ${element.textContent}`;
-    } else {
-        element.classList.add('text-secondary');
-    }
-}
-
-function createFunnelChart() {
-    const ctx = document.getElementById('funnel-chart')?.getContext('2d');
-    if (!ctx) return;
-    
-    // Sample funnel data
-    const labels = ['Awareness', 'Consideration', 'Conversion', 'Retention'];
-    const values = [10000, 5000, 1200, 800];
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Users',
-                data: values,
-                backgroundColor: [
-                    'rgba(78, 115, 223, 0.8)',
-                    'rgba(28, 200, 138, 0.8)',
-                    'rgba(246, 194, 62, 0.8)',
-                    'rgba(54, 185, 204, 0.8)'
-                ]
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-function createChannelDistributionChart(data) {
-    const ctx = document.getElementById('channel-distribution-chart')?.getContext('2d');
-    if (!ctx) return;
-    
-    // Calculate values from data
-    const webTraffic = data.overview.web.total_sessions || 0;
-    const socialTraffic = (data.overview.social.facebook_engagement + 
-                           data.overview.social.instagram_engagement) || 0;
-    const emailTraffic = data.overview.email.total_sent * 
-                         (data.overview.email.avg_click_rate || 0.1);
-    const videoTraffic = data.overview.youtube.total_views || 0;
-    
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Web', 'Social', 'Email', 'Video'],
-            datasets: [{
-                data: [webTraffic, socialTraffic, emailTraffic, videoTraffic],
-                backgroundColor: [
-                    '#4e73df',
-                    '#1cc88a', 
-                    '#f6c23e',
-                    '#e74a3b'
-                ]
-            }]
-        },
-        options: {
-            maintainAspectRatio: false
-        }
-    });
-}
-
-        // Initialize dashboard
-        async function initDashboard() {
-            const data = await loadData();
-            if (!data) {
-                alert('Error loading dashboard data. Please check console for details.');
-                return;
-            }
-            
-
-
-            // Update last updated timestamp
-            document.getElementById('last-updated').textContent = `Last updated: ${data.overview.last_updated}`;
-
-                // NEW: Initialize Executive Summary section
-    updateExecutiveSummary(data);
-                        
-            // *** OVERVIEW SECTION ***
-            updateOverviewMetrics(data.overview);
-            createChannelPerformanceChart(data);
-            createAudienceGrowthChart(data);
-            createPerformanceTimeChart(data);
-            
-            // *** WEB ANALYTICS SECTION ***
-            createWebDemographicsChart(data.webData);
-            createWebVisitorsChart(data.webData);
-            createWebEngagementChart(data.webData);
-            createTopPagesSessionsChart(data.webData);
-            createTopPagesEngagementChart(data.webData);
-            createPageBounceRatesChart(data.webData);
-            createExitRatesChart(data.webData);
-            createTrafficSourcesChart(data.webData);
-            createChannelPerformanceWebChart(data.webData);
-            createCampaignPerformanceChart(data.webData);
-            
-            // *** SOCIAL MEDIA SECTION ***
-            updateSocialMetrics(data.socialData);
-            createFacebookGrowthChart(data.socialData);
-            createFacebookEngagementChart(data.socialData);
-            createFacebookTopPostsChart(data.socialData);
-            createInstagramGrowthChart(data.socialData);
-            createInstagramEngagementChart(data.socialData);
-            createInstagramTopPostsChart(data.socialData);
-            
-            // *** EMAIL MARKETING SECTION ***
-            updateEmailMetrics(data.emailData);
-            createEmailOpenRateChart(data.emailData);
-            createEmailClickRateChart(data.emailData);
-            createEmailDeliveryChart(data.emailData);
-            createSubscriberGrowthChart(data.emailData);
-            createSubscriberDemographicsChart(data.emailData);
-            createEngagementSegmentsChart(data.emailData);
-            createEngagementTrendsChart(data.emailData);
-            createEngagementCampaignChart(data.emailData);
-            
-            // *** YOUTUBE SECTION ***
-            updateYoutubeMetrics(data.youtubeData);
-            createYoutubeAgeChart(data.youtubeData);
-            createYoutubeGenderChart(data.youtubeData);
-            createYoutubeSubscriberChart(data.youtubeData);
-            createYoutubeDeviceChart(data.youtubeData);
-            createYoutubeTopVideosViewsChart(data.youtubeData);
-            createYoutubeTopVideosWatchtimeChart(data.youtubeData);
-            createYoutubeRetentionChart(data.youtubeData);
-            
-            // *** CROSS-CHANNEL SECTION ***
-            createChannelComparisonChart(data);
-            createAudienceOverlapChart(data);
-            createPerformanceTrendsChart(data);
-        }
-        
-        // *** OVERVIEW METRICS FUNCTIONS ***
-        function updateOverviewMetrics(overview) {
-            // Format numbers with commas
-            const formatNumber = num => num.toLocaleString();
-            
-            // Update overview metrics
-            document.getElementById('overview-sessions').textContent = formatNumber(overview.web.total_sessions);
-            document.getElementById('overview-followers').textContent = formatNumber(overview.social.facebook_followers + overview.social.instagram_followers);
-            document.getElementById('overview-open-rate').textContent = `${(overview.email.avg_open_rate * 100).toFixed(1)}%`;
-            document.getElementById('overview-yt-views').textContent = formatNumber(overview.youtube.total_views);
-        }
-        
-        function createChannelPerformanceChart(data) {
-            const ctx = document.getElementById('channel-performance-chart').getContext('2d');
-            
-            // Data for each channel
-            const channels = ['Website', 'Facebook', 'Instagram', 'Email', 'YouTube'];
-            const values = [
-                data.overview.web.total_sessions,
-                data.overview.social.facebook_engagement,
-                data.overview.social.instagram_engagement,
-                data.overview.email.total_sent,
-                data.overview.youtube.total_views
-            ];
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: channels,
-                    datasets: [{
-                        label: 'Channel Performance',
-                        data: values,
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createAudienceGrowthChart(data) {
-            const ctx = document.getElementById('audience-growth-chart').getContext('2d');
-            
-            // Mock data for audience growth (monthly)
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'Facebook',
-                            data: [1000, 1200, 1400, 1600, 1800, data.overview.social.facebook_followers],
-                            borderColor: '#4267B2',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Instagram',
-                            data: [800, 1000, 1200, 1400, 1600, data.overview.social.instagram_followers],
-                            borderColor: '#E1306C',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'YouTube',
-                            data: [200, 300, 400, 500, 600, 700],
-                            borderColor: '#FF0000',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createPerformanceTimeChart(data) {
-            const ctx = document.getElementById('performance-time-chart').getContext('2d');
-            
-            // Mock data for performance over time (last 6 months)
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'Website Sessions',
-                            data: [1000, 1200, 1400, 1600, 1800, data.overview.web.total_sessions],
-                            borderColor: '#4e73df',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Social Engagement',
-                            data: [2000, 2500, 3000, 3500, 4000, data.overview.social.facebook_engagement + data.overview.social.instagram_engagement],
-                            borderColor: '#1cc88a',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Email Opens',
-                            data: [500, 600, 700, 800, 900, 1000],
-                            borderColor: '#f6c23e',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'YouTube Views',
-                            data: [2000, 3000, 4000, 5000, 6000, data.overview.youtube.total_views],
-                            borderColor: '#e74a3b',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        // *** WEB ANALYTICS FUNCTIONS ***
-        function createWebDemographicsChart(webData) {
-            const ctx = document.getElementById('web-demographics-chart').getContext('2d');
-            
-            // Filter demographics data
-            const demographicsData = webData.audience.filter(item => item.metric === 'demographic');
-            
-            // Extract labels and values
-            const labels = demographicsData.map(item => item.dimension_value);
-            const values = demographicsData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        data: values.length > 0 ? values : [100],
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b',
-                            '#5a5c69',
-                            '#858796'
-                        ]
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createWebVisitorsChart(webData) {
-            const ctx = document.getElementById('web-visitors-chart').getContext('2d');
-            
-            // Mock data for new vs returning visitors
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['New Visitors', 'Returning Visitors'],
-                    datasets: [{
-                        data: [70, 30],
-                        backgroundColor: ['#4e73df', '#1cc88a']
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createWebEngagementChart(webData) {
-            const ctx = document.getElementById('web-engagement-chart').getContext('2d');
-            
-            // Mock data for user engagement metrics
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['0-30s', '30s-2m', '2m-5m', '5m-10m', '10m+'],
-                    datasets: [{
-                        label: 'Session Duration',
-                        data: [30, 25, 20, 15, 10],
-                        backgroundColor: '#4e73df'
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Percentage of Sessions'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createTopPagesSessionsChart(webData) {
-            const ctx = document.getElementById('top-pages-sessions-chart').getContext('2d');
-            
-            // Filter page view data
-            const pageViewData = webData.content.filter(item => item.metric === 'page_views');
-            
-            // Sort by value and take top 5
-            const sortedData = [...pageViewData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value);
-            const values = sortedData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Sessions',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#4e73df'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createTopPagesEngagementChart(webData) {
-            const ctx = document.getElementById('top-pages-engagement-chart').getContext('2d');
-            
-            // Filter average time data
-            const avgTimeData = webData.content.filter(item => item.metric === 'avg_time');
-            
-            // Sort by value and take top 5
-            const sortedData = [...avgTimeData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value);
-            const values = sortedData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Avg. Time on Page (seconds)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#1cc88a'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createPageBounceRatesChart(webData) {
-            const ctx = document.getElementById('page-bounce-rates-chart').getContext('2d');
-            
-            // Filter bounce rate data
-            const bounceRateData = webData.content.filter(item => item.metric === 'bounce_rate');
-            
-            // Sort by value and take top 5
-            const sortedData = [...bounceRateData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value);
-            const values = sortedData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Bounce Rate (%)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#e74a3b'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createExitRatesChart(webData) {
-            const ctx = document.getElementById('exit-rates-chart').getContext('2d');
-            
-            // Filter exit rate data
-            const exitRateData = webData.content.filter(item => item.metric === 'exit_rate');
-            
-            // Sort by value and take top 5
-            const sortedData = [...exitRateData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value);
-            const values = sortedData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Exit Rate (%)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#f6c23e'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createTrafficSourcesChart(webData) {
-            const ctx = document.getElementById('traffic-sources-chart').getContext('2d');
-            
-            // Filter sessions by source
-            const sourceData = webData.acquisition.filter(item => item.metric === 'sessions' && item.dimension === 'source');
-            
-            // Extract labels and values
-            const labels = sourceData.map(item => item.dimension_value);
-            const values = sourceData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        data: values.length > 0 ? values : [100],
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b',
-                            '#5a5c69',
-                            '#858796'
-                        ]
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createChannelPerformanceWebChart(webData) {
-            const ctx = document.getElementById('channel-performance-web-chart').getContext('2d');
-            
-            // Mock data for channel performance
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Organic Search', 'Direct', 'Social', 'Email', 'Referral'],
-                    datasets: [
-                        {
-                            label: 'Sessions',
-                            data: [5000, 3000, 2000, 1500, 1000],
-                            backgroundColor: '#4e73df'
-                        },
-                        {
-                            label: 'Conversion Rate (%)',
-                            data: [2.5, 3.2, 1.8, 4.2, 2.1],
-                            backgroundColor: '#1cc88a',
-                            type: 'line',
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Sessions'
-                            }
-                        },
-                        y1: {
-                            beginAtZero: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Conversion Rate (%)'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createCampaignPerformanceChart(webData) {
-            const ctx = document.getElementById('campaign-performance-chart').getContext('2d');
-            
-            // Filter campaign data
-            const campaignData = webData.acquisition.filter(item => item.metric === 'campaign_sessions' && item.dimension === 'campaign');
-            
-            // Sort by value and take top 5
-            const sortedData = [...campaignData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value);
-            const sessions = sortedData.map(item => item.value);
-            
-            // Get conversion data for the same campaigns
-            const conversionData = [];
-            for (const campaign of sortedData) {
-                const conversionItem = webData.acquisition.find(item => 
-                    item.metric === 'campaign_conversions' && 
-                    item.dimension_value === campaign.dimension_value
-                );
-                conversionData.push(conversionItem ? conversionItem.value : 0);
-            }
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [
-                        {
-                            label: 'Sessions',
-                            data: sessions.length > 0 ? sessions : [0],
-                            backgroundColor: '#4e73df'
-                        },
-                        {
-                            label: 'Conversions',
-                            data: conversionData.length > 0 ? conversionData : [0],
-                            backgroundColor: '#1cc88a'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            stacked: false
-                        },
-                        y: {
-                            stacked: false,
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        // *** SOCIAL MEDIA FUNCTIONS ***
-        function updateSocialMetrics(socialData) {
-            const formatNumber = num => num.toLocaleString();
-            
-            // Get Facebook metrics
-            const fbFollowers = Math.max(...socialData.facebook.audience
-                .filter(item => item.metric === 'audience_size')
-                .map(item => item.value), 0);
-                
-            const fbEngagement = socialData.facebook.engagement
-                .filter(item => item.metric === 'interactions')
-                .reduce((sum, item) => sum + item.value, 0);
-                
-            const fbReach = socialData.facebook.engagement
-                .filter(item => item.metric === 'reach')
-                .reduce((sum, item) => sum + item.value, 0);
-                
-            const fbClicks = socialData.facebook.engagement
-                .filter(item => item.metric === 'link_clicks')
-                .reduce((sum, item) => sum + item.value, 0);
-            
-            // Update Facebook metrics
-            document.getElementById('facebook-followers').textContent = formatNumber(fbFollowers);
-            document.getElementById('facebook-engagement').textContent = fbReach > 0 ? 
-                `${((fbEngagement / fbReach) * 100).toFixed(2)}%` : '0%';
-            document.getElementById('facebook-reach').textContent = formatNumber(fbReach);
-            document.getElementById('facebook-clicks').textContent = formatNumber(fbClicks);
-            
-            // Get Instagram metrics
-            const igFollowers = Math.max(...socialData.instagram.audience
-                .filter(item => item.metric === 'audience_size')
-                .map(item => item.value), 0);
-                
-            const igEngagement = socialData.instagram.engagement
-                .filter(item => item.metric === 'interactions')
-                .reduce((sum, item) => sum + item.value, 0);
-                
-            const igReach = socialData.instagram.engagement
-                .filter(item => item.metric === 'reach')
-                .reduce((sum, item) => sum + item.value, 0);
-                
-            const igClicks = socialData.instagram.engagement
-                .filter(item => item.metric === 'link_clicks')
-                .reduce((sum, item) => sum + item.value, 0);
-            
-            // Update Instagram metrics
-            document.getElementById('instagram-followers').textContent = formatNumber(igFollowers);
-            document.getElementById('instagram-engagement').textContent = igReach > 0 ? 
-                `${((igEngagement / igReach) * 100).toFixed(2)}%` : '0%';
-            document.getElementById('instagram-reach').textContent = formatNumber(igReach);
-            document.getElementById('instagram-clicks').textContent = formatNumber(igClicks);
-        }
-        
-        function createFacebookGrowthChart(socialData) {
-            const ctx = document.getElementById('facebook-growth-chart').getContext('2d');
-            
-            // Get audience data
-            const audienceData = socialData.facebook.audience
-                .filter(item => item.metric === 'audience_size')
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            // Extract dates and values
-            const dates = audienceData.map(item => new Date(item.date).toLocaleDateString());
-            const values = audienceData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates.length > 0 ? dates : ['No Data'],
-                    datasets: [{
-                        label: 'Followers',
-                        data: values.length > 0 ? values : [0],
-                        borderColor: '#4267B2',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createFacebookEngagementChart(socialData) {
-            const ctx = document.getElementById('facebook-engagement-chart').getContext('2d');
-            
-            // Get engagement data
-            const interactionData = socialData.facebook.engagement
-                .filter(item => item.metric === 'interactions')
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-                
-            const reachData = socialData.facebook.engagement
-                .filter(item => item.metric === 'reach')
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            // Extract dates
-            const dates = interactionData.map(item => new Date(item.date).toLocaleDateString());
-            
-            // Calculate engagement rate
-            const engagementRates = [];
-            for (let i = 0; i < dates.length; i++) {
-                const interactionItem = interactionData[i];
-                const reachItem = reachData.find(item => item.date === interactionItem.date);
-                
-                if (reachItem && reachItem.value > 0) {
-                    engagementRates.push((interactionItem.value / reachItem.value) * 100);
-                } else {
-                    engagementRates.push(0);
-                }
-            }
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates.length > 0 ? dates : ['No Data'],
-                    datasets: [{
-                        label: 'Engagement Rate (%)',
-                        data: engagementRates.length > 0 ? engagementRates : [0],
-                        borderColor: '#4267B2',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Engagement Rate (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createFacebookTopPostsChart(socialData) {
-            const ctx = document.getElementById('facebook-top-posts-chart').getContext('2d');
-            
-            // Mock data for top Facebook posts
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Post 1', 'Post 2', 'Post 3', 'Post 4', 'Post 5'],
-                    datasets: [
-                        {
-                            label: 'Reach',
-                            data: [5000, 4500, 4000, 3500, 3000],
-                            backgroundColor: '#4267B2'
-                        },
-                        {
-                            label: 'Engagement',
-                            data: [500, 450, 400, 350, 300],
-                            backgroundColor: '#1cc88a'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createInstagramGrowthChart(socialData) {
-            const ctx = document.getElementById('instagram-growth-chart').getContext('2d');
-            
-            // Get audience data
-            const audienceData = socialData.instagram.audience
-                .filter(item => item.metric === 'audience_size')
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            // Extract dates and values
-            const dates = audienceData.map(item => new Date(item.date).toLocaleDateString());
-            const values = audienceData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates.length > 0 ? dates : ['No Data'],
-                    datasets: [{
-                        label: 'Followers',
-                        data: values.length > 0 ? values : [0],
-                        borderColor: '#E1306C',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createInstagramEngagementChart(socialData) {
-            const ctx = document.getElementById('instagram-engagement-chart').getContext('2d');
-            
-            // Get engagement data
-            const interactionData = socialData.instagram.engagement
-                .filter(item => item.metric === 'interactions')
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-                
-            const reachData = socialData.instagram.engagement
-                .filter(item => item.metric === 'reach')
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-            
-            // Extract dates
-            const dates = interactionData.map(item => new Date(item.date).toLocaleDateString());
-            
-            // Calculate engagement rate
-            const engagementRates = [];
-            for (let i = 0; i < dates.length; i++) {
-                const interactionItem = interactionData[i];
-                const reachItem = reachData.find(item => item.date === interactionItem.date);
-                
-                if (reachItem && reachItem.value > 0) {
-                    engagementRates.push((interactionItem.value / reachItem.value) * 100);
-                } else {
-                    engagementRates.push(0);
-                }
-            }
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates.length > 0 ? dates : ['No Data'],
-                    datasets: [{
-                        label: 'Engagement Rate (%)',
-                        data: engagementRates.length > 0 ? engagementRates : [0],
-                        borderColor: '#E1306C',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Engagement Rate (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createInstagramTopPostsChart(socialData) {
-            const ctx = document.getElementById('instagram-top-posts-chart').getContext('2d');
-            
-            // Mock data for top Instagram posts
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Post 1', 'Post 2', 'Post 3', 'Post 4', 'Post 5'],
-                    datasets: [
-                        {
-                            label: 'Reach',
-                            data: [4000, 3800, 3600, 3400, 3200],
-                            backgroundColor: '#E1306C'
-                        },
-                        {
-                            label: 'Engagement',
-                            data: [600, 550, 500, 450, 400],
-                            backgroundColor: '#1cc88a'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        // *** EMAIL MARKETING FUNCTIONS ***
-        function updateEmailMetrics(emailData) {
-            const formatNumber = num => num.toLocaleString();
-            
-            // Get email metrics
-            const openRateData = emailData.campaign.filter(item => item.metric === 'open_rate');
-            const clickRateData = emailData.campaign.filter(item => item.metric === 'click_rate');
-            
-            const avgOpenRate = openRateData.length > 0 ? 
-                openRateData.reduce((sum, item) => sum + item.value, 0) / openRateData.length : 0;
-                
-            const avgClickRate = clickRateData.length > 0 ?
-                clickRateData.reduce((sum, item) => sum + item.value, 0) / clickRateData.length : 0;
-            
-            // Update email metrics
-            document.getElementById('email-subscribers').textContent = formatNumber(10000); // Mock data
-            document.getElementById('email-growth-rate').textContent = '5.2%'; // Mock data
-            document.getElementById('email-unsubscribe-rate').textContent = '0.3%'; // Mock data
-            document.getElementById('email-avg-open').textContent = `${(avgOpenRate * 100).toFixed(1)}%`;
-        }
-        
-        function createEmailOpenRateChart(emailData) {
-            const ctx = document.getElementById('email-open-rate-chart').getContext('2d');
-            
-            // Get open rate data
-            const openRateData = emailData.campaign.filter(item => item.metric === 'open_rate');
-            
-            // Sort by value and take top 5
-            const sortedData = [...openRateData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract campaigns and values
-            const campaigns = sortedData.map(item => item.campaign);
-            const values = sortedData.map(item => item.value * 100); // Convert to percentage
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: campaigns.length > 0 ? campaigns : ['No Data'],
-                    datasets: [{
-                        label: 'Open Rate (%)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#f6c23e'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createEmailClickRateChart(emailData) {
-            const ctx = document.getElementById('email-click-rate-chart').getContext('2d');
-            
-            // Get click rate data
-            const clickRateData = emailData.campaign.filter(item => item.metric === 'click_rate');
-            
-            // Sort by value and take top 5
-            const sortedData = [...clickRateData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract campaigns and values
-            const campaigns = sortedData.map(item => item.campaign);
-            const values = sortedData.map(item => item.value * 100); // Convert to percentage
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: campaigns.length > 0 ? campaigns : ['No Data'],
-                    datasets: [{
-                        label: 'Click Rate (%)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#1cc88a'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createEmailDeliveryChart(emailData) {
-            const ctx = document.getElementById('email-delivery-chart').getContext('2d');
-            
-            // Mock data for email delivery metrics
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                        {
-                            label: 'Sent',
-                            data: [10000, 10500, 11000, 11500, 12000, 12500],
-                            backgroundColor: '#4e73df'
-                        },
-                        {
-                            label: 'Delivered',
-                            data: [9800, 10290, 10780, 11270, 11760, 12250],
-                            backgroundColor: '#1cc88a'
-                        },
-                        {
-                            label: 'Bounced',
-                            data: [200, 210, 220, 230, 240, 250],
-                            backgroundColor: '#e74a3b'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            stacked: false
-                        },
-                        x: {
-                            stacked: false
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createSubscriberGrowthChart(emailData) {
-            const ctx = document.getElementById('subscriber-growth-chart').getContext('2d');
-            
-            // Mock data for subscriber growth
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                        {
-                            label: 'Total Subscribers',
-                            data: [8000, 8500, 9000, 9500, 10000, 10500],
-                            borderColor: '#4e73df',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'New Subscribers',
-                            data: [800, 750, 700, 650, 600, 550],
-                            borderColor: '#1cc88a',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Unsubscribes',
-                            data: [150, 140, 130, 120, 110, 100],
-                            borderColor: '#e74a3b',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createSubscriberDemographicsChart(emailData) {
-            const ctx = document.getElementById('subscriber-demographics-chart').getContext('2d');
-            
-            // Mock data for subscriber demographics
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'],
-                    datasets: [{
-                        data: [5, 20, 25, 25, 15, 10],
-                        backgroundColor: [
-                            '#4e73df',
-                            '#1cc88a',
-                            '#36b9cc',
-                            '#f6c23e',
-                            '#e74a3b',
-                            '#5a5c69'
-                        ]
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createEngagementSegmentsChart(emailData) {
-            const ctx = document.getElementById('engagement-segments-chart').getContext('2d');
-            
-            // Mock data for engagement segments
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Non-Engaged', 'Partially Engaged', 'Fully Engaged'],
-                    datasets: [{
-                        data: [30, 45, 25],
-                        backgroundColor: [
-                            '#e74a3b',
-                            '#f6c23e',
-                            '#1cc88a'
-                        ]
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createEngagementTrendsChart(emailData) {
-            const ctx = document.getElementById('engagement-trends-chart').getContext('2d');
-            
-            // Mock data for engagement trends
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                        {
-                            label: 'Open Rate',
-                            data: [22, 24, 25, 26, 27, 28],
-                            borderColor: '#4e73df',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Click Rate',
-                            data: [3.2, 3.4, 3.6, 3.8, 4.0, 4.2],
-                            borderColor: '#1cc88a',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Rate (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createEngagementCampaignChart(emailData) {
-            const ctx = document.getElementById('engagement-campaign-chart').getContext('2d');
-            
-            // Get campaign data
-            const campaigns = [...new Set(emailData.campaign.map(item => item.campaign))];
-            
-            // Create datasets
-            const openRates = [];
-            const clickRates = [];
-            
-            for (const campaign of campaigns) {
-                const openRateItem = emailData.campaign.find(item => 
-                    item.campaign === campaign && item.metric === 'open_rate'
-                );
-                
-                const clickRateItem = emailData.campaign.find(item => 
-                    item.campaign === campaign && item.metric === 'click_rate'
-                );
-                
-                openRates.push(openRateItem ? openRateItem.value * 100 : 0);
-                clickRates.push(clickRateItem ? clickRateItem.value * 100 : 0);
-            }
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: campaigns.length > 0 ? campaigns : ['No Data'],
-                    datasets: [
-                        {
-                            label: 'Open Rate (%)',
-                            data: openRates,
-                            backgroundColor: '#4e73df'
-                        },
-                        {
-                            label: 'Click Rate (%)',
-                            data: clickRates,
-                            backgroundColor: '#1cc88a'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Rate (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // *** YOUTUBE FUNCTIONS ***
-        function updateYoutubeMetrics(youtubeData) {
-            const formatNumber = num => num.toLocaleString();
-            
-            // Get YouTube metrics
-            const totalViewsData = youtubeData.audience.filter(
-                item => item.dimension === 'device' && item.dimension_value === 'Total' && item.metric === 'views'
-            );
-            
-            const totalViews = totalViewsData.length > 0 ? totalViewsData[0].value : 0;
-            
-            // Get subscribed views
-            const subscribedData = youtubeData.audience.filter(
-                item => item.dimension === 'subscription_status' && item.dimension_value === 'Subscribed' && item.metric === 'views'
-            );
-            
-            const subscribedViews = subscribedData.length > 0 ? 
-                `${(subscribedData[0].value).toFixed(1)}%` : '0%';
-            
-            // Get average view duration - use Total data
-            const viewDurationData = youtubeData.audience.filter(
-                item => item.dimension === 'device' && item.dimension_value === 'Total'
-            );
-            
-            const viewDuration = viewDurationData.length > 0 ? 
-                viewDurationData[0].avg_view_duration || '0:00' : '0:00';
-            
-            // Get mobile views
-            const mobileData = youtubeData.audience.filter(
-                item => item.dimension === 'device' && item.dimension_value === 'Mobile phone' && item.metric === 'views'
-            );
-            
-            const mobileViews = mobileData.length > 0 ? 
-                formatNumber(mobileData[0].value) : '0';
-            
-            // Update YouTube metrics
-            document.getElementById('youtube-total-views').textContent = formatNumber(totalViews);
-            document.getElementById('youtube-view-duration').textContent = viewDuration;
-            document.getElementById('youtube-sub-views').textContent = subscribedViews;
-            document.getElementById('youtube-mobile-views').textContent = mobileViews;
-        }
-        
-        function createYoutubeAgeChart(youtubeData) {
-            const ctx = document.getElementById('youtube-age-chart').getContext('2d');
-            
-            // Filter age demographics data
-            const ageData = youtubeData.audience.filter(
-                item => item.dimension === 'age' && item.category_type === 'age' && item.metric === 'views'
-            );
-            
-            // Extract labels and values
-            const labels = ageData.map(item => item.dimension_value);
-            const values = ageData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Views (%)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#e74a3b'
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createYoutubeGenderChart(youtubeData) {
-            const ctx = document.getElementById('youtube-gender-chart').getContext('2d');
-            
-            // Filter gender demographics data
-            const genderData = youtubeData.audience.filter(
-                item => item.dimension === 'gender' && item.category_type === 'gender' && item.metric === 'views'
-            );
-            
-            // Extract labels and values
-            const labels = genderData.map(item => item.dimension_value);
-            const values = genderData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        data: values.length > 0 ? values : [100],
-                        backgroundColor: ['#4e73df', '#e74a3b']
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createYoutubeSubscriberChart(youtubeData) {
-            const ctx = document.getElementById('youtube-subscriber-chart').getContext('2d');
-            
-            // Filter subscription status data
-            const subscriptionData = youtubeData.audience.filter(
-                item => item.dimension === 'subscription_status' && item.category_type === 'subscription' && item.metric === 'views'
-            );
-            
-            // Extract labels and values
-            const labels = subscriptionData.map(item => item.dimension_value);
-            const values = subscriptionData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        data: values.length > 0 ? values : [100],
-                        backgroundColor: ['#1cc88a', '#4e73df', '#f6c23e']
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createYoutubeDeviceChart(youtubeData) {
-            const ctx = document.getElementById('youtube-device-chart').getContext('2d');
-            
-            // Filter device type data
-            const deviceData = youtubeData.audience.filter(
-                item => item.dimension === 'device' && item.category_type === 'device' && item.metric === 'views' && item.dimension_value !== 'Total'
-            );
-            
-            // Extract labels and values
-            const labels = deviceData.map(item => item.dimension_value);
-            const values = deviceData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        data: values.length > 0 ? values : [100],
-                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createYoutubeTopVideosViewsChart(youtubeData) {
-            const ctx = document.getElementById('youtube-top-videos-views').getContext('2d');
-            
-            // Filter content data
-            const contentData = youtubeData.content.filter(
-                item => item.dimension === 'video' && item.category_type === 'content' && item.metric === 'views' && item.dimension_value !== 'Total'
-            );
-            
-            // Sort by value and take top 5
-            const sortedData = [...contentData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value || 'Untitled');
-            const values = sortedData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Views',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#e74a3b'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createYoutubeTopVideosWatchtimeChart(youtubeData) {
-            const ctx = document.getElementById('youtube-top-videos-watchtime').getContext('2d');
-            
-            // Filter content data
-            const contentData = youtubeData.content.filter(
-                item => item.dimension === 'video' && item.category_type === 'content' && item.metric === 'watch_time' && item.dimension_value !== 'Total'
-            );
-            
-            // Sort by value and take top 5
-            const sortedData = [...contentData].sort((a, b) => b.value - a.value).slice(0, 5);
-            
-            // Extract labels and values
-            const labels = sortedData.map(item => item.dimension_value || 'Untitled');
-            const values = sortedData.map(item => item.value);
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels.length > 0 ? labels : ['No Data'],
-                    datasets: [{
-                        label: 'Watch Time (hours)',
-                        data: values.length > 0 ? values : [0],
-                        backgroundColor: '#1cc88a'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createYoutubeRetentionChart(youtubeData) {
-            const ctx = document.getElementById('youtube-retention-chart').getContext('2d');
-            
-            // Mock data for audience retention
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
-                    datasets: [
-                        {
-                            label: 'Average Retention',
-                            data: [100, 90, 80, 70, 60, 55, 50, 45, 40, 38, 35],
-                            borderColor: '#e74a3b',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Top Video',
-                            data: [100, 95, 90, 85, 82, 80, 78, 75, 70, 65, 60],
-                            borderColor: '#1cc88a',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Audience Retention (%)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Video Duration (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // *** CROSS-CHANNEL FUNCTIONS ***
-        function createChannelComparisonChart(data) {
-            const ctx = document.getElementById('channel-comparison-chart').getContext('2d');
-            
-            // Data for each channel
-            const channels = ['Web', 'Facebook', 'Instagram', 'Email', 'YouTube'];
-            
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Reach', 'Engagement', 'Conversion', 'Retention', 'Growth'],
-                    datasets: [
-                        {
-                            label: 'Web',
-                            data: [70, 65, 80, 75, 60],
-                            fill: true,
-                            backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                            borderColor: 'rgb(78, 115, 223)',
-                            pointBackgroundColor: 'rgb(78, 115, 223)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgb(78, 115, 223)'
-                        },
-                        {
-                            label: 'Social',
-                            data: [90, 85, 60, 70, 75],
-                            fill: true,
-                            backgroundColor: 'rgba(28, 200, 138, 0.2)',
-                            borderColor: 'rgb(28, 200, 138)',
-                            pointBackgroundColor: 'rgb(28, 200, 138)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgb(28, 200, 138)'
-                        },
-                        {
-                            label: 'Email',
-                            data: [65, 70, 85, 90, 65],
-                            fill: true,
-                            backgroundColor: 'rgba(246, 194, 62, 0.2)',
-                            borderColor: 'rgb(246, 194, 62)',
-                            pointBackgroundColor: 'rgb(246, 194, 62)',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: 'rgb(246, 194, 62)'
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    elements: {
-                        line: {
-                            borderWidth: 3
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createAudienceOverlapChart(data) {
-            const ctx = document.getElementById('audience-overlap-chart').getContext('2d');
-            
-            // Mock data for audience overlap
-            new Chart(ctx, {
-                type: 'venn',
-                data: {
-                    labels: ['Website', 'Social', 'Email'],
-                    datasets: [{
-                        data: [
-                            { sets: [0], value: 30 },
-                            { sets: [1], value: 25 },
-                            { sets: [2], value: 20 },
-                            { sets: [0, 1], value: 15 },
-                            { sets: [0, 2], value: 10 },
-                            { sets: [1, 2], value: 5 },
-                            { sets: [0, 1, 2], value: 5 }
-                        ],
-                        backgroundColor: [
-                            'rgba(78, 115, 223, 0.5)',
-                            'rgba(28, 200, 138, 0.5)',
-                            'rgba(246, 194, 62, 0.5)'
-                        ]
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false
-                }
-            });
-        }
-        
-        function createPerformanceTrendsChart(data) {
-            const ctx = document.getElementById('performance-trends-chart').getContext('2d');
-            
-            // Mock data for performance trends
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                        {
-                            label: 'Web Traffic',
-                            data: [1000, 1100, 1200, 1250, 1300, 1400],
-                            borderColor: '#4e73df',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Social Engagement',
-                            data: [2000, 2200, 2100, 2300, 2400, 2500],
-                            borderColor: '#1cc88a',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'Email Clicks',
-                            data: [300, 320, 350, 370, 400, 420],
-                            borderColor: '#f6c23e',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'YouTube Views',
-                            data: [5000, 5500, 6000, 6200, 6500, 7000],
-                            borderColor: '#e74a3b',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Initialize dashboard when page loads
-        document.addEventListener('DOMContentLoaded', initDashboard);
-    </script>
+    <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
+    
