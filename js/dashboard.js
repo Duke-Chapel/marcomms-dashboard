@@ -58,7 +58,7 @@ const DASHBOARD_CONFIG = {
     // Data Sources and Paths
     data: {
         // Path to data files (relative to index.html)
-        dataPath: 'data/',
+        dataPath: typeof process !== 'undefined' && process.env.DATA_PATH ? process.env.DATA_PATH : '/data',
         
         // File format (json or csv)
         fileFormat: 'json',
