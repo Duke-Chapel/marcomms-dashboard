@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Performance Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f8fa;
+        }
+        .dashboard-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .metric-card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .metric-card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+        .kpi-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .kpi-change {
+            font-size: 0.9rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .kpi-change.positive {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        .kpi-change.negative {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        .date-range-selector {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 8px 15px;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            padding: 10px 20px;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 3px solid #2c3e50;
+        }
+        .small-chart {
+            height: 120px;
+        }
+        .data-table {
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        .data-table th {
+            font-weight: 600;
+            background-color: #f8f9fa;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0">Marketing Dashboard</h1>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="date-range-selector d-inline-block">
+                        <i class="bi bi-calendar3"></i>
+                        <span id="date-range-text">Last 30 days</span>
+                        <i class="bi bi-chevron-down ms-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Content -->
+    <div class="container">
+        <!-- Channel Tabs Navigation -->
+        <ul class="nav nav-tabs mb-4" id="channelTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="web-tab" data-bs-toggle="tab" data-bs-target="#web" type="button" role="tab" aria-controls="web" aria-selected="false">Web Analytics</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab" aria-controls="social" aria-selected="false">Social Media</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab" aria-controls="email" aria-selected="false">Email Marketing</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="youtube-tab" data-bs-toggle="tab" data-bs-target="#youtube" type="button" role="tab" aria-controls="youtube" aria-selected="false">YouTube</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="channelTabsContent">
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                <!-- Overview KPIs Row -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Total Website Sessions</span>
+                                <h2 class="kpi-value" id="total-sessions">--</h2>
+                                <span class="kpi-change positive" id="sessions-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Social Media Engagement</span>
+                                <h2 class="kpi-value" id="social-engagement">--</h2>
+                                <span class="kpi-change positive" id="engagement-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Email Open Rate</span>
+                                <h2 class="kpi-value" id="email-open-rate">--</h2>
+                                <span class="kpi-change positive" id="open-rate-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">YouTube Views</span>
+                                <h2 class="kpi-value" id="youtube-views">--</h2>
+                                <span class="kpi-change positive" id="views-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cross-Channel Performance -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Cross-Channel Performance</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="performanceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Engagement
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="performanceDropdown">
+                                        <li><a class="dropdown-item" href="#">Engagement</a></li>
+                                        <li><a class="dropdown-item" href="#">Reach</a></li>
+                                        <li><a class="dropdown-item" href="#">Conversions</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="cross-channel-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performing Content -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Top Performing Content</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="contentDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        All Channels
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="contentDropdown">
+                                        <li><a class="dropdown-item" href="#">All Channels</a></li>
+                                        <li><a class="dropdown-item" href="#">Website</a></li>
+                                        <li><a class="dropdown-item" href="#">Facebook</a></li>
+                                        <li><a class="dropdown-item" href="#">Instagram</a></li>
+                                        <li><a class="dropdown-item" href="#">YouTube</a></li>
+                                        <li><a class="dropdown-item" href="#">Email</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover data-table" id="top-content-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Title/Description</th>
+                                                <th>Channel</th>
+                                                <th>Format</th>
+                                                <th>Reach</th>
+                                                <th>Engagement</th>
+                                                <th>CTR</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Table rows will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Web Analytics Tab -->
+            <div class="tab-pane fade" id="web" role="tabpanel" aria-labelledby="web-tab">
+                <!-- Web Analytics KPIs -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Sessions</span>
+                                <h2 class="kpi-value" id="web-sessions">--</h2>
+                                <span class="kpi-change positive" id="web-sessions-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Pageviews</span>
+                                <h2 class="kpi-value" id="web-pageviews">--</h2>
+                                <span class="kpi-change positive" id="web-pageviews-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Avg. Session Duration</span>
+                                <h2 class="kpi-value" id="web-duration">--</h2>
+                                <span class="kpi-change positive" id="web-duration-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Bounce Rate</span>
+                                <h2 class="kpi-value" id="web-bounce">--</h2>
+                                <span class="kpi-change negative" id="web-bounce-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <!-- Traffic Sources -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Traffic Sources</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="traffic-sources-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audience Demographics -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Audience Demographics</h5>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active">Age</button>
+                                    <button type="button" class="btn btn-outline-secondary">Gender</button>
+                                    <button type="button" class="btn btn-outline-secondary">Location</button>
+                                </div>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="demographics-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Top Landing Pages -->
+                    <div class="col-12">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Top Landing Pages</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover data-table" id="landing-pages-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Page</th>
+                                                <th>Sessions</th>
+                                                <th>Pageviews</th>
+                                                <th>Avg. Time on Page</th>
+                                                <th>Bounce Rate</th>
+                                                <th>Exit Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Table rows will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Tab -->
+            <div class="tab-pane fade" id="social" role="tabpanel" aria-labelledby="social-tab">
+                <!-- Social Platform Tabs -->
+                <ul class="nav nav-pills mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="pill" href="#facebook">Facebook</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="pill" href="#instagram">Instagram</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <!-- Facebook Tab -->
+                    <div class="tab-pane fade show active" id="facebook">
+                        <!-- Facebook KPIs -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Page Reach</span>
+                                        <h2 class="kpi-value" id="fb-reach">--</h2>
+                                        <span class="kpi-change positive" id="fb-reach-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Page Engagement</span>
+                                        <h2 class="kpi-value" id="fb-engagement">--</h2>
+                                        <span class="kpi-change positive" id="fb-engagement-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Page Followers</span>
+                                        <h2 class="kpi-value" id="fb-followers">--</h2>
+                                        <span class="kpi-change positive" id="fb-followers-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Link Clicks</span>
+                                        <h2 class="kpi-value" id="fb-clicks">--</h2>
+                                        <span class="kpi-change positive" id="fb-clicks-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <!-- Facebook Audience Demographics -->
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <div class="metric-card-header">
+                                        <h5 class="mb-0">Audience Demographics</h5>
+                                    </div>
+                                    <div class="metric-card-body">
+                                        <div class="chart-container">
+                                            <canvas id="fb-demographics-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Facebook Post Performance -->
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <div class="metric-card-header">
+                                        <h5 class="mb-0">Post Performance</h5>
+                                    </div>
+                                    <div class="metric-card-body">
+                                        <div class="chart-container">
+                                            <canvas id="fb-post-performance-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Facebook Posts -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="metric-card">
+                                    <div class="metric-card-header">
+                                        <h5 class="mb-0">Top Posts</h5>
+                                    </div>
+                                    <div class="metric-card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover data-table" id="fb-posts-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Post</th>
+                                                        <th>Type</th>
+                                                        <th>Date</th>
+                                                        <th>Reach</th>
+                                                        <th>Engagement</th>
+                                                        <th>Reactions</th>
+                                                        <th>Comments</th>
+                                                        <th>Shares</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Table rows will be populated by JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instagram Tab -->
+                    <div class="tab-pane fade" id="instagram">
+                        <!-- Instagram KPIs -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Profile Reach</span>
+                                        <h2 class="kpi-value" id="ig-reach">--</h2>
+                                        <span class="kpi-change positive" id="ig-reach-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Profile Engagement</span>
+                                        <h2 class="kpi-value" id="ig-engagement">--</h2>
+                                        <span class="kpi-change positive" id="ig-engagement-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Profile Followers</span>
+                                        <h2 class="kpi-value" id="ig-followers">--</h2>
+                                        <span class="kpi-change positive" id="ig-followers-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-card-body text-center">
+                                        <span class="kpi-label">Profile Views</span>
+                                        <h2 class="kpi-value" id="ig-views">--</h2>
+                                        <span class="kpi-change positive" id="ig-views-change">+0.0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <!-- Instagram Audience Demographics -->
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <div class="metric-card-header">
+                                        <h5 class="mb-0">Audience Demographics</h5>
+                                    </div>
+                                    <div class="metric-card-body">
+                                        <div class="chart-container">
+                                            <canvas id="ig-demographics-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Instagram Post Performance -->
+                            <div class="col-md-6">
+                                <div class="metric-card">
+                                    <div class="metric-card-header">
+                                        <h5 class="mb-0">Post Performance</h5>
+                                    </div>
+                                    <div class="metric-card-body">
+                                        <div class="chart-container">
+                                            <canvas id="ig-post-performance-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Instagram Posts -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="metric-card">
+                                    <div class="metric-card-header">
+                                        <h5 class="mb-0">Top Posts</h5>
+                                    </div>
+                                    <div class="metric-card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover data-table" id="ig-posts-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Post</th>
+                                                        <th>Type</th>
+                                                        <th>Date</th>
+                                                        <th>Reach</th>
+                                                        <th>Likes</th>
+                                                        <th>Comments</th>
+                                                        <th>Saves</th>
+                                                        <th>Shares</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Table rows will be populated by JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Marketing Tab -->
+            <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">
+                <!-- Email KPIs -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Open Rate</span>
+                                <h2 class="kpi-value" id="email-open">--</h2>
+                                <span class="kpi-change positive" id="email-open-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Click Rate</span>
+                                <h2 class="kpi-value" id="email-click">--</h2>
+                                <span class="kpi-change positive" id="email-click-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Bounce Rate</span>
+                                <h2 class="kpi-value" id="email-bounce">--</h2>
+                                <span class="kpi-change negative" id="email-bounce-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Unsubscribe Rate</span>
+                                <h2 class="kpi-value" id="email-unsub">--</h2>
+                                <span class="kpi-change negative" id="email-unsub-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <!-- Email Performance Trends -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Performance Trends</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="email-performance-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Subscriber Growth -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Subscriber Growth</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="email-subscribers-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Email Campaigns -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Top Campaigns</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover data-table" id="email-campaigns-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Campaign</th>
+                                                <th>Date</th>
+                                                <th>Sent</th>
+                                                <th>Delivered</th>
+                                                <th>Opens</th>
+                                                <th>Open Rate</th>
+                                                <th>Clicks</th>
+                                                <th>Click Rate</th>
+                                                <th>Bounces</th>
+                                                <th>Unsubscribes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Table rows will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube Tab -->
+            <div class="tab-pane fade" id="youtube" role="tabpanel" aria-labelledby="youtube-tab">
+                <!-- YouTube KPIs -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Total Views</span>
+                                <h2 class="kpi-value" id="yt-views">--</h2>
+                                <span class="kpi-change positive" id="yt-views-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Watch Time (hrs)</span>
+                                <h2 class="kpi-value" id="yt-watch-time">--</h2>
+                                <span class="kpi-change positive" id="yt-watch-time-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Avg. View Duration</span>
+                                <h2 class="kpi-value" id="yt-duration">--</h2>
+                                <span class="kpi-change positive" id="yt-duration-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="metric-card">
+                            <div class="metric-card-body text-center">
+                                <span class="kpi-label">Subscriber Growth</span>
+                                <h2 class="kpi-value" id="yt-subscribers">--</h2>
+                                <span class="kpi-change positive" id="yt-subscribers-change">+0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <!-- YouTube Demographics -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Viewer Demographics</h5>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active">Age</button>
+                                    <button type="button" class="btn btn-outline-secondary">Gender</button>
+                                </div>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="yt-demographics-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- YouTube Geography -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Viewer Geography</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="chart-container">
+                                    <canvas id="yt-geography-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top YouTube Videos -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="metric-card">
+                            <div class="metric-card-header">
+                                <h5 class="mb-0">Top Videos</h5>
+                            </div>
+                            <div class="metric-card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover data-table" id="yt-videos-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Video</th>
+                                                <th>Date</th>
+                                                <th>Views</th>
+                                                <th>Watch Time</th>
+                                                <th>Avg. View Duration</th>
+                                                <th>Likes</th>
+                                                <th>Comments</th>
+                                                <th>Shares</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Table rows will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
