@@ -5,7 +5,7 @@
  * Edit these values to match your organization's needs.
  */
 
-const DASHBOARD_CONFIG = {
+var DASHBOARD_CONFIG = {
     // General Settings
     general: {
         // Dashboard title displayed in the header
@@ -58,7 +58,7 @@ const DASHBOARD_CONFIG = {
     // Data Sources and Paths
     data: {
         // Path to data files (relative to index.html)
-        dataPath: './data',
+        dataPath: './data',  // Changed from '/data' to a relative path
 
         // File format (json or csv)
         fileFormat: 'json',
@@ -274,7 +274,7 @@ const DASHBOARD_CONFIG = {
     // Advanced Settings
     advanced: {
         // Debug mode (logs additional information to console)
-        debug: false,
+        debug: true, // Enable debug mode for troubleshooting
 
         // Enable experimental features
         experimental: false,
@@ -290,7 +290,10 @@ const DASHBOARD_CONFIG = {
     }
 };
 
-// Export the configuration
+// Make config available globally in browser context
+window.DASHBOARD_CONFIG = DASHBOARD_CONFIG;
+
+// For Node.js environments (if using modules)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = DASHBOARD_CONFIG;
 }
