@@ -6,7 +6,6 @@
  */
 
 const DASHBOARD_CONFIG = {
-    window.DASHBOARD_CONFIG = DASHBOARD_CONFIG;
     // General Settings
     general: {
         // Dashboard title displayed in the header
@@ -59,7 +58,7 @@ const DASHBOARD_CONFIG = {
     // Data Sources and Paths
     data: {
         // Path to data files (relative to index.html)
-        dataPath: '/data',
+        dataPath: './data',
 
         // File format (json or csv)
         fileFormat: 'json',
