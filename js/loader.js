@@ -1,28 +1,71 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const dataPath = DASHBOARD_CONFIG.data.dataPath;
-    const platforms = DASHBOARD_CONFIG.data.platforms;
+    const config = window.DASHBOARD_CONFIG;
+    const dataPath = config.data.dataPath;
+    const platforms = config.data.platforms;
+    const kpis = config.kpis;
 
-    // Example: load one of the web data files
-    const demoFile = platforms.web.dataFiles[0]; // e.g., 'ga_demographics.json'
-    const fullPath = `${dataPath}/${demoFile}`;
+    // Helper: fetch JSON and return a Promise
+    function fetchData(file) {
+        return fetch(`${dataPath}/${file}`)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .catch(error => {
+                console.error(`Failed to load ${file}:`, error);
+                return null;
+            });
+    }
 
-    fetch(fullPath)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+    // For each platform, fetch all data files and store results
+    async function loadAllData() {
+        const platformData = {};
+        for (const [platform, settings] of Object.entries(platforms)) {
+            if (!settings.enabled) continue;
+            platformData[platform] = {};
+            for (const file of settings.dataFiles) {
+                const data = await fetchData(file);
+                if (data) {
+                    // Store data by filename minus extension
+                    const key = file.replace(/\.json$/, "");
+                    platformData[platform][key] = data;
+                }
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Loaded JSON data:", data);
+        }
+        return platformData;
+    }
 
-            // Example: populate a field for demo
-            const sessionsEl = document.getElementById("total-sessions");
-            if (sessionsEl) {
-                sessionsEl.textContent = data.total_sessions || "12345";
-            }
-        })
-        .catch(error => {
-            console.error("Failed to load JSON data:", error);
-        });
+    // Populate KPIs if data is available
+    function populateKPIs(platformData) {
+        // Overview KPIs
+        if (kpis.overview) {
+            kpis.overview.forEach(kpi => {
+                let value = "--";
+                if (platformData[kpi.platform]) {
+                    // Look through all data files for the KPI value
+                    for (const dataset of Object.values(platformData[kpi.platform])) {
+                        if (dataset && dataset[kpi.metric] !== undefined) {
+                            value = dataset[kpi.metric];
+                            break;
+                        }
+                    }
+                }
+                const el = document.getElementById(kpi.id);
+                if (el) el.textContent = value;
+            });
+        }
+        // You can expand this for other sections (web, facebook, etc.) as needed
+    }
+
+    // Show/hide loading overlay
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById("loading-overlay");
+        if (overlay) overlay.style.display = "none";
+    }
+
+    // Main
+    loadAllData().then(platformData => {
+        populateKPIs(platformData);
+        hideLoadingOverlay();
+    });
 });
