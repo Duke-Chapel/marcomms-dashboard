@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("DASHBOARD_CONFIG is not defined! Check your script order in index.html.");
         return;
     }
+    window.DASHBOARD_CONFIG = DASHBOARD_CONFIG;
 
     const config = window.DASHBOARD_CONFIG;
     const dataPath = config.data.dataPath;

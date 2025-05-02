@@ -6,6 +6,7 @@
  */
 
 const DASHBOARD_CONFIG = {
+    window.DASHBOARD_CONFIG = DASHBOARD_CONFIG;
     // General Settings
     general: {
         // Dashboard title displayed in the header
