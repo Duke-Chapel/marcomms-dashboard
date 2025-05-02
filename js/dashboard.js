@@ -10,25 +10,25 @@ const DASHBOARD_CONFIG = {
     general: {
         // Dashboard title displayed in the header
         dashboardTitle: "Marketing Performance Dashboard",
-        
+
         // Default date range in days (how many days of data to show by default)
         defaultDateRange: 30,
-        
+
         // Whether to allow date range selection (if false, will use fixed date range)
         allowDateSelection: true,
-        
+
         // Enable tutorial mode for first-time users (shows tooltips)
         tutorialMode: true,
-        
+
         // Refresh data automatically (in milliseconds, 0 to disable)
         autoRefresh: 0
     },
-    
+
     // Visual Customization
     appearance: {
         // Color theme - options: 'light', 'dark', 'custom'
         theme: 'light',
-        
+
         // Custom theme colors (used if theme is 'custom')
         customColors: {
             background: '#ffffff',
@@ -38,7 +38,7 @@ const DASHBOARD_CONFIG = {
             text: '#333333',
             lightText: '#6c757d'
         },
-        
+
         // Chart colors for each platform
         chartColors: {
             facebook: '#4267B2',
@@ -47,22 +47,22 @@ const DASHBOARD_CONFIG = {
             website: '#34A853',
             email: '#5851DB'
         },
-        
+
         // Font family for the dashboard
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        
+
         // Show platform icons next to labels
         showIcons: true
     },
-    
+
     // Data Sources and Paths
     data: {
         // Path to data files (relative to index.html)
-        dataPath: typeof process !== 'undefined' && process.env.DATA_PATH ? process.env.DATA_PATH : '/data',
-        
+        dataPath: '/data',
+
         // File format (json or csv)
         fileFormat: 'json',
-        
+
         // Definition of data mapping for each platform
         platforms: {
             web: {
@@ -92,7 +92,7 @@ const DASHBOARD_CONFIG = {
             }
         }
     },
-    
+
     // KPI Configuration
     kpis: {
         // Overview KPIs to display
@@ -126,7 +126,7 @@ const DASHBOARD_CONFIG = {
                 format: 'number'
             }
         ],
-        
+
         // Web analytics KPIs
         web: [
             {
@@ -155,7 +155,7 @@ const DASHBOARD_CONFIG = {
                 inverse: true
             }
         ],
-        
+
         // Facebook KPIs
         facebook: [
             {
@@ -183,7 +183,7 @@ const DASHBOARD_CONFIG = {
                 format: 'number'
             }
         ],
-        
+
         // Instagram KPIs
         instagram: [
             {
@@ -211,7 +211,7 @@ const DASHBOARD_CONFIG = {
                 format: 'number'
             }
         ],
-        
+
         // Email KPIs
         email: [
             {
@@ -241,7 +241,7 @@ const DASHBOARD_CONFIG = {
                 inverse: true
             }
         ],
-        
+
         // YouTube KPIs
         youtube: [
             {
@@ -270,18 +270,18 @@ const DASHBOARD_CONFIG = {
             }
         ]
     },
-    
+
     // Advanced Settings
     advanced: {
         // Debug mode (logs additional information to console)
         debug: false,
-        
+
         // Enable experimental features
         experimental: false,
-        
+
         // Timeout for data loading (milliseconds)
         dataLoadTimeout: 30000,
-        
+
         // Custom field mappings for data processing
         fieldMappings: {
             // Example: map a field in source data to a standardized field name

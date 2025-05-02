@@ -1,0 +1,120 @@
+2025-04-30 13:06:20,697 - INFO - Starting ingestion from: ./data
+2025-04-30 13:06:20,697 - INFO - Found CSV file: GA_Pages_And_Screens.csv
+2025-04-30 13:06:20,697 - INFO - Skipping already processed file: GA_Pages_And_Screens.csv
+2025-04-30 13:06:20,698 - INFO - Found CSV file: GA_Demographics.csv
+2025-04-30 13:06:20,698 - INFO - Processing: GA_Demographics.csv
+2025-04-30 13:06:20,713 - ERROR - Failed to process GA_Demographics.csv even with latin1: cannot access local variable 'sep' where it is not associated with a value
+2025-04-30 13:06:20,713 - INFO - Found CSV file: YouTube_Cities.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: YouTube_Cities.csv
+2025-04-30 13:06:20,714 - INFO - Found CSV file: YouTube_Age.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: YouTube_Age.csv
+2025-04-30 13:06:20,714 - INFO - Found CSV file: FB_Follows.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: FB_Follows.csv
+2025-04-30 13:06:20,714 - INFO - Found CSV file: FB_Views.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: FB_Views.csv
+2025-04-30 13:06:20,714 - INFO - Found CSV file: IG_Link_clicks.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: IG_Link_clicks.csv
+2025-04-30 13:06:20,714 - INFO - Found CSV file: GA_Traffic_Acquisition.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: GA_Traffic_Acquisition.csv
+2025-04-30 13:06:20,714 - INFO - Found CSV file: FB_Interactions.csv
+2025-04-30 13:06:20,714 - INFO - Skipping already processed file: FB_Interactions.csv
+2025-04-30 13:06:20,715 - INFO - Found CSV file: FB_Videos.csv
+2025-04-30 13:06:20,715 - INFO - Skipping already processed file: FB_Videos.csv
+2025-04-30 13:06:20,715 - INFO - Found CSV file: YouTube_Geography.csv
+2025-04-30 13:06:20,715 - INFO - Skipping already processed file: YouTube_Geography.csv
+2025-04-30 13:06:20,715 - INFO - Found CSV file: IG_Posts.csv
+2025-04-30 13:06:20,715 - INFO - Skipping already processed file: IG_Posts.csv
+2025-04-30 13:06:20,715 - INFO - Found CSV file: YouTube_Content.csv
+2025-04-30 13:06:20,715 - INFO - Skipping already processed file: YouTube_Content.csv
+2025-04-30 13:06:20,715 - INFO - Found CSV file: FB_Reach.csv
+2025-04-30 13:06:20,715 - INFO - Skipping already processed file: FB_Reach.csv
+2025-04-30 13:06:20,715 - INFO - Found CSV file: GA_UTMs.csv
+2025-04-30 13:06:20,715 - INFO - Processing: GA_UTMs.csv
+2025-04-30 13:06:20,731 - ERROR - Failed to process GA_UTMs.csv even with latin1: cannot access local variable 'sep' where it is not associated with a value
+2025-04-30 13:06:20,731 - INFO - Found CSV file: IG_Follows.csv
+2025-04-30 13:06:20,731 - INFO - Skipping already processed file: IG_Follows.csv
+2025-04-30 13:06:20,731 - INFO - Found CSV file: YouTube_Gender.csv
+2025-04-30 13:06:20,731 - INFO - Skipping already processed file: YouTube_Gender.csv
+2025-04-30 13:06:20,731 - INFO - Found CSV file: FB_Link_clicks.csv
+2025-04-30 13:06:20,731 - INFO - Skipping already processed file: FB_Link_clicks.csv
+2025-04-30 13:06:20,731 - INFO - Found CSV file: IG_Audience.csv
+2025-04-30 13:06:20,731 - INFO - Skipping already processed file: IG_Audience.csv
+2025-04-30 13:06:20,731 - INFO - Found CSV file: IG_Visits.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: IG_Visits.csv
+2025-04-30 13:06:20,732 - INFO - Found CSV file: IG_Interactions.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: IG_Interactions.csv
+2025-04-30 13:06:20,732 - INFO - Found CSV file: YouTube_Subscription_Status.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: YouTube_Subscription_Status.csv
+2025-04-30 13:06:20,732 - INFO - Found CSV file: IG_Reach.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: IG_Reach.csv
+2025-04-30 13:06:20,732 - INFO - Found CSV file: FB_Audience.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: FB_Audience.csv
+2025-04-30 13:06:20,732 - INFO - Found CSV file: Email_Campaign_Performance.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: Email_Campaign_Performance.csv
+2025-04-30 13:06:20,732 - INFO - Found CSV file: FB_Visits.csv
+2025-04-30 13:06:20,732 - INFO - Skipping already processed file: FB_Visits.csv
+2025-04-30 13:06:20,733 - INFO - Found CSV file: FB_Posts.csv
+2025-04-30 13:06:20,733 - INFO - Skipping already processed file: FB_Posts.csv
+2025-04-30 13:06:20,733 - INFO - Found CSV file: IG_Views.csv
+2025-04-30 13:06:20,733 - INFO - Skipping already processed file: IG_Views.csv
+2025-04-30 13:06:20,733 - INFO - Ingestion complete. Processed: 0 files, Errors: 2
+2025-04-30 13:11:08,882 - INFO - Starting ingestion from: ./data
+2025-04-30 13:11:08,882 - INFO - Found CSV file: GA_Pages_And_Screens.csv
+2025-04-30 13:11:08,883 - INFO - Skipping already processed file: GA_Pages_And_Screens.csv
+2025-04-30 13:11:08,883 - INFO - Found CSV file: GA_Demographics.csv
+2025-04-30 13:11:08,883 - INFO - Processing: GA_Demographics.csv
+2025-04-30 13:11:10,114 - INFO - Loaded 3 rows from GA_Demographics.csv using GA special handling
+2025-04-30 13:11:10,118 - INFO - Found CSV file: YouTube_Cities.csv
+2025-04-30 13:11:10,118 - INFO - Skipping already processed file: YouTube_Cities.csv
+2025-04-30 13:11:10,118 - INFO - Found CSV file: YouTube_Age.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: YouTube_Age.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: FB_Follows.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: FB_Follows.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: FB_Views.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: FB_Views.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: IG_Link_clicks.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: IG_Link_clicks.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: GA_Traffic_Acquisition.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: GA_Traffic_Acquisition.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: FB_Interactions.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: FB_Interactions.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: FB_Videos.csv
+2025-04-30 13:11:10,119 - INFO - Skipping already processed file: FB_Videos.csv
+2025-04-30 13:11:10,119 - INFO - Found CSV file: YouTube_Geography.csv
+2025-04-30 13:11:10,120 - INFO - Skipping already processed file: YouTube_Geography.csv
+2025-04-30 13:11:10,120 - INFO - Found CSV file: IG_Posts.csv
+2025-04-30 13:11:10,120 - INFO - Skipping already processed file: IG_Posts.csv
+2025-04-30 13:11:10,120 - INFO - Found CSV file: YouTube_Content.csv
+2025-04-30 13:11:10,120 - INFO - Skipping already processed file: YouTube_Content.csv
+2025-04-30 13:11:10,120 - INFO - Found CSV file: FB_Reach.csv
+2025-04-30 13:11:10,120 - INFO - Skipping already processed file: FB_Reach.csv
+2025-04-30 13:11:10,120 - INFO - Found CSV file: GA_UTMs.csv
+2025-04-30 13:11:10,120 - INFO - Processing: GA_UTMs.csv
+2025-04-30 13:11:10,234 - INFO - Loaded 3 rows from GA_UTMs.csv using GA special handling
+2025-04-30 13:11:10,236 - INFO - Found CSV file: IG_Follows.csv
+2025-04-30 13:11:10,237 - INFO - Skipping already processed file: IG_Follows.csv
+2025-04-30 13:11:10,237 - INFO - Found CSV file: YouTube_Gender.csv
+2025-04-30 13:11:10,237 - INFO - Skipping already processed file: YouTube_Gender.csv
+2025-04-30 13:11:10,237 - INFO - Found CSV file: FB_Link_clicks.csv
+2025-04-30 13:11:10,237 - INFO - Skipping already processed file: FB_Link_clicks.csv
+2025-04-30 13:11:10,237 - INFO - Found CSV file: IG_Audience.csv
+2025-04-30 13:11:10,237 - INFO - Skipping already processed file: IG_Audience.csv
+2025-04-30 13:11:10,237 - INFO - Found CSV file: IG_Visits.csv
+2025-04-30 13:11:10,237 - INFO - Skipping already processed file: IG_Visits.csv
+2025-04-30 13:11:10,237 - INFO - Found CSV file: IG_Interactions.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: IG_Interactions.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: YouTube_Subscription_Status.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: YouTube_Subscription_Status.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: IG_Reach.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: IG_Reach.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: FB_Audience.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: FB_Audience.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: Email_Campaign_Performance.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: Email_Campaign_Performance.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: FB_Visits.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: FB_Visits.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: FB_Posts.csv
+2025-04-30 13:11:10,238 - INFO - Skipping already processed file: FB_Posts.csv
+2025-04-30 13:11:10,238 - INFO - Found CSV file: IG_Views.csv
+2025-04-30 13:11:10,239 - INFO - Skipping already processed file: IG_Views.csv
+2025-04-30 13:11:10,239 - INFO - Ingestion complete. Processed: 2 files, Errors: 0
