@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const config = window.DASHBOARD_CONFIG;
-    const dataPath = config.data.dataPath;
-    const platforms = config.data.platforms;
-    const kpis = config.kpis;
+    if (typeof window.DASHBOARD_CONFIG === "undefined") {
+        console.error("DASHBOARD_CONFIG is not defined! Make sure dashboard.js is loaded before loader.js.");
+        return;
+    }
 
     // Helper: fetch JSON and return a Promise
     function fetchData(file) {
