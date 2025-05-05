@@ -1,0 +1,206 @@
+{
+  "totalViews": 5035094,
+  "totalWatchTime": 634069.089,
+  "averageViewDuration": "0:08:24",
+  "demographics": {
+    "age": [
+      {
+        "group": "13–17 years",
+        "viewPercentage": 0.13,
+        "watchTimePercentage": 0.03,
+        "avgPercentage": 2.92
+      },
+      {
+        "group": "18–24 years",
+        "viewPercentage": 11.19,
+        "watchTimePercentage": 3.92,
+        "avgPercentage": 5.78
+      },
+      {
+        "group": "25–34 years",
+        "viewPercentage": 18.83,
+        "watchTimePercentage": 11.31,
+        "avgPercentage": 9.52
+      },
+      {
+        "group": "35–44 years",
+        "viewPercentage": 10.34,
+        "watchTimePercentage": 8.6,
+        "avgPercentage": 11.8
+      },
+      {
+        "group": "45–54 years",
+        "viewPercentage": 9.69,
+        "watchTimePercentage": 9.65,
+        "avgPercentage": 12.53
+      },
+      {
+        "group": "55–64 years",
+        "viewPercentage": 14.36,
+        "watchTimePercentage": 16.39,
+        "avgPercentage": 13.95
+      },
+      {
+        "group": "65+ years",
+        "viewPercentage": 35.47,
+        "watchTimePercentage": 50.09,
+        "avgPercentage": 17.49
+      }
+    ],
+    "gender": [
+      {
+        "group": "Female",
+        "viewPercentage": 32.46,
+        "watchTimePercentage": 36.79
+      },
+      {
+        "group": "Male",
+        "viewPercentage": 67.53,
+        "watchTimePercentage": 63.19
+      },
+      {
+        "group": "User-specified",
+        "viewPercentage": 0.01,
+        "watchTimePercentage": 0.02
+      }
+    ]
+  },
+  "geography": [
+    {
+      "country": "",
+      "views": 5035094,
+      "watchTime": 634069.089,
+      "averageDuration": "0:08:24"
+    },
+    {
+      "country": "",
+      "views": 37171,
+      "watchTime": 13686.3893,
+      "averageDuration": "0:22:05"
+    },
+    {
+      "country": "",
+      "views": 11353,
+      "watchTime": 3819.9639,
+      "averageDuration": "0:20:11"
+    },
+    {
+      "country": "",
+      "views": 4073,
+      "watchTime": 638.765,
+      "averageDuration": "0:09:24"
+    },
+    {
+      "country": "",
+      "views": 4027,
+      "watchTime": 1066.4331,
+      "averageDuration": "0:15:53"
+    },
+    {
+      "country": "",
+      "views": 3285,
+      "watchTime": 137.2369,
+      "averageDuration": "0:02:30"
+    },
+    {
+      "country": "",
+      "views": 2894,
+      "watchTime": 735.9869,
+      "averageDuration": "0:15:15"
+    },
+    {
+      "country": "",
+      "views": 2008,
+      "watchTime": 514.1124,
+      "averageDuration": "0:15:21"
+    },
+    {
+      "country": "",
+      "views": 1588,
+      "watchTime": 305.4959,
+      "averageDuration": "0:11:32"
+    },
+    {
+      "country": "",
+      "views": 1504,
+      "watchTime": 378.433,
+      "averageDuration": "0:15:05"
+    }
+  ],
+  "subscriptionStatus": [
+    {
+      "status": "Not subscribed",
+      "views": 4610957,
+      "watchTime": 550958.2126,
+      "percentage": 91.6
+    },
+    {
+      "status": "Subscribed",
+      "views": 424137,
+      "watchTime": 83110.8758,
+      "percentage": 8.4
+    }
+  ],
+  "performance_trend": [
+    {
+      "month": "Jan",
+      "views": 4500,
+      "watchTime": 450
+    },
+    {
+      "month": "Feb",
+      "views": 4800,
+      "watchTime": 480
+    },
+    {
+      "month": "Mar",
+      "views": 5100,
+      "watchTime": 510
+    },
+    {
+      "month": "Apr",
+      "views": 5400,
+      "watchTime": 540
+    },
+    {
+      "month": "May",
+      "views": 5700,
+      "watchTime": 570
+    },
+    {
+      "month": "Jun",
+      "views": 6000,
+      "watchTime": 600
+    },
+    {
+      "month": "Jul",
+      "views": 6300,
+      "watchTime": 630
+    },
+    {
+      "month": "Aug",
+      "views": 6600,
+      "watchTime": 660
+    },
+    {
+      "month": "Sep",
+      "views": 6900,
+      "watchTime": 690
+    },
+    {
+      "month": "Oct",
+      "views": 7200,
+      "watchTime": 720
+    },
+    {
+      "month": "Nov",
+      "views": 7500,
+      "watchTime": 750
+    },
+    {
+      "month": "Dec",
+      "views": 7800,
+      "watchTime": 780
+    }
+  ]
+}
