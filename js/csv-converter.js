@@ -621,8 +621,15 @@ function reassignFile(file, newType) {
       // Add to new assignment
       storeFile(file, content, newType);
       
-      // Update UI
-      updateFileList();
+      // Update the file type indicator for this file only, 
+      // rather than rebuilding the entire table
+      const fileIndex = converterState.files.indexOf(file);
+      if (fileIndex !== -1) {
+          const fileTypeCell = document.querySelector(`#file-type-${fileIndex}`);
+          if (fileTypeCell) {
+              fileTypeCell.value = newType;
+          }
+      }
   };
   
   reader.readAsText(file);
