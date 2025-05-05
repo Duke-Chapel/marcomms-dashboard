@@ -1,7 +1,7 @@
 /**
  * Main Dashboard Logic
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize dashboard
     initDashboard();
 });
@@ -26,14 +26,14 @@ function setupEventListeners() {
     // Timeframe selector
     const timeframeSelector = document.getElementById('timeframe-selector');
     timeframeSelector.value = dashboardState.timeframe;
-    timeframeSelector.addEventListener('change', function() {
+    timeframeSelector.addEventListener('change', function () {
         dashboardState.timeframe = this.value;
         loadAllData();
     });
-    
+
     // Navigation buttons
     document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const dashboard = this.id.replace('nav-', '');
             setActiveDashboard(dashboard);
         });
@@ -44,7 +44,7 @@ function setupEventListeners() {
 function setActiveDashboard(dashboard) {
     // Update state
     dashboardState.activeDashboard = dashboard;
-    
+
     // Update UI
     document.querySelectorAll('.nav-btn').forEach(btn => {
         const btnDashboard = btn.id.replace('nav-', '');
@@ -56,13 +56,13 @@ function setActiveDashboard(dashboard) {
             btn.classList.remove('border-b-2', 'border-blue-500', 'text-gray-900');
         }
     });
-    
+
     // Show relevant dashboard
     document.querySelectorAll('.dashboard-section').forEach(section => {
         section.classList.add('hidden');
     });
     document.getElementById(`${dashboard}-dashboard`).classList.remove('hidden');
-    
+
     // Render the active dashboard
     renderActiveDashboard();
 }
@@ -70,7 +70,7 @@ function setActiveDashboard(dashboard) {
 // Load all data
 async function loadAllData() {
     setLoading(true);
-    
+
     try {
         // Load data for each platform
         dashboardState.data.facebook = await fetchData('facebook_data.json');
@@ -78,7 +78,7 @@ async function loadAllData() {
         dashboardState.data.youtube = await fetchData('youtube_data.json');
         dashboardState.data.email = await fetchData('email_data.json');
         dashboardState.data.crossChannel = await fetchData('cross_channel_data.json');
-        
+
         // Update last updated timestamp
         const lastUpdatedEl = document.getElementById('last-updated');
         if (dashboardState.data.crossChannel && dashboardState.data.crossChannel.meta) {
@@ -91,7 +91,7 @@ async function loadAllData() {
         console.error('Error loading data:', error);
         alert('Error loading dashboard data. Please check the console for details.');
     }
-    
+
     setLoading(false);
 }
 
@@ -115,10 +115,10 @@ function setLoading(isLoading) {
     }
 }
 
-// Render active dashboard
+// Update the renderActiveDashboard function to include the converter
 function renderActiveDashboard() {
     if (dashboardState.isLoading) return;
-    
+
     switch (dashboardState.activeDashboard) {
         case 'executive':
             renderExecutiveDashboard(dashboardState.data);
@@ -131,6 +131,9 @@ function renderActiveDashboard() {
             break;
         case 'youtube':
             renderYoutubeDashboard(dashboardState.data);
+            break;
+        case 'converter':
+            renderConverterDashboard();
             break;
     }
 }

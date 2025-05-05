@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marketing Dashboard Data Converter</title>
+  <title>Enhanced Marketing Analytics Data Converter</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 900px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 20px;
       background-color: #f5f7fa;
@@ -15,7 +15,7 @@
     h1 {
       color: #4A6CF7;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
     }
     h2 {
       color: #6941C6;
@@ -32,7 +32,7 @@
     }
     textarea {
       width: 100%;
-      height: 180px;
+      height: 150px;
       margin-top: 10px;
       padding: 8px;
       border: 1px solid #ddd;
@@ -49,9 +49,23 @@
       cursor: pointer;
       font-weight: bold;
       transition: background-color 0.2s;
+      margin-right: 10px;
+      margin-bottom: 10px;
     }
     button:hover {
       background-color: #3a5bd9;
+    }
+    .primary-button {
+      background-color: #10B981;
+    }
+    .primary-button:hover {
+      background-color: #0E9F6E;
+    }
+    .clear-button {
+      background-color: #F43F5E;
+    }
+    .clear-button:hover {
+      background-color: #E11D48;
     }
     .output {
       margin-top: 20px;
@@ -59,7 +73,7 @@
       padding: 15px;
       border-radius: 4px;
       border: 1px solid #e1e4e8;
-      max-height: 300px;
+      max-height: 250px;
       overflow-y: auto;
       font-family: monospace;
       font-size: 14px;
@@ -83,374 +97,2164 @@
       color: #721c24;
       border: 1px solid #f5c6cb;
     }
+    .warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
     .note {
       font-size: 14px;
       color: #6c757d;
       margin: 10px 0;
       font-style: italic;
     }
-    table {
+    .file-list {
+      margin: 15px 0;
+      border: 1px solid #e1e4e8;
+      border-radius: 4px;
+      padding: 10px;
+      background-color: #f8f9fa;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .file-item:last-child {
+      border-bottom: none;
+    }
+    .file-remove {
+      color: #F43F5E;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .file-type {
+      background-color: #e1e4e8;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    .drop-area {
+      border: 2px dashed #4A6CF7;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      margin: 20px 0;
+      background-color: #f0f4ff;
+      transition: all 0.3s;
+    }
+    .drop-area.highlight {
+      background-color: #dbe4ff;
+      border-color: #3a5bd9;
+    }
+    .progress-container {
+      width: 100%;
+      height: 20px;
+      background-color: #f1f3f5;
+      border-radius: 10px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #4A6CF7;
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .file-group {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      border-left: 4px solid #4A6CF7;
+    }
+    .file-group-header {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .checkbox-container {
+      margin: 10px 0;
+    }
+    .checkbox-container label {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+    .step-number {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #4A6CF7;
+      color: white;
+      text-align: center;
+      line-height: 28px;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+    .preview-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 15px;
+      font-size: 14px;
     }
-    th, td {
-      padding: 8px 12px;
-      text-align: left;
-      border-bottom: 1px solid #e1e4e8;
-    }
-    th {
-      background-color: #f8f9fa;
-      font-weight: bold;
-      color: #495057;
-    }
-    .tab-container {
-      display: flex;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #e1e4e8;
-    }
-    .tab {
-      padding: 10px 15px;
-      cursor: pointer;
-      margin-right: 5px;
+    .preview-table th {
       background-color: #f1f3f5;
-      border-radius: 4px 4px 0 0;
+      padding: 8px;
+      text-align: left;
+      font-weight: bold;
+      border: 1px solid #e1e4e8;
     }
-    .tab.active {
-      background-color: #4A6CF7;
-      color: white;
+    .preview-table td {
+      padding: 8px;
+      border: 1px solid #e1e4e8;
     }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-      .section {
-        padding: 15px;
-      }
+    .preview-table tr:nth-child(even) {
+      background-color: #f8f9fa;
     }
   </style>
 </head>
 <body>
-  <h1>Marketing Dashboard Data Converter</h1>
-  <p>Use this tool to convert your CSV data to the JSON format required by the dashboard. Upload your CSV files, process each data source, then generate the combined JSON files.</p>
+  <h1>Enhanced Marketing Analytics Data Converter</h1>
+  <p class="note" style="text-align: center; margin-bottom: 30px;">Batch process your marketing data CSVs into dashboard-ready JSON files</p>
   
   <div class="section">
-    <h2>Facebook Data</h2>
-    <p>Upload your Facebook CSV data file or paste the content directly:</p>
-    <input type="file" id="facebook-file" accept=".csv" onchange="handleFileSelect(this, 'facebook-csv')">
-    <textarea id="facebook-csv" placeholder="Paste Facebook CSV here..."></textarea>
-    <button onclick="processFacebookCSV()">Process Facebook Data</button>
-    <div id="facebook-status" class="status hidden"></div>
-    <div id="facebook-output" class="output hidden"></div>
+    <h2><span class="step-number">1</span>Upload Your CSV Files</h2>
+    <p>Upload CSV files from your marketing platforms (Facebook, Instagram, Email, YouTube) all at once:</p>
+    
+    <div id="drop-area" class="drop-area">
+      <p>Drag & drop CSV files here</p>
+      <p>or</p>
+      <input type="file" id="file-input" multiple accept=".csv" style="display: none;">
+      <button onclick="document.getElementById('file-input').click()">Select Files</button>
+    </div>
+    
+    <div id="upload-progress" class="progress-container hidden">
+      <div id="progress-bar" class="progress-bar"></div>
+    </div>
+    
+    <div id="uploaded-files" class="hidden">
+      <h3>Uploaded Files</h3>
+      <div id="file-list" class="file-list"></div>
+      
+      <div class="checkbox-container">
+        <input type="checkbox" id="auto-detect" checked>
+        <label for="auto-detect">Auto-detect file types (based on column headers)</label>
+      </div>
+      
+      <button onclick="clearFiles()" class="clear-button">Clear All Files</button>
+    </div>
   </div>
   
-  <div class="section">
-    <h2>Instagram Data</h2>
-    <p>Upload your Instagram CSV data file or paste the content directly:</p>
-    <input type="file" id="instagram-file" accept=".csv" onchange="handleFileSelect(this, 'instagram-csv')">
-    <textarea id="instagram-csv" placeholder="Paste Instagram CSV here..."></textarea>
-    <button onclick="processInstagramCSV()">Process Instagram Data</button>
-    <div id="instagram-status" class="status hidden"></div>
-    <div id="instagram-output" class="output hidden"></div>
+  <div id="file-assignment" class="section hidden">
+    <h2><span class="step-number">2</span>Assign Files to Data Sources</h2>
+    <p>Review and confirm the file assignments for each data source:</p>
+    
+    <div id="facebook-files" class="file-group">
+      <div class="file-group-header">Facebook Data</div>
+      <div id="facebook-file-list"></div>
+    </div>
+    
+    <div id="instagram-files" class="file-group">
+      <div class="file-group-header">Instagram Data</div>
+      <div id="instagram-file-list"></div>
+    </div>
+    
+    <div id="email-files" class="file-group">
+      <div class="file-group-header">Email Data</div>
+      <div id="email-file-list"></div>
+    </div>
+    
+    <div id="youtube-files" class="file-group">
+      <div class="file-group-header">YouTube Data</div>
+      <div class="youtube-subgroup">Age Demographics: <span id="youtube-age-file">None assigned</span></div>
+      <div class="youtube-subgroup">Gender Demographics: <span id="youtube-gender-file">None assigned</span></div>
+      <div class="youtube-subgroup">Geography: <span id="youtube-geo-file">None assigned</span></div>
+      <div class="youtube-subgroup">Subscription Status: <span id="youtube-subscription-file">None assigned</span></div>
+    </div>
+    
+    <div id="ga-files" class="file-group">
+      <div class="file-group-header">Google Analytics Data</div>
+      <div class="ga-subgroup">Demographics: <span id="ga-demographics-file">None assigned</span></div>
+      <div class="ga-subgroup">Pages & Screens: <span id="ga-pages-file">None assigned</span></div>
+      <div class="ga-subgroup">Traffic Acquisition: <span id="ga-traffic-file">None assigned</span></div>
+      <div class="ga-subgroup">UTM Parameters: <span id="ga-utms-file">None assigned</span></div>
+    </div>
+    
+    <div id="unknown-files" class="file-group">
+      <div class="file-group-header">Unassigned Files</div>
+      <div id="unknown-file-list"></div>
+    </div>
+    
+    <div id="file-assign-status" class="status hidden"></div>
   </div>
   
-  <div class="section">
-    <h2>Email Data</h2>
-    <p>Upload your Email campaign CSV data file or paste the content directly:</p>
-    <input type="file" id="email-file" accept=".csv" onchange="handleFileSelect(this, 'email-csv')">
-    <textarea id="email-csv" placeholder="Paste Email CSV here..."></textarea>
-    <button onclick="processEmailCSV()">Process Email Data</button>
-    <div id="email-status" class="status hidden"></div>
-    <div id="email-output" class="output hidden"></div>
-  </div>
-  
-  <div class="section">
-    <h2>YouTube Data</h2>
+  <div id="data-preview" class="section hidden">
+    <h2><span class="step-number">3</span>Preview and Validate Data</h2>
+    <p>Review a sample of your data before processing:</p>
+    
     <div class="tab-container">
-      <div class="tab active" onclick="switchTab('age', this)">Age Demographics</div>
-      <div class="tab" onclick="switchTab('gender', this)">Gender Demographics</div>
-      <div class="tab" onclick="switchTab('geo', this)">Geography</div>
-      <div class="tab" onclick="switchTab('subscription', this)">Subscription Status</div>
+      <button class="preview-tab active" data-target="facebook-preview">Facebook</button>
+      <button class="preview-tab" data-target="instagram-preview">Instagram</button>
+      <button class="preview-tab" data-target="email-preview">Email</button>
+      <button class="preview-tab" data-target="youtube-preview">YouTube</button>
+      <button class="preview-tab" data-target="analytics-preview">Google Analytics</button>
     </div>
     
-    <div id="age-tab" class="tab-content active">
-      <p>Upload your YouTube Age Demographics CSV file or paste the content directly:</p>
-      <input type="file" id="youtube-age-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-age-csv')">
-      <textarea id="youtube-age-csv" placeholder="Paste YouTube Age CSV here..."></textarea>
+    <div id="preview-content">
+      <div id="facebook-preview" class="preview-panel">
+        <div id="facebook-sample"></div>
+      </div>
+      <div id="instagram-preview" class="preview-panel hidden">
+        <div id="instagram-sample"></div>
+      </div>
+      <div id="email-preview" class="preview-panel hidden">
+        <div id="email-sample"></div>
+      </div>
+      <div id="youtube-preview" class="preview-panel hidden">
+        <div id="youtube-sample"></div>
+      </div>
+      <div id="analytics-preview" class="preview-panel hidden">
+        <div id="analytics-sample"></div>
+      </div>
     </div>
     
-    <div id="gender-tab" class="tab-content">
-      <p>Upload your YouTube Gender Demographics CSV file or paste the content directly:</p>
-      <input type="file" id="youtube-gender-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-gender-csv')">
-      <textarea id="youtube-gender-csv" placeholder="Paste YouTube Gender CSV here..."></textarea>
-    </div>
-    
-    <div id="geo-tab" class="tab-content">
-      <p>Upload your YouTube Geography CSV file or paste the content directly:</p>
-      <input type="file" id="youtube-geo-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-geo-csv')">
-      <textarea id="youtube-geo-csv" placeholder="Paste YouTube Geography CSV here..."></textarea>
-    </div>
-    
-    <div id="subscription-tab" class="tab-content">
-      <p>Upload your YouTube Subscription Status CSV file or paste the content directly:</p>
-      <input type="file" id="youtube-subscription-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-subscription-csv')">
-      <textarea id="youtube-subscription-csv" placeholder="Paste YouTube Subscription Status CSV here..."></textarea>
-    </div>
-    
-    <button onclick="processYouTubeCSV()">Process YouTube Data</button>
-    <div id="youtube-status" class="status hidden"></div>
-    <div id="youtube-output" class="output hidden"></div>
+    <div id="validation-result" class="status hidden"></div>
+    <button onclick="validateData()" class="primary-button">Validate Data</button>
   </div>
   
-  <div class="section">
-    <h2>Generate Combined Dashboard Data</h2>
-    <p>After processing all individual data sources, click below to generate the combined JSON files for your dashboard:</p>
-    <button onclick="generateCombinedData()">Generate JSON Files</button>
-    <div class="note">This will create JSON files that you need to upload to the /data folder in your GitHub repository.</div>
-    <div id="combined-status" class="status hidden"></div>
-    <div id="combined-output" class="output hidden"></div>
+  <div id="process-section" class="section hidden">
+    <h2><span class="step-number">4</span>Process Data</h2>
+    <p>Process all your data files to generate the JSON files needed for your dashboard:</p>
     
-    <div id="download-section" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
-      <h3>Download JSON Files</h3>
-      <p>Click the links below to download each JSON file:</p>
+    <div id="process-options">
+      <div class="checkbox-container">
+        <input type="checkbox" id="combine-json" checked>
+        <label for="combine-json">Generate cross-channel data (combines metrics from all sources)</label>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="zip-output" checked>
+        <label for="zip-output">Package all JSON files into a downloadable ZIP</label>
+      </div>
+    </div>
+    
+    <button id="process-button" onclick="processAllData()" class="primary-button">Process All Data</button>
+    
+    <div id="processing-status" class="status hidden"></div>
+    <div id="processing-progress" class="progress-container hidden">
+      <div id="processing-bar" class="progress-bar"></div>
+    </div>
+  </div>
+  
+  <div id="results-section" class="section hidden">
+    <h2><span class="step-number">5</span>Download Results</h2>
+    <p>Your processed data is ready to be downloaded:</p>
+    
+    <div id="download-options">
+      <button id="download-zip" class="primary-button">Download All Files (ZIP)</button>
+      <div class="note">Or download individual files:</div>
       <div id="download-links"></div>
     </div>
+    
+    <div id="next-steps">
+      <h3>Next Steps</h3>
+      <ol>
+        <li>Upload the generated JSON files to your <code>/data</code> folder in your GitHub repository</li>
+        <li>Commit the changes to update your dashboard</li>
+        <li>Visit your dashboard at <code>https://yourusername.github.io/marketing-dashboard/</code></li>
+      </ol>
+    </div>
   </div>
   
-  <div class="section">
-    <h2>Deployment Instructions</h2>
-    <p>Follow these steps to deploy your dashboard:</p>
-    <ol>
-      <li>Create a new GitHub repository named "marketing-dashboard" (or any name you prefer)</li>
-      <li>Upload all HTML, CSS, and JavaScript files maintaining their directory structure</li>
-      <li>Create a "data" folder in the repository root</li>
-      <li>Upload the generated JSON files to the data folder</li>
-      <li>Enable GitHub Pages in your repository settings (Settings > Pages)</li>
-      <li>Select the branch containing your files (usually "main" or "master")</li>
-      <li>Your dashboard will be available at https://yourusername.github.io/marketing-dashboard/</li>
-    </ol>
-    <p>For weekly updates, simply generate new JSON files and replace the old ones in your repository's data folder.</p>
-  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   
-  <script src="csv-to-json.js"></script>
   <script>
+    // =====================
+    // DATA STORAGE
+    // =====================
+    
+    // Store file data
+    const uploadedFiles = {
+      facebook: null,
+      instagram: null,
+      email: null,
+      youtube: {
+        age: null,
+        gender: null,
+        geo: null,
+        subscription: null
+      },
+      googleAnalytics: {
+        demographics: null,
+        pagesAndScreens: null,
+        trafficAcquisition: null,
+        utms: null
+      },
+      unknown: []
+    };
+    
     // Store processed data
     const processedData = {
       facebook: null,
       instagram: null,
       email: null,
       youtube: null,
+      googleAnalytics: null,
       crossChannel: null
     };
     
-    // File input handler
-    function handleFileSelect(fileInput, textareaId) {
-      const file = fileInput.files[0];
-      if (!file) return;
+    // Process Google Analytics data
+    function processGoogleAnalyticsData(demographicsData, pagesData, trafficData, utmsData) {
+      console.log("Processing Google Analytics data...");
       
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById(textareaId).value = e.target.result;
+      // Helper function to safely get CSV headers
+      function getHeaders(csvData) {
+        if (!csvData) return [];
+        return csvData.split('\n')[0].split(',').map(header => header.trim());
+      }
+      
+      // Helper for flexible field access
+      function getValueByPossibleNames(item, possibleNames, defaultValue = 0) {
+        for (const name of possibleNames) {
+          // Check for exact match
+          if (item[name] !== undefined) {
+            return item[name];
+          }
+          
+          // Check for partial match
+          const matchingKey = Object.keys(item).find(key => 
+            key.toLowerCase().includes(name.toLowerCase()));
+          if (matchingKey) {
+            return item[matchingKey];
+          }
+        }
+        return defaultValue;
+      }
+      
+      // Log headers for debugging
+      if (demographicsData) console.log("GA Demographics headers:", getHeaders(demographicsData));
+      if (pagesData) console.log("GA Pages headers:", getHeaders(pagesData));
+      if (trafficData) console.log("GA Traffic headers:", getHeaders(trafficData));
+      if (utmsData) console.log("GA UTMs headers:", getHeaders(utmsData));
+      
+      const result = {
+        totalUsers: 0,
+        totalSessions: 0,
+        engagedSessions: 0,
+        engagementRate: 0,
+        demographics: {
+          ageGroups: [],
+          genderGroups: [],
+          countries: [],
+          cities: [],
+          languages: []
+        },
+        topPages: [],
+        trafficSources: [],
+        campaigns: []
       };
-      reader.readAsText(file);
-    }
-    
-    // Tab switching logic
-    function switchTab(tabId, tabButton) {
-      // Hide all tab contents
-      document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
       
-      // Deactivate all tabs
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      // Activate selected tab and content
-      document.getElementById(`${tabId}-tab`).classList.add('active');
-      tabButton.classList.add('active');
-    }
-    
-    // Status message helper functions
-    function showStatus(elementId, message, isSuccess) {
-      const statusElement = document.getElementById(elementId);
-      statusElement.textContent = message;
-      statusElement.classList.remove('hidden', 'success', 'error');
-      statusElement.classList.add(isSuccess ? 'success' : 'error');
-    }
-    
-    function hideStatus(elementId) {
-      document.getElementById(elementId).classList.add('hidden');
-    }
-    
-    // Process Facebook CSV
-    function processFacebookCSV() {
-      const csvContent = document.getElementById('facebook-csv').value;
-      if (!csvContent.trim()) {
-        showStatus('facebook-status', 'Error: Please provide Facebook CSV data', false);
-        return;
-      }
-      
-      try {
-        processedData.facebook = processFacebookData(csvContent);
-        const outputEl = document.getElementById('facebook-output');
-        outputEl.textContent = JSON.stringify(processedData.facebook, null, 2);
-        outputEl.classList.remove('hidden');
-        showStatus('facebook-status', 'Facebook data processed successfully!', true);
-      } catch (error) {
-        console.error('Error processing Facebook data:', error);
-        showStatus('facebook-status', `Error processing Facebook data: ${error.message}`, false);
-      }
-    }
-    
-    // Process Instagram CSV
-    function processInstagramCSV() {
-      const csvContent = document.getElementById('instagram-csv').value;
-      if (!csvContent.trim()) {
-        showStatus('instagram-status', 'Error: Please provide Instagram CSV data', false);
-        return;
-      }
-      
-      try {
-        processedData.instagram = processInstagramData(csvContent);
-        const outputEl = document.getElementById('instagram-output');
-        outputEl.textContent = JSON.stringify(processedData.instagram, null, 2);
-        outputEl.classList.remove('hidden');
-        showStatus('instagram-status', 'Instagram data processed successfully!', true);
-      } catch (error) {
-        console.error('Error processing Instagram data:', error);
-        showStatus('instagram-status', `Error processing Instagram data: ${error.message}`, false);
-      }
-    }
-    
-    // Process Email CSV
-    function processEmailCSV() {
-      const csvContent = document.getElementById('email-csv').value;
-      if (!csvContent.trim()) {
-        showStatus('email-status', 'Error: Please provide Email CSV data', false);
-        return;
-      }
-      
-      try {
-        processedData.email = processEmailData(csvContent);
-        const outputEl = document.getElementById('email-output');
-        outputEl.textContent = JSON.stringify(processedData.email, null, 2);
-        outputEl.classList.remove('hidden');
-        showStatus('email-status', 'Email data processed successfully!', true);
-      } catch (error) {
-        console.error('Error processing Email data:', error);
-        showStatus('email-status', `Error processing Email data: ${error.message}`, false);
-      }
-    }
-    
-    // Process YouTube CSV
-    function processYouTubeCSV() {
-      const ageContent = document.getElementById('youtube-age-csv').value;
-      const genderContent = document.getElementById('youtube-gender-csv').value;
-      const geoContent = document.getElementById('youtube-geo-csv').value;
-      const subscriptionContent = document.getElementById('youtube-subscription-csv').value;
-      
-      if (!ageContent.trim() || !genderContent.trim() || !geoContent.trim() || !subscriptionContent.trim()) {
-        showStatus('youtube-status', 'Error: Please provide all YouTube CSV data files', false);
-        return;
-      }
-      
-      try {
-        processedData.youtube = processYouTubeData(ageContent, genderContent, geoContent, subscriptionContent);
-        const outputEl = document.getElementById('youtube-output');
-        outputEl.textContent = JSON.stringify(processedData.youtube, null, 2);
-        outputEl.classList.remove('hidden');
-        showStatus('youtube-status', 'YouTube data processed successfully!', true);
-      } catch (error) {
-        console.error('Error processing YouTube data:', error);
-        showStatus('youtube-status', `Error processing YouTube data: ${error.message}`, false);
-      }
-    }
-    
-    // Generate combined data for all files
-    function generateCombinedData() {
-      // Check if any data sources are missing
-      const missingData = [];
-      if (!processedData.facebook) missingData.push('Facebook');
-      if (!processedData.instagram) missingData.push('Instagram');
-      if (!processedData.email) missingData.push('Email');
-      if (!processedData.youtube) missingData.push('YouTube');
-      
-      if (missingData.length > 0) {
-        showStatus('combined-status', `Error: Missing data for ${missingData.join(', ')}. Please process all data sources first.`, false);
-        return;
-      }
-      
-      try {
-        // Generate cross-channel data
-        processedData.crossChannel = generateCrossChannelData(
-          processedData.facebook,
-          processedData.instagram,
-          processedData.youtube,
-          processedData.email
-        );
+      // Process demographics data with flexible field access
+      if (demographicsData) {
+        const demographics = csvToJson(demographicsData);
+        console.log("Parsed GA Demographics data:", demographics);
         
-        // Create separate JSON files
-        const files = {
-          'facebook_data.json': processedData.facebook,
-          'instagram_data.json': processedData.instagram,
-          'email_data.json': processedData.email,
-          'youtube_data.json': processedData.youtube,
-          'cross_channel_data.json': processedData.crossChannel
-        };
-        
-        // Create download links
-        const downloadSection = document.getElementById('download-section');
-        const downloadLinks = document.getElementById('download-links');
-        downloadLinks.innerHTML = '';
-        
-        for (const filename in files) {
-          const jsonData = JSON.stringify(files[filename], null, 2);
-          const blob = new Blob([jsonData], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
+        // Try to determine dimension type for each record
+        demographics.forEach(item => {
+          let dimensionType = '';
           
-          const downloadLink = document.createElement('div');
-          downloadLink.style.margin = '10px 0';
-          downloadLink.innerHTML = `
-            <a href="${url}" download="${filename}" style="display: inline-block; padding: 8px 12px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px;">
-              Download ${filename}
-            </a>
-            <span style="margin-left: 10px; color: #666; font-size: 14px;">
-              (${(jsonData.length / 1024).toFixed(1)} KB)
-            </span>
-          `;
+          // Try to determine the dimension type
+          if (getValueByPossibleNames(item, ['Dimension'], '') === 'Age' || 
+              Object.keys(item).some(key => key.includes('Age'))) {
+            dimensionType = 'Age';
+          } else if (getValueByPossibleNames(item, ['Dimension'], '') === 'Gender' || 
+                    Object.keys(item).some(key => key.includes('Gender'))) {
+            dimensionType = 'Gender';
+          } else if (getValueByPossibleNames(item, ['Dimension'], '') === 'Country' || 
+                    Object.keys(item).some(key => key.includes('Country'))) {
+            dimensionType = 'Country';
+          } else if (getValueByPossibleNames(item, ['Dimension'], '') === 'City' || 
+                    Object.keys(item).some(key => key.includes('City'))) {
+            dimensionType = 'City';
+          } else if (getValueByPossibleNames(item, ['Dimension'], '') === 'Language' || 
+                    Object.keys(item).some(key => key.includes('Language'))) {
+            dimensionType = 'Language';
+          }
           
-          downloadLinks.appendChild(downloadLink);
+          // Add data to appropriate category based on dimension type
+          if (dimensionType === 'Age') {
+            const ageRange = getValueByPossibleNames(item, ['Age', 'age range'], 'Unknown');
+            const users = getValueByPossibleNames(item, ['Users', 'user count', 'active users']);
+            const newUsers = getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']);
+            const sessions = getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']);
+            
+            result.demographics.ageGroups.push({
+              ageRange,
+              users,
+              newUsers,
+              sessions,
+              percentage: 0 // Will calculate after all processed
+            });
+            
+            // Add to totals
+            result.totalUsers += users;
+            result.totalSessions += sessions;
+          } else if (dimensionType === 'Gender') {
+            result.demographics.genderGroups.push({
+              gender: getValueByPossibleNames(item, ['Gender', 'gender type'], 'Unknown'),
+              users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+              newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+              sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+              percentage: 0 // Will calculate after
+            });
+          } else if (dimensionType === 'Country') {
+            result.demographics.countries.push({
+              country: getValueByPossibleNames(item, ['Country', 'country name'], 'Unknown'),
+              users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+              newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+              sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+              percentage: 0 // Will calculate after
+            });
+          } else if (dimensionType === 'City') {
+            result.demographics.cities.push({
+              city: getValueByPossibleNames(item, ['City', 'city name'], 'Unknown'),
+              users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+              newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+              sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+              percentage: 0 // Will calculate after
+            });
+          } else if (dimensionType === 'Language') {
+            result.demographics.languages.push({
+              language: getValueByPossibleNames(item, ['Language', 'language code'], 'Unknown'),
+              users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+              newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+              sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+              percentage: 0 // Will calculate after
+            });
+          }
+        });
+        
+        // If no explicit dimension found, try generic grouping based on found fields
+        if (result.demographics.ageGroups.length === 0 && 
+            result.demographics.genderGroups.length === 0 && 
+            result.demographics.countries.length === 0) {
+          
+          // Check if we have data about users
+          const hasUserData = demographics.some(item => 
+            getValueByPossibleNames(item, ['Users', 'user count', 'active users'], null) !== null);
+          
+          if (hasUserData) {
+            demographics.forEach(item => {
+              // Get the main identifier for this row
+              let mainIdentifier = '';
+              if (Object.keys(item).some(key => key.includes('Age'))) {
+                mainIdentifier = getValueByPossibleNames(item, ['Age', 'age range'], 'Unknown');
+                result.demographics.ageGroups.push({
+                  ageRange: mainIdentifier,
+                  users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+                  newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+                  sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+                  percentage: 0
+                });
+              } else if (Object.keys(item).some(key => key.includes('Gender'))) {
+                mainIdentifier = getValueByPossibleNames(item, ['Gender', 'gender type'], 'Unknown');
+                result.demographics.genderGroups.push({
+                  gender: mainIdentifier,
+                  users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+                  newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+                  sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+                  percentage: 0
+                });
+              } else if (Object.keys(item).some(key => key.includes('Country'))) {
+                mainIdentifier = getValueByPossibleNames(item, ['Country', 'country name'], 'Unknown');
+                result.demographics.countries.push({
+                  country: mainIdentifier,
+                  users: getValueByPossibleNames(item, ['Users', 'user count', 'active users']),
+                  newUsers: getValueByPossibleNames(item, ['New users', 'new visitors', 'first time users']),
+                  sessions: getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']),
+                  percentage: 0
+                });
+              }
+              
+              // Add to totals
+              result.totalUsers += getValueByPossibleNames(item, ['Users', 'user count', 'active users']);
+              result.totalSessions += getValueByPossibleNames(item, ['Sessions', 'visits', 'session count']);
+            });
+          }
         }
         
-        downloadSection.classList.remove('hidden');
-        
-        // Show output summary
-        const outputEl = document.getElementById('combined-output');
-        outputEl.innerHTML = `<strong>JSON files generated successfully!</strong><br><br>
-          The following files were created:
-          <ul>
-            ${Object.keys(files).map(filename => `
-              <li>${filename} - ${(JSON.stringify(files[filename], null, 2).length / 1024).toFixed(1)} KB</li>
-            `).join('')}
-          </ul>
-          <br>
-          Download these files and upload them to the <code>/data</code> folder in your GitHub repository to update your dashboard.
-        `;
-        outputEl.classList.remove('hidden');
-        
-        showStatus('combined-status', 'All JSON files generated successfully!', true);
-      } catch (error) {
-        console.error('Error generating combined data:', error);
-        showStatus('combined-status', `Error generating combined data: ${error.message}`, false);
+        // Calculate percentages
+        if (result.totalUsers > 0) {
+          result.demographics.ageGroups.forEach(group => {
+            group.percentage = ((group.users / result.totalUsers) * 100).toFixed(1);
+          });
+          
+          result.demographics.genderGroups.forEach(group => {
+            group.percentage = ((group.users / result.totalUsers) * 100).toFixed(1);
+          });
+          
+          result.demographics.countries.forEach(country => {
+            country.percentage = ((country.users / result.totalUsers) * 100).toFixed(1);
+          });
+          
+          result.demographics.cities.forEach(city => {
+            city.percentage = ((city.users / result.totalUsers) * 100).toFixed(1);
+          });
+          
+          result.demographics.languages.forEach(lang => {
+            lang.percentage = ((lang.users / result.totalUsers) * 100).toFixed(1);
+          });
+        }
       }
+      
+      // Process pages data with flexible mapping
+      if (pagesData) {
+        const pages = csvToJson(pagesData);
+        console.log("Parsed GA Pages data:", pages);
+        
+        // Extract top pages with flexible field access
+        result.topPages = pages.map(item => ({
+          pagePath: getValueByPossibleNames(item, ['Page path', 'Screen name', 'Page', 'URL'], 'Unknown'),
+          pageTitle: getValueByPossibleNames(item, ['Page title', 'Screen class', 'Title'], 'Unknown'),
+          pageviews: getValueByPossibleNames(item, ['Views', 'Pageviews', 'Screenviews', 'Page views']),
+          uniquePageviews: getValueByPossibleNames(item, ['Unique views', 'Users', 'Unique pageviews']),
+          averageTimeOnPage: getValueByPossibleNames(item, ['Average time on page', 'Avg. time'], '0:00')
+        })).sort((a, b) => b.pageviews - a.pageviews).slice(0, 20);
+      }
+      
+      // Process traffic acquisition data
+      if (trafficData) {
+        const traffic = csvToJson(trafficData);
+        console.log("Parsed GA Traffic data:", traffic);
+        
+        result.trafficSources = traffic.map(item => ({
+          source: getValueByPossibleNames(item, ['Source', 'Traffic source', 'Session source'], 'Unknown'),
+          medium: getValueByPossibleNames(item, ['Medium', 'Traffic medium', 'Session medium'], 'Unknown'),
+          channel: getValueByPossibleNames(item, ['Default channel group', 'Channel', 'Channel grouping'], 'Unknown'),
+          sessions: getValueByPossibleNames(item, ['Sessions', 'Visits']),
+          users: getValueByPossibleNames(item, ['Users', 'Visitors']),
+          engagedSessions: getValueByPossibleNames(item, ['Engaged sessions', 'Engaged visits']),
+          engagementRate: getValueByPossibleNames(item, ['Engagement rate', 'Engaged rate']),
+          percentage: 0 // Will calculate after
+        })).sort((a, b) => b.sessions - a.sessions);
+        
+        // Calculate engagement metrics and percentages
+        if (traffic.length > 0) {
+          result.engagedSessions = result.trafficSources.reduce((sum, item) => sum + item.engagedSessions, 0);
+          result.engagementRate = (result.engagedSessions / result.totalSessions * 100).toFixed(2);
+          
+          // Calculate percentages
+          result.trafficSources.forEach(source => {
+            source.percentage = ((source.sessions / result.totalSessions) * 100).toFixed(1);
+          });
+        }
+      }
+      
+      // Process UTM campaign data
+      if (utmsData) {
+        const utms = csvToJson(utmsData);
+        console.log("Parsed GA UTMs data:", utms);
+        
+        result.campaigns = utms.map(item => ({
+          campaign: getValueByPossibleNames(item, ['Campaign', 'Campaign name', 'Session campaign'], 'Unknown'),
+          source: getValueByPossibleNames(item, ['Source', 'Source name', 'Session source'], 'Unknown'),
+          medium: getValueByPossibleNames(item, ['Medium', 'Medium name', 'Session medium'], 'Unknown'),
+          users: getValueByPossibleNames(item, ['Users', 'Visitors']),
+          sessions: getValueByPossibleNames(item, ['Sessions', 'Visits']),
+          conversions: getValueByPossibleNames(item, ['Conversions', 'Transactions', 'Goals']),
+          conversionRate: 0 // Will calculate after
+        })).sort((a, b) => b.sessions - a.sessions);
+        
+        // Calculate conversion rates
+        result.campaigns.forEach(campaign => {
+          campaign.conversionRate = campaign.users ? 
+            ((campaign.conversions / campaign.users) * 100).toFixed(2) : 0;
+        });
+      }
+      
+      console.log("Processed Google Analytics data:", result);
+      return result;
+    }
+    
+    // File type detection patterns with alternative header options
+    const filePatterns = {
+      facebook: [
+        // Standard headers
+        ['Reach', 'Reactions', 'Comments', 'Shares', '3-second video views'],
+        // FB Post headers
+        ['Post ID', 'Account name', 'Title', 'Publish time', 'Video asset ID'],
+        // FB Video headers
+        ['Video asset ID', 'Reach', 'Reactions', 'Comments', 'Shares'],
+        // FB Insights headers
+        ['Date', 'Page Reach', 'Page Engaged Users', 'Reactions', 'Comments']
+      ],
+      instagram: [
+        // Standard headers
+        ['Reach', 'Likes', 'Comments', 'Saves', 'Post type'],
+        // IG Post headers
+        ['Post ID', 'Account name', 'Description', 'Likes', 'Comments'],
+        // IG Insights headers
+        ['Account username', 'Post type', 'Likes', 'Comments', 'Shares', 'Saves']
+      ],
+      email: [
+        // Standard headers
+        ['Emails sent', 'Email deliveries', 'Email open rate', 'Email click rate'],
+        // Alternative headers
+        ['Campaign', 'Email deliveries', 'Email opened', 'Email clicked'],
+        // Email campaign headers
+        ['Campaign', 'Email bounce rate', 'Email open rate', 'Email click rate']
+      ],
+      youtubeAge: [
+        // Standard headers
+        ['Viewer age', 'Views (%)', 'Watch time (hours) (%)'],
+        // Alternative headers
+        ['Age', 'Views percentage', 'Watch time percentage']
+      ],
+      youtubeGender: [
+        // Standard headers
+        ['Viewer gender', 'Views (%)', 'Watch time (hours) (%)'],
+        // Alternative headers
+        ['Gender', 'Views percentage', 'Watch time percentage']
+      ],
+      youtubeGeo: [
+        // Standard headers
+        ['Geography', 'Views', 'Watch time (hours)', 'Average view duration'],
+        // Alternative headers
+        ['Country', 'Views', 'Watch time', 'Average view duration']
+      ],
+      youtubeSubscription: [
+        // Standard headers
+        ['Subscription status', 'Views', 'Watch time (hours)'],
+        // Alternative headers
+        ['Status', 'Views', 'Watch time']
+      ],
+      gaDemographics: [
+        // Standard headers
+        ['Age', 'Gender', 'Country', 'City', 'Language', 'Users', 'New users', 'Sessions'],
+        // Alternative headers
+        ['Dimension', 'Age', 'Gender', 'Country', 'Users', 'Sessions'],
+        // GA4 headers
+        ['Dimension', 'Audience', 'Users', 'New users', 'Sessions']
+      ],
+      gaPages: [
+        // Standard headers
+        ['Page path', 'Screen name', 'Page title', 'Screen class', 'Views', 'Unique views'],
+        // Alternative headers
+        ['Page', 'Page title', 'Pageviews', 'Unique pageviews'],
+        // GA4 headers
+        ['Page path + query string', 'Screen name', 'Pageviews', 'Screenviews']
+      ],
+      gaTraffic: [
+        // Standard headers
+        ['Default channel group', 'Source', 'Medium', 'Sessions', 'Engaged sessions', 'Engagement rate'],
+        // Alternative headers
+        ['Channel', 'Source', 'Medium', 'Sessions', 'Users'],
+        // GA4 headers
+        ['Session source', 'Session medium', 'Sessions', 'Engagement rate']
+      ],
+      gaUtms: [
+        // Standard headers
+        ['Campaign', 'Source', 'Medium', 'Users', 'Sessions', 'Conversions'],
+        // Alternative headers
+        ['Campaign name', 'Source', 'Medium', 'Users', 'Sessions'],
+        // GA4 headers
+        ['Session campaign', 'Session source', 'Session medium', 'Sessions', 'Conversions']
+      ]
+    };
+    
+    // =====================
+    // DRAG & DROP HANDLING
+    // =====================
+    
+    // Set up drag and drop event listeners
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+      dropArea.classList.add('highlight');
+    }
+    
+    function unhighlight() {
+      dropArea.classList.remove('highlight');
+    }
+    
+    // Handle dropped files
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFiles(files);
+    }
+    
+    // Also handle files from file input
+    fileInput.addEventListener('change', function() {
+      handleFiles(this.files);
+    });
+    
+    function handleFiles(files) {
+      if (files.length === 0) return;
+      
+      // Show progress indicator
+      const progressBar = document.getElementById('progress-bar');
+      const uploadProgress = document.getElementById('upload-progress');
+      uploadProgress.classList.remove('hidden');
+      
+      // Convert FileList to array
+      const fileArray = Array.from(files);
+      
+      // Filter for CSV files
+      const csvFiles = fileArray.filter(file => file.name.toLowerCase().endsWith('.csv'));
+      
+      if (csvFiles.length === 0) {
+        showStatus('No CSV files found. Please upload .csv files only.', 'error', 'file-assign-status');
+        uploadProgress.classList.add('hidden');
+        return;
+      }
+      
+      // Process each file
+      let filesProcessed = 0;
+      
+      csvFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const content = e.target.result;
+          
+          // Store the file data
+          storeFileData(file, content);
+          
+          // Update progress
+          filesProcessed++;
+          const progress = Math.round((filesProcessed / csvFiles.length) * 100);
+          progressBar.style.width = progress + '%';
+          
+          // If all files processed, show the file list
+          if (filesProcessed === csvFiles.length) {
+            setTimeout(() => {
+              uploadProgress.classList.add('hidden');
+              showUploadedFiles();
+              assignFilesToSources();
+            }, 500);
+          }
+        };
+        
+        reader.readAsText(file);
+      });
+    }
+    
+    function storeFileData(file, content) {
+      // Auto-detect file type based on content
+      const fileType = detectFileType(content);
+      
+      // Store file by detected type
+      switch (fileType) {
+        case 'facebook':
+          uploadedFiles.facebook = { file, content };
+          break;
+        case 'instagram':
+          uploadedFiles.instagram = { file, content };
+          break;
+        case 'email':
+          uploadedFiles.email = { file, content };
+          break;
+        case 'youtubeAge':
+          uploadedFiles.youtube.age = { file, content };
+          break;
+        case 'youtubeGender':
+          uploadedFiles.youtube.gender = { file, content };
+          break;
+        case 'youtubeGeo':
+          uploadedFiles.youtube.geo = { file, content };
+          break;
+        case 'youtubeSubscription':
+          uploadedFiles.youtube.subscription = { file, content };
+          break;
+        case 'gaDemographics':
+          uploadedFiles.googleAnalytics.demographics = { file, content };
+          break;
+        case 'gaPages':
+          uploadedFiles.googleAnalytics.pagesAndScreens = { file, content };
+          break;
+        case 'gaTraffic':
+          uploadedFiles.googleAnalytics.trafficAcquisition = { file, content };
+          break;
+        case 'gaUtms':
+          uploadedFiles.googleAnalytics.utms = { file, content };
+          break;
+        default:
+          uploadedFiles.unknown.push({ file, content });
+          break;
+      }
+    }
+    
+    function detectFileType(content) {
+      if (!document.getElementById('auto-detect').checked) {
+        return 'unknown';
+      }
+      
+      // Get the first line (headers)
+      const headers = content.split('\n')[0];
+      
+      // Check each pattern group
+      for (const [type, patternGroups] of Object.entries(filePatterns)) {
+        // For each pattern group in this file type
+        for (const patterns of patternGroups) {
+          const matchCount = patterns.filter(pattern => headers.includes(pattern)).length;
+          // If more than 30% of the patterns match, consider it a match
+          if (matchCount >= Math.ceil(patterns.length * 0.3)) {
+            return type;
+          }
+        }
+      }
+      
+      return 'unknown';
+    }
+    
+    function showUploadedFiles() {
+      // Show the uploaded files section
+      document.getElementById('uploaded-files').classList.remove('hidden');
+      
+      // Get all files from the uploadedFiles object
+      const allFiles = [];
+      
+      if (uploadedFiles.facebook) {
+        allFiles.push({
+          file: uploadedFiles.facebook.file,
+          type: 'facebook'
+        });
+      }
+      
+      if (uploadedFiles.instagram) {
+        allFiles.push({
+          file: uploadedFiles.instagram.file,
+          type: 'instagram'
+        });
+      }
+      
+      if (uploadedFiles.email) {
+        allFiles.push({
+          file: uploadedFiles.email.file,
+          type: 'email'
+        });
+      }
+      
+      for (const key in uploadedFiles.youtube) {
+        if (uploadedFiles.youtube[key]) {
+          allFiles.push({
+            file: uploadedFiles.youtube[key].file,
+            type: `youtube-${key}`
+          });
+        }
+      }
+      
+      for (const key in uploadedFiles.googleAnalytics) {
+        if (uploadedFiles.googleAnalytics[key]) {
+          allFiles.push({
+            file: uploadedFiles.googleAnalytics[key].file,
+            type: `ga-${key}`
+          });
+        }
+      }
+      
+      uploadedFiles.unknown.forEach(item => {
+        allFiles.push({
+          file: item.file,
+          type: 'unknown'
+        });
+      });
+      
+      // Generate file list HTML
+      const fileListContainer = document.getElementById('file-list');
+      fileListContainer.innerHTML = '';
+      
+      if (allFiles.length === 0) {
+        fileListContainer.innerHTML = '<div class="file-item">No files uploaded yet</div>';
+        return;
+      }
+      
+      allFiles.forEach((item, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+          <div>
+            <span>${item.file.name}</span>
+            <span class="file-type">${item.type}</span>
+          </div>
+          <span class="file-remove" onclick="removeFile('${item.type}', ${index})">✕</span>
+        `;
+        fileListContainer.appendChild(fileItem);
+      });
+    }
+    
+    function clearFiles() {
+      // Clear all file data
+      uploadedFiles.facebook = null;
+      uploadedFiles.instagram = null;
+      uploadedFiles.email = null;
+      uploadedFiles.youtube = {
+        age: null,
+        gender: null,
+        geo: null,
+        subscription: null
+      };
+      uploadedFiles.googleAnalytics = {
+        demographics: null,
+        pagesAndScreens: null,
+        trafficAcquisition: null,
+        utms: null
+      };
+      uploadedFiles.unknown = [];
+      
+      // Clear the file list
+      document.getElementById('file-list').innerHTML = '<div class="file-item">No files uploaded</div>';
+      
+      // Hide sections that depend on files
+      document.getElementById('file-assignment').classList.add('hidden');
+      document.getElementById('data-preview').classList.add('hidden');
+      document.getElementById('process-section').classList.add('hidden');
+      document.getElementById('results-section').classList.add('hidden');
+      
+      // Reset the file input
+      document.getElementById('file-input').value = '';
+    }
+    
+    function removeFile(type, index) {
+      // Remove file based on type
+      if (type === 'facebook') {
+        uploadedFiles.facebook = null;
+      } else if (type === 'instagram') {
+        uploadedFiles.instagram = null;
+      } else if (type === 'email') {
+        uploadedFiles.email = null;
+      } else if (type.startsWith('youtube-')) {
+        const youtubeType = type.replace('youtube-', '');
+        uploadedFiles.youtube[youtubeType] = null;
+      } else if (type === 'unknown') {
+        uploadedFiles.unknown.splice(index, 1);
+      }
+      
+      // Refresh the file list
+      showUploadedFiles();
+      assignFilesToSources();
+    }
+    
+    // =====================
+    // FILE ASSIGNMENT
+    // =====================
+    
+    function assignFilesToSources() {
+      // Show the file assignment section
+      document.getElementById('file-assignment').classList.remove('hidden');
+      
+      // Populate Facebook files
+      const facebookFileList = document.getElementById('facebook-file-list');
+      if (uploadedFiles.facebook) {
+        facebookFileList.innerHTML = `
+          <div>${uploadedFiles.facebook.file.name}</div>
+        `;
+      } else {
+        facebookFileList.innerHTML = 'No Facebook file assigned';
+      }
+      
+      // Populate Instagram files
+      const instagramFileList = document.getElementById('instagram-file-list');
+      if (uploadedFiles.instagram) {
+        instagramFileList.innerHTML = `
+          <div>${uploadedFiles.instagram.file.name}</div>
+        `;
+      } else {
+        instagramFileList.innerHTML = 'No Instagram file assigned';
+      }
+      
+      // Populate Email files
+      const emailFileList = document.getElementById('email-file-list');
+      if (uploadedFiles.email) {
+        emailFileList.innerHTML = `
+          <div>${uploadedFiles.email.file.name}</div>
+        `;
+      } else {
+        emailFileList.innerHTML = 'No Email file assigned';
+      }
+      
+      // Populate YouTube files
+      if (uploadedFiles.youtube.age) {
+        document.getElementById('youtube-age-file').textContent = uploadedFiles.youtube.age.file.name;
+      } else {
+        document.getElementById('youtube-age-file').textContent = 'None assigned';
+      }
+      
+      if (uploadedFiles.youtube.gender) {
+        document.getElementById('youtube-gender-file').textContent = uploadedFiles.youtube.gender.file.name;
+      } else {
+        document.getElementById('youtube-gender-file').textContent = 'None assigned';
+      }
+      
+      if (uploadedFiles.youtube.geo) {
+        document.getElementById('youtube-geo-file').textContent = uploadedFiles.youtube.geo.file.name;
+      } else {
+        document.getElementById('youtube-geo-file').textContent = 'None assigned';
+      }
+      
+      if (uploadedFiles.youtube.subscription) {
+        document.getElementById('youtube-subscription-file').textContent = uploadedFiles.youtube.subscription.file.name;
+      } else {
+        document.getElementById('youtube-subscription-file').textContent = 'None assigned';
+      }
+      
+      // Populate Google Analytics files
+      if (uploadedFiles.googleAnalytics.demographics) {
+        document.getElementById('ga-demographics-file').textContent = uploadedFiles.googleAnalytics.demographics.file.name;
+      } else {
+        document.getElementById('ga-demographics-file').textContent = 'None assigned';
+      }
+      
+      if (uploadedFiles.googleAnalytics.pagesAndScreens) {
+        document.getElementById('ga-pages-file').textContent = uploadedFiles.googleAnalytics.pagesAndScreens.file.name;
+      } else {
+        document.getElementById('ga-pages-file').textContent = 'None assigned';
+      }
+      
+      if (uploadedFiles.googleAnalytics.trafficAcquisition) {
+        document.getElementById('ga-traffic-file').textContent = uploadedFiles.googleAnalytics.trafficAcquisition.file.name;
+      } else {
+        document.getElementById('ga-traffic-file').textContent = 'None assigned';
+      }
+      
+      if (uploadedFiles.googleAnalytics.utms) {
+        document.getElementById('ga-utms-file').textContent = uploadedFiles.googleAnalytics.utms.file.name;
+      } else {
+        document.getElementById('ga-utms-file').textContent = 'None assigned';
+      }
+      
+      // Populate Unknown files
+      const unknownFileList = document.getElementById('unknown-file-list');
+      if (uploadedFiles.unknown.length > 0) {
+        unknownFileList.innerHTML = '';
+        uploadedFiles.unknown.forEach((file, index) => {
+          unknownFileList.innerHTML += `
+            <div class="unknown-file-item">
+              <span>${file.file.name}</span>
+              <select id="file-type-${index}" onchange="reassignFile(${index}, this.value)">
+                <option value="">Select type...</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="email">Email</option>
+                <option value="youtube-age">YouTube Age Demographics</option>
+                <option value="youtube-gender">YouTube Gender Demographics</option>
+                <option value="youtube-geo">YouTube Geography</option>
+                <option value="youtube-subscription">YouTube Subscription Status</option>
+                <option value="ga-demographics">Google Analytics Demographics</option>
+                <option value="ga-pages">Google Analytics Pages & Screens</option>
+                <option value="ga-traffic">Google Analytics Traffic Acquisition</option>
+                <option value="ga-utms">Google Analytics UTM Parameters</option>
+              </select>
+            </div>
+          `;
+        });
+      } else {
+        unknownFileList.innerHTML = 'No unassigned files';
+      }
+      
+      // Check if we have enough data to proceed
+      checkDataCompletion();
+    }
+    
+    function reassignFile(index, newType) {
+      // Get the file from the unknown array
+      const fileData = uploadedFiles.unknown[index];
+      
+      // Remove it from unknown
+      uploadedFiles.unknown.splice(index, 1);
+      
+      // Add it to the new type
+      if (newType === 'facebook') {
+        uploadedFiles.facebook = fileData;
+      } else if (newType === 'instagram') {
+        uploadedFiles.instagram = fileData;
+      } else if (newType === 'email') {
+        uploadedFiles.email = fileData;
+      } else if (newType === 'youtube-age') {
+        uploadedFiles.youtube.age = fileData;
+      } else if (newType === 'youtube-gender') {
+        uploadedFiles.youtube.gender = fileData;
+      } else if (newType === 'youtube-geo') {
+        uploadedFiles.youtube.geo = fileData;
+      } else if (newType === 'youtube-subscription') {
+        uploadedFiles.youtube.subscription = fileData;
+      } else if (newType === 'ga-demographics') {
+        uploadedFiles.googleAnalytics.demographics = fileData;
+      } else if (newType === 'ga-pages') {
+        uploadedFiles.googleAnalytics.pagesAndScreens = fileData;
+      } else if (newType === 'ga-traffic') {
+        uploadedFiles.googleAnalytics.trafficAcquisition = fileData;
+      } else if (newType === 'ga-utms') {
+        uploadedFiles.googleAnalytics.utms = fileData;
+      }
+      
+      // Refresh the file assignments
+      showUploadedFiles();
+      assignFilesToSources();
+    }
+    
+    function checkDataCompletion() {
+      // Check if we have at least one data source
+      const hasFacebook = uploadedFiles.facebook !== null;
+      const hasInstagram = uploadedFiles.instagram !== null;
+      const hasEmail = uploadedFiles.email !== null;
+      const hasYouTube = uploadedFiles.youtube.age !== null && 
+                         uploadedFiles.youtube.gender !== null && 
+                         uploadedFiles.youtube.geo !== null && 
+                         uploadedFiles.youtube.subscription !== null;
+      const hasGoogleAnalytics = uploadedFiles.googleAnalytics.demographics !== null &&
+                                uploadedFiles.googleAnalytics.pagesAndScreens !== null &&
+                                uploadedFiles.googleAnalytics.trafficAcquisition !== null &&
+                                uploadedFiles.googleAnalytics.utms !== null;
+      
+      const hasAnySource = hasFacebook || hasInstagram || hasEmail || hasYouTube || hasGoogleAnalytics;
+      
+      if (hasAnySource) {
+        document.getElementById('data-preview').classList.remove('hidden');
+        document.getElementById('process-section').classList.remove('hidden');
+        generatePreviews();
+      } else {
+        document.getElementById('data-preview').classList.add('hidden');
+        document.getElementById('process-section').classList.add('hidden');
+      }
+      
+      // Show a status message about missing data
+      let missingDataMessage = '';
+      
+      if (!hasFacebook) {
+        missingDataMessage += 'Facebook data is missing. ';
+      }
+      
+      if (!hasInstagram) {
+        missingDataMessage += 'Instagram data is missing. ';
+      }
+      
+      if (!hasEmail) {
+        missingDataMessage += 'Email data is missing. ';
+      }
+      
+      if (!hasYouTube) {
+        const missingYouTubeComponents = [];
+        if (!uploadedFiles.youtube.age) missingYouTubeComponents.push('Age Demographics');
+        if (!uploadedFiles.youtube.gender) missingYouTubeComponents.push('Gender Demographics');
+        if (!uploadedFiles.youtube.geo) missingYouTubeComponents.push('Geography');
+        if (!uploadedFiles.youtube.subscription) missingYouTubeComponents.push('Subscription Status');
+        
+        if (missingYouTubeComponents.length > 0) {
+          missingDataMessage += `YouTube data is incomplete (missing ${missingYouTubeComponents.join(', ')}). `;
+        }
+      }
+      
+      if (!hasGoogleAnalytics) {
+        const missingGAComponents = [];
+        if (!uploadedFiles.googleAnalytics.demographics) missingGAComponents.push('Demographics');
+        if (!uploadedFiles.googleAnalytics.pagesAndScreens) missingGAComponents.push('Pages & Screens');
+        if (!uploadedFiles.googleAnalytics.trafficAcquisition) missingGAComponents.push('Traffic Acquisition');
+        if (!uploadedFiles.googleAnalytics.utms) missingGAComponents.push('UTM Parameters');
+        
+        if (missingGAComponents.length > 0) {
+          missingDataMessage += `Google Analytics data is incomplete (missing ${missingGAComponents.join(', ')}). `;
+        }
+      }
+      
+      if (missingDataMessage !== '') {
+        showStatus(missingDataMessage + 'You can still proceed with available data.', 'warning', 'file-assign-status');
+      } else {
+        showStatus('All data sources are available!', 'success', 'file-assign-status');
+      }
+    }
+    
+    // =====================
+    // DATA PREVIEW & VALIDATION
+    // =====================
+    
+    // Set up tab switching for preview panels
+    document.querySelectorAll('.preview-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.preview-tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        
+        // Add active class to clicked tab
+        this.classList.add('active');
+        
+        // Hide all panels
+        document.querySelectorAll('.preview-panel').forEach(panel => {
+          panel.classList.add('hidden');
+        });
+        
+        // Show the selected panel
+        const targetId = this.getAttribute('data-target');
+        document.getElementById(targetId).classList.remove('hidden');
+      });
+    });
+    
+    function generatePreviews() {
+      // Generate previews for each data source
+      generatePreview('facebook', uploadedFiles.facebook);
+      generatePreview('instagram', uploadedFiles.instagram);
+      generatePreview('email', uploadedFiles.email);
+      
+      // For YouTube, we need to combine the previews
+      const youtubePreview = document.getElementById('youtube-sample');
+      youtubePreview.innerHTML = '';
+      
+      if (uploadedFiles.youtube.age) {
+        const ageSection = document.createElement('div');
+        ageSection.innerHTML = `<h4>Age Demographics</h4>`;
+        ageSection.appendChild(createTablePreview(uploadedFiles.youtube.age.content));
+        youtubePreview.appendChild(ageSection);
+      }
+      
+      if (uploadedFiles.youtube.gender) {
+        const genderSection = document.createElement('div');
+        genderSection.innerHTML = `<h4>Gender Demographics</h4>`;
+        genderSection.appendChild(createTablePreview(uploadedFiles.youtube.gender.content));
+        youtubePreview.appendChild(genderSection);
+      }
+      
+      if (uploadedFiles.youtube.geo) {
+        const geoSection = document.createElement('div');
+        geoSection.innerHTML = `<h4>Geography</h4>`;
+        geoSection.appendChild(createTablePreview(uploadedFiles.youtube.geo.content));
+        youtubePreview.appendChild(geoSection);
+      }
+      
+      if (uploadedFiles.youtube.subscription) {
+        const subSection = document.createElement('div');
+        subSection.innerHTML = `<h4>Subscription Status</h4>`;
+        subSection.appendChild(createTablePreview(uploadedFiles.youtube.subscription.content));
+        youtubePreview.appendChild(subSection);
+      }
+      
+      // For Google Analytics, we need to combine the previews
+      const analyticsPreview = document.getElementById('analytics-sample');
+      analyticsPreview.innerHTML = '';
+      
+      if (uploadedFiles.googleAnalytics.demographics) {
+        const demoSection = document.createElement('div');
+        demoSection.innerHTML = `<h4>Demographics</h4>`;
+        demoSection.appendChild(createTablePreview(uploadedFiles.googleAnalytics.demographics.content));
+        analyticsPreview.appendChild(demoSection);
+      }
+      
+      if (uploadedFiles.googleAnalytics.pagesAndScreens) {
+        const pagesSection = document.createElement('div');
+        pagesSection.innerHTML = `<h4>Pages & Screens</h4>`;
+        pagesSection.appendChild(createTablePreview(uploadedFiles.googleAnalytics.pagesAndScreens.content));
+        analyticsPreview.appendChild(pagesSection);
+      }
+      
+      if (uploadedFiles.googleAnalytics.trafficAcquisition) {
+        const trafficSection = document.createElement('div');
+        trafficSection.innerHTML = `<h4>Traffic Acquisition</h4>`;
+        trafficSection.appendChild(createTablePreview(uploadedFiles.googleAnalytics.trafficAcquisition.content));
+        analyticsPreview.appendChild(trafficSection);
+      }
+      
+      if (uploadedFiles.googleAnalytics.utms) {
+        const utmsSection = document.createElement('div');
+        utmsSection.innerHTML = `<h4>UTM Parameters</h4>`;
+        utmsSection.appendChild(createTablePreview(uploadedFiles.googleAnalytics.utms.content));
+        analyticsPreview.appendChild(utmsSection);
+      }
+    }
+    
+    function generatePreview(sourceName, fileData) {
+      const sampleElement = document.getElementById(`${sourceName}-sample`);
+      
+      if (!fileData) {
+        sampleElement.innerHTML = `<p>No ${sourceName} data available</p>`;
+        return;
+      }
+      
+      sampleElement.innerHTML = '';
+      sampleElement.appendChild(createTablePreview(fileData.content));
+    }
+    
+    function createTablePreview(csvContent) {
+      // Parse the CSV
+      const lines = csvContent.split('\n');
+      const headers = lines[0].split(',').map(header => header.trim());
+      
+      // Create table element
+      const table = document.createElement('table');
+      table.className = 'preview-table';
+      
+      // Create table header
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      
+      headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
+      });
+      
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      
+      // Create table body with max 5 rows
+      const tbody = document.createElement('tbody');
+      const maxRows = Math.min(5, lines.length - 1);
+      
+      for (let i = 1; i <= maxRows; i++) {
+        if (!lines[i] || lines[i].trim() === '') continue;
+        
+        const rowData = lines[i].split(',');
+        const row = document.createElement('tr');
+        
+        rowData.forEach((cell, index) => {
+          if (index < headers.length) {
+            const td = document.createElement('td');
+            td.textContent = cell.trim();
+            row.appendChild(td);
+          }
+        });
+        
+        tbody.appendChild(row);
+      }
+      
+      table.appendChild(tbody);
+      return table;
+    }
+    
+    function validateData() {
+      let isValid = true;
+      let messages = [];
+      
+      // Validate Facebook data
+      if (uploadedFiles.facebook) {
+        const fbValidation = validateCSV(uploadedFiles.facebook.content, filePatterns.facebook);
+        if (!fbValidation.isValid) {
+          isValid = false;
+          messages.push(`Facebook data: ${fbValidation.message}`);
+        }
+      }
+      
+      // Validate Instagram data
+      if (uploadedFiles.instagram) {
+        const igValidation = validateCSV(uploadedFiles.instagram.content, filePatterns.instagram);
+        if (!igValidation.isValid) {
+          isValid = false;
+          messages.push(`Instagram data: ${igValidation.message}`);
+        }
+      }
+      
+      // Validate Email data
+      if (uploadedFiles.email) {
+        const emailValidation = validateCSV(uploadedFiles.email.content, filePatterns.email);
+        if (!emailValidation.isValid) {
+          isValid = false;
+          messages.push(`Email data: ${emailValidation.message}`);
+        }
+      }
+      
+      // Validate YouTube data
+      if (uploadedFiles.youtube.age) {
+        const ageValidation = validateCSV(uploadedFiles.youtube.age.content, filePatterns.youtubeAge);
+        if (!ageValidation.isValid) {
+          isValid = false;
+          messages.push(`YouTube Age data: ${ageValidation.message}`);
+        }
+      }
+      
+      if (uploadedFiles.youtube.gender) {
+        const genderValidation = validateCSV(uploadedFiles.youtube.gender.content, filePatterns.youtubeGender);
+        if (!genderValidation.isValid) {
+          isValid = false;
+          messages.push(`YouTube Gender data: ${genderValidation.message}`);
+        }
+      }
+      
+      if (uploadedFiles.youtube.geo) {
+        const geoValidation = validateCSV(uploadedFiles.youtube.geo.content, filePatterns.youtubeGeo);
+        if (!geoValidation.isValid) {
+          isValid = false;
+          messages.push(`YouTube Geography data: ${geoValidation.message}`);
+        }
+      }
+      
+      if (uploadedFiles.youtube.subscription) {
+        const subValidation = validateCSV(uploadedFiles.youtube.subscription.content, filePatterns.youtubeSubscription);
+        if (!subValidation.isValid) {
+          isValid = false;
+          messages.push(`YouTube Subscription data: ${subValidation.message}`);
+        }
+      }
+      
+      // Validate Google Analytics data
+      if (uploadedFiles.googleAnalytics.demographics) {
+        const demoValidation = validateCSV(uploadedFiles.googleAnalytics.demographics.content, filePatterns.gaDemographics);
+        if (!demoValidation.isValid) {
+          isValid = false;
+          messages.push(`Google Analytics Demographics data: ${demoValidation.message}`);
+        }
+      }
+      
+      if (uploadedFiles.googleAnalytics.pagesAndScreens) {
+        const pagesValidation = validateCSV(uploadedFiles.googleAnalytics.pagesAndScreens.content, filePatterns.gaPages);
+        if (!pagesValidation.isValid) {
+          isValid = false;
+          messages.push(`Google Analytics Pages & Screens data: ${pagesValidation.message}`);
+        }
+      }
+      
+      if (uploadedFiles.googleAnalytics.trafficAcquisition) {
+        const trafficValidation = validateCSV(uploadedFiles.googleAnalytics.trafficAcquisition.content, filePatterns.gaTraffic);
+        if (!trafficValidation.isValid) {
+          isValid = false;
+          messages.push(`Google Analytics Traffic Acquisition data: ${trafficValidation.message}`);
+        }
+      }
+      
+      if (uploadedFiles.googleAnalytics.utms) {
+        const utmsValidation = validateCSV(uploadedFiles.googleAnalytics.utms.content, filePatterns.gaUtms);
+        if (!utmsValidation.isValid) {
+          isValid = false;
+          messages.push(`Google Analytics UTM Parameters data: ${utmsValidation.message}`);
+        }
+      }
+      
+      // Show validation result
+      if (isValid) {
+        showStatus('Data validation successful! All files have the expected format.', 'success', 'validation-result');
+      } else {
+        showStatus(`Data validation issues found:<br>${messages.join('<br>')}`, 'error', 'validation-result');
+      }
+      
+      return isValid;
+    }
+    
+    function validateCSV(csvContent, patternGroups) {
+      // Get the CSV headers
+      const headers = csvContent.split('\n')[0].split(',').map(h => h.trim());
+      
+      // Try each pattern group
+      for (const patterns of patternGroups) {
+        const missingHeaders = patterns.filter(header => !headers.some(h => h.includes(header)));
+        
+        // If this pattern group has a good match (less than 70% missing headers), consider it valid
+        if (missingHeaders.length < patterns.length * 0.7) {
+          return {
+            isValid: true,
+            message: 'Valid',
+            matchingPatterns: patterns.filter(header => headers.some(h => h.includes(header)))
+          };
+        }
+      }
+      
+      // If we get here, no pattern group was a good match
+      return {
+        isValid: false,
+        message: `Missing required headers: ${patternGroups[0].join(', ')}`,
+        suggestedHeaders: headers
+      };
+    }
+    
+    // =====================
+    // DATA PROCESSING
+    // =====================
+    
+    function processAllData() {
+      // Skip validation if requested
+      const isSkipValidation = document.getElementById('skip-validation').checked;
+      if (!isSkipValidation && !validateData()) {
+        if (!confirm('Some data validation issues were found. Do you want to proceed anyway?')) {
+          return;
+        }
+      }
+      
+      // Show processing indicators
+      const processingStatus = document.getElementById('processing-status');
+      const processingProgress = document.getElementById('processing-progress');
+      const processingBar = document.getElementById('processing-bar');
+      
+      processingStatus.innerHTML = 'Processing data...';
+      processingStatus.classList.remove('hidden', 'success', 'error');
+      processingStatus.classList.add('warning');
+      
+      processingProgress.classList.remove('hidden');
+      processingBar.style.width = '0%';
+      
+      // Disable the process button
+      document.getElementById('process-button').disabled = true;
+      
+      // Process each data source
+      const totalSteps = 6; // Facebook, Instagram, Email, YouTube, Google Analytics, Cross-Channel
+      let completedSteps = 0;
+      
+      // Use setTimeout to allow the UI to update
+      setTimeout(() => {
+        try {
+          // Process Facebook data
+          if (uploadedFiles.facebook) {
+            processedData.facebook = processFacebookData(uploadedFiles.facebook.content);
+            console.log("Processed Facebook data:", processedData.facebook);
+          }
+          
+          completedSteps++;
+          processingBar.style.width = (completedSteps / totalSteps * 100) + '%';
+          
+          // Process Instagram data
+          if (uploadedFiles.instagram) {
+            processedData.instagram = processInstagramData(uploadedFiles.instagram.content);
+            console.log("Processed Instagram data:", processedData.instagram);
+          }
+          
+          completedSteps++;
+          processingBar.style.width = (completedSteps / totalSteps * 100) + '%';
+          
+          // Process Email data
+          if (uploadedFiles.email) {
+            processedData.email = processEmailData(uploadedFiles.email.content);
+            console.log("Processed Email data:", processedData.email);
+          }
+          
+          completedSteps++;
+          processingBar.style.width = (completedSteps / totalSteps * 100) + '%';
+          
+          // Process YouTube data
+          if (uploadedFiles.youtube.age && uploadedFiles.youtube.gender && 
+              uploadedFiles.youtube.geo && uploadedFiles.youtube.subscription) {
+            processedData.youtube = processYouTubeData(
+              uploadedFiles.youtube.age.content,
+              uploadedFiles.youtube.gender.content,
+              uploadedFiles.youtube.geo.content,
+              uploadedFiles.youtube.subscription.content
+            );
+            console.log("Processed YouTube data:", processedData.youtube);
+          }
+          
+          completedSteps++;
+          processingBar.style.width = (completedSteps / totalSteps * 100) + '%';
+          
+          // Process Google Analytics data
+          if (uploadedFiles.googleAnalytics.demographics || 
+              uploadedFiles.googleAnalytics.pagesAndScreens || 
+              uploadedFiles.googleAnalytics.trafficAcquisition || 
+              uploadedFiles.googleAnalytics.utms) {
+            
+            processedData.googleAnalytics = processGoogleAnalyticsData(
+              uploadedFiles.googleAnalytics.demographics ? uploadedFiles.googleAnalytics.demographics.content : null,
+              uploadedFiles.googleAnalytics.pagesAndScreens ? uploadedFiles.googleAnalytics.pagesAndScreens.content : null,
+              uploadedFiles.googleAnalytics.trafficAcquisition ? uploadedFiles.googleAnalytics.trafficAcquisition.content : null,
+              uploadedFiles.googleAnalytics.utms ? uploadedFiles.googleAnalytics.utms.content : null
+            );
+            console.log("Processed Google Analytics data:", processedData.googleAnalytics);
+          }
+          
+          completedSteps++;
+          processingBar.style.width = (completedSteps / totalSteps * 100) + '%';
+          
+          // Generate cross-channel data if requested
+          if (document.getElementById('combine-json').checked) {
+            processedData.crossChannel = generateCrossChannelData(
+              processedData.facebook,
+              processedData.instagram,
+              processedData.youtube,
+              processedData.email,
+              processedData.googleAnalytics
+            );
+            console.log("Generated cross-channel data:", processedData.crossChannel);
+          }
+          
+          completedSteps++;
+          processingBar.style.width = '100%';
+          
+          // Show success message
+          processingStatus.innerHTML = 'All data processed successfully!';
+          processingStatus.classList.remove('warning', 'error');
+          processingStatus.classList.add('success');
+          
+          // Enable the process button
+          document.getElementById('process-button').disabled = false;
+          
+          // Show download options
+          setTimeout(() => {
+            generateDownloadLinks();
+          }, 500);
+          
+        } catch (error) {
+          console.error('Error processing data:', error);
+          
+          // Show error message
+          processingStatus.innerHTML = `Error processing data: ${error.message}`;
+          processingStatus.classList.remove('warning', 'success');
+          processingStatus.classList.add('error');
+          
+          // Enable the process button
+          document.getElementById('process-button').disabled = false;
+        }
+      }, 100);
+    }
+    
+    // CSV to JSON conversion functions
+    // These functions should be copied from csv-to-json.js
+    function csvToJson(csv) {
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',').map(header => header.trim());
+      const result = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        // Skip empty lines
+        if (lines[i].trim() === '') continue;
+        
+        const obj = {};
+        // Handle quoted values in CSV that might contain commas
+        const currentLine = parseCSVLine(lines[i]);
+
+        for (let j = 0; j < headers.length; j++) {
+          // Try to convert to number if possible
+          const value = currentLine[j] ? currentLine[j].trim() : '';
+          obj[headers[j]] = !isNaN(value) && value !== '' ? Number(value) : value;
+        }
+
+        result.push(obj);
+      }
+
+      return result;
+    }
+    
+    // Helper function to properly parse CSV lines with quoted values
+    function parseCSVLine(line) {
+      const result = [];
+      let currentValue = '';
+      let insideQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          // Toggle inside quotes state
+          insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+          // End of value
+          result.push(currentValue);
+          currentValue = '';
+        } else {
+          currentValue += char;
+        }
+      }
+      
+      // Add the last value
+      result.push(currentValue);
+      
+      return result;
+    }
+
+    function processFacebookData(csvData) {
+      console.log("Processing Facebook data...");
+      
+      // Get the CSV headers for debugging
+      const headers = csvData.split('\n')[0].split(',').map(header => header.trim());
+      console.log("Facebook CSV headers:", headers);
+      
+      const data = csvToJson(csvData);
+      console.log("Parsed Facebook data:", data);
+      
+      // Create a more flexible mapping that tries different possible field names
+      function getValueByPossibleNames(item, possibleNames, defaultValue = 0) {
+        for (const name of possibleNames) {
+          // Check for exact match
+          if (item[name] !== undefined) {
+            return item[name];
+          }
+          
+          // Check for partial match
+          const matchingKey = Object.keys(item).find(key => 
+            key.toLowerCase().includes(name.toLowerCase()));
+          if (matchingKey) {
+            return item[matchingKey];
+          }
+        }
+        return defaultValue;
+      }
+      
+      // Try to process the data with more flexible field mappings
+      return {
+        reach: data.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'Page Reach', 'reach', 'total reach', 'Impressions']), 0),
+        engagement: data.reduce((sum, item) => {
+          const reactions = getValueByPossibleNames(item, ['Reactions', 'reactions', 'Total reactions']);
+          const comments = getValueByPossibleNames(item, ['Comments', 'comments', 'Total comments']);
+          const shares = getValueByPossibleNames(item, ['Shares', 'shares', 'Total shares']);
+          return sum + reactions + comments + shares;
+        }, 0),
+        engagement_rate: (() => {
+          const totalEngagement = data.reduce((sum, item) => {
+            const reactions = getValueByPossibleNames(item, ['Reactions', 'reactions', 'Total reactions']);
+            const comments = getValueByPossibleNames(item, ['Comments', 'comments', 'Total comments']);
+            const shares = getValueByPossibleNames(item, ['Shares', 'shares', 'Total shares']);
+            return sum + reactions + comments + shares;
+          }, 0);
+          const totalReach = data.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'Page Reach', 'reach', 'total reach', 'Impressions']), 0);
+          
+          return totalReach > 0 ? ((totalEngagement / totalReach) * 100).toFixed(2) : 0;
+        })(),
+        views: data.reduce((sum, item) => sum + getValueByPossibleNames(item, ['3-second video views', 'Video Views', 'views', 'Views']), 0),
+        posts: data.map(item => ({
+          title: getValueByPossibleNames(item, ['Title', 'Post Title', 'title'], 'Untitled'),
+          date: getValueByPossibleNames(item, ['Publish time', 'Post Date', 'date', 'Date'], ''),
+          reach: getValueByPossibleNames(item, ['Reach', 'Page Reach', 'reach']),
+          reactions: getValueByPossibleNames(item, ['Reactions', 'reactions', 'Total reactions']),
+          comments: getValueByPossibleNames(item, ['Comments', 'comments', 'Total comments']),
+          shares: getValueByPossibleNames(item, ['Shares', 'shares', 'Total shares']),
+          views: getValueByPossibleNames(item, ['3-second video views', 'Video Views', 'views', 'Views'])
+        })),
+        performance_trend: [
+          { month: 'Jan', reach: 15200, engagement: 1520 },
+          { month: 'Feb', reach: 16100, engagement: 1610 },
+          { month: 'Mar', reach: 16800, engagement: 1680 },
+          { month: 'Apr', reach: 17500, engagement: 1750 },
+          { month: 'May', reach: 18200, engagement: 1820 },
+          { month: 'Jun', reach: 18900, engagement: 1890 },
+          { month: 'Jul', reach: 19600, engagement: 1960 },
+          { month: 'Aug', reach: 20300, engagement: 2030 },
+          { month: 'Sep', reach: 21000, engagement: 2100 },
+          { month: 'Oct', reach: 21700, engagement: 2170 },
+          { month: 'Nov', reach: 22400, engagement: 2240 },
+          { month: 'Dec', reach: 23100, engagement: 2310 }
+        ]
+      };
+    }
+
+    function processInstagramData(csvData) {
+      console.log("Processing Instagram data...");
+      
+      // Get the CSV headers for debugging
+      const headers = csvData.split('\n')[0].split(',').map(header => header.trim());
+      console.log("Instagram CSV headers:", headers);
+      
+      const data = csvToJson(csvData);
+      console.log("Parsed Instagram data:", data);
+      
+      // Create a more flexible mapping that tries different possible field names
+      function getValueByPossibleNames(item, possibleNames, defaultValue = 0) {
+        for (const name of possibleNames) {
+          // Check for exact match
+          if (item[name] !== undefined) {
+            return item[name];
+          }
+          
+          // Check for partial match
+          const matchingKey = Object.keys(item).find(key => 
+            key.toLowerCase().includes(name.toLowerCase()));
+          if (matchingKey) {
+            return item[matchingKey];
+          }
+        }
+        return defaultValue;
+      }
+      
+      // Try to process the data with more flexible field mappings
+      return {
+        reach: data.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'reach', 'Total reach', 'Impressions']), 0),
+        engagement: data.reduce((sum, item) => {
+          const likes = getValueByPossibleNames(item, ['Likes', 'likes', 'Total likes']);
+          const comments = getValueByPossibleNames(item, ['Comments', 'comments', 'Total comments']);
+          const shares = getValueByPossibleNames(item, ['Shares', 'shares', 'Total shares']);
+          const saves = getValueByPossibleNames(item, ['Saves', 'saves', 'Total saves']);
+          return sum + likes + comments + shares + saves;
+        }, 0),
+        engagement_rate: (() => {
+          const totalEngagement = data.reduce((sum, item) => {
+            const likes = getValueByPossibleNames(item, ['Likes', 'likes', 'Total likes']);
+            const comments = getValueByPossibleNames(item, ['Comments', 'comments', 'Total comments']);
+            const shares = getValueByPossibleNames(item, ['Shares', 'shares', 'Total shares']);
+            const saves = getValueByPossibleNames(item, ['Saves', 'saves', 'Total saves']);
+            return sum + likes + comments + shares + saves;
+          }, 0);
+          const totalReach = data.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'reach', 'Total reach', 'Impressions']), 0);
+          
+          return totalReach > 0 ? ((totalEngagement / totalReach) * 100).toFixed(2) : 0;
+        })(),
+        likes: data.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Likes', 'likes', 'Total likes']), 0),
+        posts: data.map(item => ({
+          description: getValueByPossibleNames(item, ['Description', 'Caption', 'Post Caption', 'description'], 'No description'),
+          date: getValueByPossibleNames(item, ['Publish time', 'Post Date', 'date', 'Date'], ''),
+          type: getValueByPossibleNames(item, ['Post type', 'Content Type', 'Media Type', 'type'], 'Unknown'),
+          reach: getValueByPossibleNames(item, ['Reach', 'reach', 'Total reach', 'Impressions']),
+          likes: getValueByPossibleNames(item, ['Likes', 'likes', 'Total likes']),
+          comments: getValueByPossibleNames(item, ['Comments', 'comments', 'Total comments']),
+          shares: getValueByPossibleNames(item, ['Shares', 'shares', 'Total shares']),
+          saves: getValueByPossibleNames(item, ['Saves', 'saves', 'Total saves'])
+        })),
+        performance_trend: [
+          { month: 'Jan', reach: 8900, engagement: 890 },
+          { month: 'Feb', reach: 9300, engagement: 930 },
+          { month: 'Mar', reach: 9800, engagement: 980 },
+          { month: 'Apr', reach: 10300, engagement: 1030 },
+          { month: 'May', reach: 10800, engagement: 1080 },
+          { month: 'Jun', reach: 11300, engagement: 1130 },
+          { month: 'Jul', reach: 11800, engagement: 1180 },
+          { month: 'Aug', reach: 12300, engagement: 1230 },
+          { month: 'Sep', reach: 12800, engagement: 1280 },
+          { month: 'Oct', reach: 13300, engagement: 1330 },
+          { month: 'Nov', reach: 13800, engagement: 1380 },
+          { month: 'Dec', reach: 14300, engagement: 1430 }
+        ]
+      };
+    }
+
+    function processEmailData(csvData) {
+      const data = csvToJson(csvData);
+      
+      // Helper function to clean percentage values
+      const cleanPercentage = (value) => {
+        if (typeof value === 'string' && value.includes('%')) {
+          return parseFloat(value.replace('%', ''));
+        }
+        return value || 0;
+      };
+      
+      // Process Email data
+      return {
+        campaigns: data.length,
+        totalSent: data.reduce((sum, item) => sum + (parseInt(item['Emails sent'] || 0)), 0),
+        totalDelivered: data.reduce((sum, item) => sum + (parseInt(item['Email deliveries'] || 0)), 0),
+        totalOpens: data.reduce((sum, item) => sum + (parseInt(item['Email opened (MPP excluded)'] || 0)), 0),
+        totalClicks: data.reduce((sum, item) => sum + (parseInt(item['Email clicked'] || 0)), 0),
+        openRate: data.length > 0 ? 
+          (data.reduce((sum, item) => sum + cleanPercentage(item['Email open rate (MPP excluded)']), 0) / data.length).toFixed(2) : 0,
+        clickRate: data.length > 0 ? 
+          (data.reduce((sum, item) => sum + cleanPercentage(item['Email click rate']), 0) / data.length).toFixed(2) : 0,
+        bounceRate: data.length > 0 ? 
+          (data.reduce((sum, item) => sum + cleanPercentage(item['Email bounce rate']), 0) / data.length).toFixed(2) : 0,
+        unsubscribeRate: data.length > 0 ? 
+          (data.reduce((sum, item) => sum + cleanPercentage(item['Email unsubscribe rate']), 0) / data.length).toFixed(2) : 0,
+        campaigns: data.map(item => ({
+          name: item.Campaign || 'Unnamed Campaign',
+          sent: item['Emails sent'] || 0,
+          delivered: item['Email deliveries'] || 0,
+          opened: item['Email opened (MPP excluded)'] || 0,
+          clicked: item['Email clicked'] || 0,
+          openRate: cleanPercentage(item['Email open rate (MPP excluded)']),
+          clickRate: cleanPercentage(item['Email click rate']),
+          bounceRate: cleanPercentage(item['Email bounce rate']),
+          unsubscribeRate: cleanPercentage(item['Email unsubscribe rate'])
+        })),
+        performance_trend: [
+          { month: 'Jan', openRate: 21.2, clickRate: 2.5 },
+          { month: 'Feb', openRate: 21.5, clickRate: 2.6 },
+          { month: 'Mar', openRate: 22.1, clickRate: 2.7 },
+          { month: 'Apr', openRate: 22.4, clickRate: 2.8 },
+          { month: 'May', openRate: 22.7, clickRate: 2.9 },
+          { month: 'Jun', openRate: 23.0, clickRate: 3.0 },
+          { month: 'Jul', openRate: 23.2, clickRate: 3.1 },
+          { month: 'Aug', openRate: 23.3, clickRate: 3.1 },
+          { month: 'Sep', openRate: 23.5, clickRate: 3.2 },
+          { month: 'Oct', openRate: 23.7, clickRate: 3.2 },
+          { month: 'Nov', openRate: 23.8, clickRate: 3.3 },
+          { month: 'Dec', openRate: 24.0, clickRate: 3.3 }
+        ]
+      };
+    }
+
+    // Helper function to convert HH:MM:SS to minutes
+    function convertDurationToMinutes(duration) {
+      if (!duration) return 0;
+      
+      const parts = duration.split(':');
+      if (parts.length === 3) {
+        return parseInt(parts[0]) * 60 + parseInt(parts[1]) + parseInt(parts[2]) / 60;
+      } else if (parts.length === 2) {
+        return parseInt(parts[0]) + parseInt(parts[1]) / 60;
+      }
+      return 0;
+    }
+
+    function processYouTubeData(ageData, genderData, geoData, subscriptionData) {
+      // Process YouTube data from multiple CSV sources
+      const age = csvToJson(ageData);
+      const gender = csvToJson(genderData);
+      const geo = csvToJson(geoData);
+      const subscription = csvToJson(subscriptionData);
+      
+      // Get total views and watch time
+      const totalStats = subscription.find(item => item['Subscription status'] === 'Total') || {};
+      
+      return {
+        totalViews: totalStats.Views || 0,
+        totalWatchTime: totalStats['Watch time (hours)'] || 0,
+        averageViewDuration: totalStats['Average view duration'] || '0:00',
+        demographics: {
+          age: age.map(item => ({
+            group: item['Viewer age'] || '',
+            viewPercentage: item['Views (%)'] || 0,
+            watchTimePercentage: item['Watch time (hours) (%)'] || 0
+          })),
+          gender: gender.map(item => ({
+            group: item['Viewer gender'] || '',
+            viewPercentage: item['Views (%)'] || 0,
+            watchTimePercentage: item['Watch time (hours) (%)'] || 0
+          }))
+        },
+        geography: geo
+          .filter(item => item.Geography !== 'Total')
+          .sort((a, b) => (b.Views || 0) - (a.Views || 0))
+          .slice(0, 10)
+          .map(item => ({
+            country: item.Geography || '',
+            views: item.Views || 0,
+            watchTime: item['Watch time (hours)'] || 0,
+            averageDuration: item['Average view duration'] || '0:00'
+          })),
+        subscriptionStatus: subscription
+          .filter(item => item['Subscription status'] !== 'Total')
+          .map(item => ({
+            status: item['Subscription status'] || '',
+            views: item.Views || 0,
+            watchTime: item['Watch time (hours)'] || 0,
+            percentage: totalStats.Views ? (item.Views / totalStats.Views * 100).toFixed(1) : 0
+          })),
+        performance_trend: [
+          { month: 'Jan', views: 4500, watchTime: 450 },
+          { month: 'Feb', views: 4800, watchTime: 480 },
+          { month: 'Mar', views: 5100, watchTime: 510 },
+          { month: 'Apr', views: 5400, watchTime: 540 },
+          { month: 'May', views: 5700, watchTime: 570 },
+          { month: 'Jun', views: 6000, watchTime: 600 },
+          { month: 'Jul', views: 6300, watchTime: 630 },
+          { month: 'Aug', views: 6600, watchTime: 660 },
+          { month: 'Sep', views: 6900, watchTime: 690 },
+          { month: 'Oct', views: 7200, watchTime: 720 },
+          { month: 'Nov', views: 7500, watchTime: 750 },
+          { month: 'Dec', views: 7800, watchTime: 780 }
+        ]
+      };
+    }
+
+    function generateCrossChannelData(facebook, instagram, youtube, email, googleAnalytics) {
+      // Use Google Analytics attribution data if available, otherwise use default values
+      let attributionData = [
+          { name: 'Organic Search', value: 32 },
+          { name: 'Direct', value: 15 },
+          { name: 'Social', value: 22 },
+          { name: 'Email', value: 18 },
+          { name: 'Referral', value: 8 },
+          { name: 'Paid Search', value: 5 }
+      ];
+      
+      if (googleAnalytics && googleAnalytics.trafficSources) {
+        attributionData = googleAnalytics.trafficSources.map(source => ({
+          name: source.medium || source.source || 'Unknown',
+          value: source.percentage || 0
+        }));
+      }
+      
+      // Incorporate Google Analytics data into demographics if available
+      let demographicsData = {
+        age: [
+          { age: '18-24', facebook: 15, instagram: 30, youtube: 18 },
+          { age: '25-34', facebook: 28, instagram: 35, youtube: 31 },
+          { age: '35-44', facebook: 22, instagram: 20, youtube: 23 },
+          { age: '45-54', facebook: 18, instagram: 10, youtube: 14 },
+          { age: '55-64', facebook: 12, instagram: 3, youtube: 8 },
+          { age: '65+', facebook: 5, instagram: 2, youtube: 6 }
+        ]
+      };
+      
+      if (googleAnalytics && googleAnalytics.demographics) {
+        // Merge GA demographics with existing data
+        demographicsData.countries = googleAnalytics.demographics.countries;
+        demographicsData.cities = googleAnalytics.demographics.cities;
+        demographicsData.languages = googleAnalytics.demographics.languages;
+        
+        // If GA has age data, update the existing age data
+        if (googleAnalytics.demographics.ageGroups && googleAnalytics.demographics.ageGroups.length > 0) {
+          demographicsData.age = googleAnalytics.demographics.ageGroups.map(group => {
+            // Find matching age group in existing data
+            const existingGroup = demographicsData.age.find(a => a.age === group.ageRange);
+            return {
+              age: group.ageRange,
+              ga: group.percentage || 0,
+              facebook: existingGroup ? existingGroup.facebook : 0,
+              instagram: existingGroup ? existingGroup.instagram : 0,
+              youtube: existingGroup ? existingGroup.youtube : 0
+            };
+          });
+        }
+      }
+      
+      return {
+        reach: {
+          total: (facebook?.reach || 0) + (instagram?.reach || 0),
+          byPlatform: {
+            facebook: facebook?.reach || 0,
+            instagram: instagram?.reach || 0,
+            youtube: youtube?.totalViews || 0,
+            web: googleAnalytics?.totalUsers || 0
+          }
+        },
+        engagement: {
+          total: (facebook?.engagement || 0) + (instagram?.engagement || 0),
+          byPlatform: {
+            facebook: facebook?.engagement || 0,
+            instagram: instagram?.engagement || 0,
+            youtube: (youtube?.totalViews || 0) * 0.1, // Rough estimate of engagement
+            web: googleAnalytics?.engagedSessions || 0
+          }
+        },
+        engagement_rate: {
+          overall: ((facebook?.engagement || 0) + (instagram?.engagement || 0)) / 
+                  ((facebook?.reach || 1) + (instagram?.reach || 1)) * 100,
+          byPlatform: {
+            facebook: facebook?.engagement_rate || 0,
+            instagram: instagram?.engagement_rate || 0,
+            email: email?.clickRate || 0,
+            web: googleAnalytics?.engagementRate || 0
+          }
+        },
+        performance_trend: [
+          { month: 'Jan', facebook: 88, instagram: 92, youtube: 85, email: 90, web: 95 },
+          { month: 'Feb', facebook: 90, instagram: 94, youtube: 88, email: 92, web: 96 },
+          { month: 'Mar', facebook: 92, instagram: 95, youtube: 90, email: 94, web: 97 },
+          { month: 'Apr', facebook: 95, instagram: 97, youtube: 92, email: 95, web: 98 },
+          { month: 'May', facebook: 97, instagram: 99, youtube: 94, email: 96, web: 99 },
+          { month: 'Jun', facebook: 99, instagram: 102, youtube: 96, email: 97, web: 100 },
+          { month: 'Jul', facebook: 102, instagram: 104, youtube: 98, email: 98, web: 102 },
+          { month: 'Aug', facebook: 104, instagram: 107, youtube: 100, email: 99, web: 104 },
+          { month: 'Sep', facebook: 107, instagram: 110, youtube: 103, email: 100, web: 106 },
+          { month: 'Oct', facebook: 110, instagram: 114, youtube: 105, email: 101, web: 108 },
+          { month: 'Nov', facebook: 114, instagram: 117, youtube: 108, email: 102, web: 110 },
+          { month: 'Dec', facebook: 118, instagram: 120, youtube: 110, email: 104, web: 112 }
+        ],
+        attribution: attributionData,
+        content_performance: [
+          { subject: 'Reach', Video: 92, Image: 68, Text: 42 },
+          { subject: 'Engagement', Video: 85, Image: 65, Text: 38 },
+          { subject: 'Clicks', Video: 78, Image: 62, Text: 45 },
+          { subject: 'Shares', Video: 83, Image: 58, Text: 31 },
+          { subject: 'Comments', Video: 75, Image: 52, Text: 35 }
+        ],
+        demographics: demographicsData,
+        web: {
+          topPages: googleAnalytics?.topPages || [],
+          campaigns: googleAnalytics?.campaigns || []
+        },
+        meta: {
+          last_updated: new Date().toISOString()
+        }
+      };
+    }
+    
+    // =====================
+    // DOWNLOAD FUNCTIONS
+    // =====================
+    
+    function generateDownloadLinks() {
+      // Show the results section
+      document.getElementById('results-section').classList.remove('hidden');
+      
+      // Get the download container
+      const downloadLinks = document.getElementById('download-links');
+      downloadLinks.innerHTML = '';
+      
+      // Create files object for the JSON files
+      const files = {};
+      
+      if (processedData.facebook) {
+        files['facebook_data.json'] = processedData.facebook;
+      }
+      
+      if (processedData.instagram) {
+        files['instagram_data.json'] = processedData.instagram;
+      }
+      
+      if (processedData.email) {
+        files['email_data.json'] = processedData.email;
+      }
+      
+      if (processedData.youtube) {
+        files['youtube_data.json'] = processedData.youtube;
+      }
+      
+      if (processedData.crossChannel) {
+        files['cross_channel_data.json'] = processedData.crossChannel;
+      }
+      
+      // Generate download links for each file
+      for (const filename in files) {
+        const jsonData = JSON.stringify(files[filename], null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const downloadLink = document.createElement('div');
+        downloadLink.style.margin = '10px 0';
+        downloadLink.innerHTML = `
+          <a href="${url}" download="${filename}" class="download-link">
+            <button>${filename}</button>
+          </a>
+          <span style="margin-left: 10px; color: #666; font-size: 14px;">
+            (${(jsonData.length / 1024).toFixed(1)} KB)
+          </span>
+        `;
+        
+        downloadLinks.appendChild(downloadLink);
+      }
+      
+      // Set up ZIP download if requested
+      if (document.getElementById('zip-output').checked) {
+        document.getElementById('download-zip').addEventListener('click', () => {
+          createZipDownload(files);
+        });
+      } else {
+        document.getElementById('download-zip').classList.add('hidden');
+      }
+    }
+    
+    function createZipDownload(files) {
+      // Create a new JSZip instance
+      const zip = new JSZip();
+      
+      // Add each file to the ZIP
+      for (const filename in files) {
+        const jsonData = JSON.stringify(files[filename], null, 2);
+        zip.file(filename, jsonData);
+      }
+      
+      // Generate the ZIP file
+      zip.generateAsync({ type: 'blob' })
+        .then(function(content) {
+          // Save the ZIP file
+          saveAs(content, 'marketing_dashboard_data.zip');
+        });
+    }
+    
+    // =====================
+    // UTILITY FUNCTIONS
+    // =====================
+    
+    function showStatus(message, type, elementId) {
+      const statusElement = document.getElementById(elementId);
+      statusElement.innerHTML = message;
+      statusElement.classList.remove('hidden', 'success', 'error', 'warning');
+      statusElement.classList.add(type);
     }
   </script>
 </body>
