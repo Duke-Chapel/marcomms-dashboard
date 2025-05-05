@@ -1,206 +1,341 @@
 {
-  "totalViews": 5035094,
-  "totalWatchTime": 634069.089,
-  "averageViewDuration": "0:08:24",
+  "totalViews": 250000,
+  "totalWatchTime": 25000,
+  "averageViewDuration": "6:00",
   "demographics": {
     "age": [
       {
-        "group": "13–17 years",
-        "viewPercentage": 0.13,
-        "watchTimePercentage": 0.03,
-        "avgPercentage": 2.92
+        "group": "18-24",
+        "viewPercentage": 18.5,
+        "watchTimePercentage": 17.2
       },
       {
-        "group": "18–24 years",
-        "viewPercentage": 11.19,
-        "watchTimePercentage": 3.92,
-        "avgPercentage": 5.78
+        "group": "25-34",
+        "viewPercentage": 32.7,
+        "watchTimePercentage": 33.4
       },
       {
-        "group": "25–34 years",
-        "viewPercentage": 18.83,
-        "watchTimePercentage": 11.31,
-        "avgPercentage": 9.52
+        "group": "35-44",
+        "viewPercentage": 22.4,
+        "watchTimePercentage": 23.1
       },
       {
-        "group": "35–44 years",
-        "viewPercentage": 10.34,
-        "watchTimePercentage": 8.6,
-        "avgPercentage": 11.8
+        "group": "45-54",
+        "viewPercentage": 14.6,
+        "watchTimePercentage": 15.2
       },
       {
-        "group": "45–54 years",
-        "viewPercentage": 9.69,
-        "watchTimePercentage": 9.65,
-        "avgPercentage": 12.53
+        "group": "55-64",
+        "viewPercentage": 8.3,
+        "watchTimePercentage": 8.5
       },
       {
-        "group": "55–64 years",
-        "viewPercentage": 14.36,
-        "watchTimePercentage": 16.39,
-        "avgPercentage": 13.95
-      },
-      {
-        "group": "65+ years",
-        "viewPercentage": 35.47,
-        "watchTimePercentage": 50.09,
-        "avgPercentage": 17.49
+        "group": "65+",
+        "viewPercentage": 3.5,
+        "watchTimePercentage": 2.6
       }
     ],
     "gender": [
       {
         "group": "Female",
-        "viewPercentage": 32.46,
-        "watchTimePercentage": 36.79
+        "viewPercentage": 42.3,
+        "watchTimePercentage": 44.7
       },
       {
         "group": "Male",
-        "viewPercentage": 67.53,
-        "watchTimePercentage": 63.19
-      },
-      {
-        "group": "User-specified",
-        "viewPercentage": 0.01,
-        "watchTimePercentage": 0.02
+        "viewPercentage": 57.7,
+        "watchTimePercentage": 55.3
       }
     ]
   },
   "geography": [
     {
-      "country": "",
-      "views": 5035094,
-      "watchTime": 634069.089,
-      "averageDuration": "0:08:24"
+      "country": "United States",
+      "views": 25261.474914897713,
+      "watchTime": 2558.7378515596515,
+      "averageDuration": "5:39"
     },
     {
-      "country": "",
-      "views": 37171,
-      "watchTime": 13686.3893,
-      "averageDuration": "0:22:05"
+      "country": "United Kingdom",
+      "views": 23846.432794112894,
+      "watchTime": 2342.3511990477155,
+      "averageDuration": "4:55"
     },
     {
-      "country": "",
-      "views": 11353,
-      "watchTime": 3819.9639,
-      "averageDuration": "0:20:11"
+      "country": "Canada",
+      "views": 21477.788683304454,
+      "watchTime": 2140.6426785965455,
+      "averageDuration": "4:16"
     },
     {
-      "country": "",
-      "views": 4073,
-      "watchTime": 638.765,
-      "averageDuration": "0:09:24"
+      "country": "Australia",
+      "views": 19695.150329427066,
+      "watchTime": 1900.0293607475137,
+      "averageDuration": "4:27"
     },
     {
-      "country": "",
-      "views": 4027,
-      "watchTime": 1066.4331,
-      "averageDuration": "0:15:53"
+      "country": "Germany",
+      "views": 17792.23414963018,
+      "watchTime": 1734.9511012837154,
+      "averageDuration": "3:42"
     },
     {
-      "country": "",
-      "views": 3285,
-      "watchTime": 137.2369,
-      "averageDuration": "0:02:30"
+      "country": "France",
+      "views": 15237.878419902743,
+      "watchTime": 1566.5218250720552,
+      "averageDuration": "3:56"
     },
     {
-      "country": "",
-      "views": 2894,
-      "watchTime": 735.9869,
-      "averageDuration": "0:15:15"
+      "country": "Japan",
+      "views": 13670.892948266195,
+      "watchTime": 1346.5552113281087,
+      "averageDuration": "3:26"
     },
     {
-      "country": "",
-      "views": 2008,
-      "watchTime": 514.1124,
-      "averageDuration": "0:15:21"
+      "country": "Brazil",
+      "views": 11805.439095382815,
+      "watchTime": 1177.1667408026892,
+      "averageDuration": "2:34"
     },
     {
-      "country": "",
-      "views": 1588,
-      "watchTime": 305.4959,
-      "averageDuration": "0:11:32"
+      "country": "India",
+      "views": 9398.254180530355,
+      "watchTime": 979.2213638674264,
+      "averageDuration": "2:26"
     },
     {
-      "country": "",
-      "views": 1504,
-      "watchTime": 378.433,
-      "averageDuration": "0:15:05"
+      "country": "Mexico",
+      "views": 7705.63960912414,
+      "watchTime": 799.9078887028594,
+      "averageDuration": "2:21"
     }
   ],
   "subscriptionStatus": [
     {
-      "status": "Not subscribed",
-      "views": 4610957,
-      "watchTime": 550958.2126,
-      "percentage": 91.6
+      "status": "Subscribed",
+      "views": 75000,
+      "watchTime": 9000,
+      "percentage": 30
     },
     {
-      "status": "Subscribed",
-      "views": 424137,
-      "watchTime": 83110.8758,
-      "percentage": 8.4
+      "status": "Not subscribed",
+      "views": 175000,
+      "watchTime": 16000,
+      "percentage": 70
+    }
+  ],
+  "content": [
+    {
+      "id": "vid-1000",
+      "title": "Video 1: How to do something amazing",
+      "views": 15101.963467232488,
+      "watchTime": 1507.4338159733782,
+      "duration": 180,
+      "likes": 509.51842858212217,
+      "comments": 51.96763975667835,
+      "shares": 26.349254807759635
+    },
+    {
+      "id": "vid-1001",
+      "title": "Video 2: How to do something amazing",
+      "views": 14374.765180101786,
+      "watchTime": 1452.0799151380813,
+      "duration": 210,
+      "likes": 483.0856423657767,
+      "comments": 49.285576550412394,
+      "shares": 25.32188613865846
+    },
+    {
+      "id": "vid-1002",
+      "title": "Video 3: How to do something amazing",
+      "views": 13707.315402870221,
+      "watchTime": 1377.9922471631153,
+      "duration": 240,
+      "likes": 455.26704274756395,
+      "comments": 47.58776422952015,
+      "shares": 23.842190149599862
+    },
+    {
+      "id": "vid-1003",
+      "title": "Video 4: How to do something amazing",
+      "views": 12992.737583283491,
+      "watchTime": 1268.1307823457698,
+      "duration": 270,
+      "likes": 427.19840164798933,
+      "comments": 46.94149609460159,
+      "shares": 21.52664204360421
+    },
+    {
+      "id": "vid-1004",
+      "title": "Video 5: How to do something amazing",
+      "views": 12155.176117080102,
+      "watchTime": 1214.1880903267313,
+      "duration": 300,
+      "likes": 405.9101267848983,
+      "comments": 43.179695567356404,
+      "shares": 22.844750295463847
+    },
+    {
+      "id": "vid-1005",
+      "title": "Video 6: How to do something amazing",
+      "views": 11214.558019153339,
+      "watchTime": 1114.6889363040243,
+      "duration": 330,
+      "likes": 380.77154906734813,
+      "comments": 39.141356111029104,
+      "shares": 19.56948338726084
+    },
+    {
+      "id": "vid-1006",
+      "title": "Video 7: How to do something amazing",
+      "views": 10446.530531596105,
+      "watchTime": 1055.9360946833403,
+      "duration": 360,
+      "likes": 357.16089583663495,
+      "comments": 39.14549501281653,
+      "shares": 18.745588184340214
+    },
+    {
+      "id": "vid-1007",
+      "title": "Video 8: How to do something amazing",
+      "views": 9495.853554055437,
+      "watchTime": 969.0107718903972,
+      "duration": 390,
+      "likes": 331.6976942844823,
+      "comments": 34.330567902403935,
+      "shares": 18.325061082256266
+    },
+    {
+      "id": "vid-1008",
+      "title": "Video 9: How to do something amazing",
+      "views": 8842.212883669235,
+      "watchTime": 862.5265507419784,
+      "duration": 420,
+      "likes": 309.3115060284629,
+      "comments": 32.825562019999424,
+      "shares": 17.71809153486886
+    },
+    {
+      "id": "vid-1009",
+      "title": "Video 10: How to do something amazing",
+      "views": 8167.991530691411,
+      "watchTime": 810.2234884935748,
+      "duration": 450,
+      "likes": 281.63560570775394,
+      "comments": 31.29327217704642,
+      "shares": 14.290097340305236
+    },
+    {
+      "id": "vid-1010",
+      "title": "Video 11: How to do something amazing",
+      "views": 7215.713182005157,
+      "watchTime": 737.9279303366725,
+      "duration": 480,
+      "likes": 258.64683466921105,
+      "comments": 29.855968857362278,
+      "shares": 15.526747446134971
+    },
+    {
+      "id": "vid-1011",
+      "title": "Video 12: How to do something amazing",
+      "views": 6504.191013718958,
+      "watchTime": 621.1152461555477,
+      "duration": 510,
+      "likes": 230.99774761138488,
+      "comments": 23.916348717593657,
+      "shares": 14.521921324163461
+    },
+    {
+      "id": "vid-1012",
+      "title": "Video 13: How to do something amazing",
+      "views": 5438.054215593053,
+      "watchTime": 557.8000951177362,
+      "duration": 540,
+      "likes": 201.76094206351692,
+      "comments": 24.06203483004812,
+      "shares": 13.114868213514345
+    },
+    {
+      "id": "vid-1013",
+      "title": "Video 14: How to do something amazing",
+      "views": 4856.054293128655,
+      "watchTime": 485.64437779323504,
+      "duration": 570,
+      "likes": 184.207504896733,
+      "comments": 20.82812780004795,
+      "shares": 11.322441446027899
+    },
+    {
+      "id": "vid-1014",
+      "title": "Video 15: How to do something amazing",
+      "views": 3940.509717078509,
+      "watchTime": 416.38917962127084,
+      "duration": 600,
+      "likes": 153.15248356079465,
+      "comments": 15.188263472990212,
+      "shares": 9.613233803901101
     }
   ],
   "performance_trend": [
     {
       "month": "Jan",
-      "views": 4500,
-      "watchTime": 450
+      "views": 18126.749821288948,
+      "watchTime": 1806.4595020566735
     },
     {
       "month": "Feb",
-      "views": 4800,
-      "watchTime": 480
+      "views": 18663.591411892692,
+      "watchTime": 1854.4318192772953
     },
     {
       "month": "Mar",
-      "views": 5100,
-      "watchTime": 510
+      "views": 19151.167277305478,
+      "watchTime": 1907.7776851718145
     },
     {
       "month": "Apr",
-      "views": 5400,
-      "watchTime": 540
+      "views": 19534.081948681065,
+      "watchTime": 1961.777033495484
     },
     {
       "month": "May",
-      "views": 5700,
-      "watchTime": 570
+      "views": 20022.501245320167,
+      "watchTime": 2006.2751694967283
     },
     {
       "month": "Jun",
-      "views": 6000,
-      "watchTime": 600
+      "views": 20612.64521746816,
+      "watchTime": 2067.291705879942
     },
     {
       "month": "Jul",
-      "views": 6300,
-      "watchTime": 630
+      "views": 21017.837294533878,
+      "watchTime": 2107.9499475496273
     },
     {
       "month": "Aug",
-      "views": 6600,
-      "watchTime": 660
+      "views": 21613.630888088723,
+      "watchTime": 2165.380735848414
     },
     {
       "month": "Sep",
-      "views": 6900,
-      "watchTime": 690
+      "views": 22119.254965803822,
+      "watchTime": 2215.8912124398403
     },
     {
       "month": "Oct",
-      "views": 7200,
-      "watchTime": 720
+      "views": 22668.162835105097,
+      "watchTime": 2269.8897549766657
     },
     {
       "month": "Nov",
-      "views": 7500,
-      "watchTime": 750
+      "views": 23181.058545262364,
+      "watchTime": 2301.0551836047057
     },
     {
       "month": "Dec",
-      "views": 7800,
-      "watchTime": 780
+      "views": 23654.40490691833,
+      "watchTime": 2356.958917539463
     }
   ]
 }
