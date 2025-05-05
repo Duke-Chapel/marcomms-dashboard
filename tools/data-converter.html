@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Dashboard Data Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    h1 {
+      color: #4A6CF7;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #6941C6;
+      border-bottom: 1px solid #e1e4e8;
+      padding-bottom: 8px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    textarea {
+      width: 100%;
+      height: 180px;
+      margin-top: 10px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button {
+      background-color: #4A6CF7;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #3a5bd9;
+    }
+    .output {
+      margin-top: 20px;
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid #e1e4e8;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+    .hidden {
+      display: none;
+    }
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .note {
+      font-size: 14px;
+      color: #6c757d;
+      margin: 10px 0;
+      font-style: italic;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+      color: #495057;
+    }
+    .tab-container {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      margin-right: 5px;
+      background-color: #f1f3f5;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab.active {
+      background-color: #4A6CF7;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .section {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Marketing Dashboard Data Converter</h1>
+  <p>Use this tool to convert your CSV data to the JSON format required by the dashboard. Upload your CSV files, process each data source, then generate the combined JSON files.</p>
+  
+  <div class="section">
+    <h2>Facebook Data</h2>
+    <p>Upload your Facebook CSV data file or paste the content directly:</p>
+    <input type="file" id="facebook-file" accept=".csv" onchange="handleFileSelect(this, 'facebook-csv')">
+    <textarea id="facebook-csv" placeholder="Paste Facebook CSV here..."></textarea>
+    <button onclick="processFacebookCSV()">Process Facebook Data</button>
+    <div id="facebook-status" class="status hidden"></div>
+    <div id="facebook-output" class="output hidden"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Instagram Data</h2>
+    <p>Upload your Instagram CSV data file or paste the content directly:</p>
+    <input type="file" id="instagram-file" accept=".csv" onchange="handleFileSelect(this, 'instagram-csv')">
+    <textarea id="instagram-csv" placeholder="Paste Instagram CSV here..."></textarea>
+    <button onclick="processInstagramCSV()">Process Instagram Data</button>
+    <div id="instagram-status" class="status hidden"></div>
+    <div id="instagram-output" class="output hidden"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Email Data</h2>
+    <p>Upload your Email campaign CSV data file or paste the content directly:</p>
+    <input type="file" id="email-file" accept=".csv" onchange="handleFileSelect(this, 'email-csv')">
+    <textarea id="email-csv" placeholder="Paste Email CSV here..."></textarea>
+    <button onclick="processEmailCSV()">Process Email Data</button>
+    <div id="email-status" class="status hidden"></div>
+    <div id="email-output" class="output hidden"></div>
+  </div>
+  
+  <div class="section">
+    <h2>YouTube Data</h2>
+    <div class="tab-container">
+      <div class="tab active" onclick="switchTab('age', this)">Age Demographics</div>
+      <div class="tab" onclick="switchTab('gender', this)">Gender Demographics</div>
+      <div class="tab" onclick="switchTab('geo', this)">Geography</div>
+      <div class="tab" onclick="switchTab('subscription', this)">Subscription Status</div>
+    </div>
+    
+    <div id="age-tab" class="tab-content active">
+      <p>Upload your YouTube Age Demographics CSV file or paste the content directly:</p>
+      <input type="file" id="youtube-age-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-age-csv')">
+      <textarea id="youtube-age-csv" placeholder="Paste YouTube Age CSV here..."></textarea>
+    </div>
+    
+    <div id="gender-tab" class="tab-content">
+      <p>Upload your YouTube Gender Demographics CSV file or paste the content directly:</p>
+      <input type="file" id="youtube-gender-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-gender-csv')">
+      <textarea id="youtube-gender-csv" placeholder="Paste YouTube Gender CSV here..."></textarea>
+    </div>
+    
+    <div id="geo-tab" class="tab-content">
+      <p>Upload your YouTube Geography CSV file or paste the content directly:</p>
+      <input type="file" id="youtube-geo-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-geo-csv')">
+      <textarea id="youtube-geo-csv" placeholder="Paste YouTube Geography CSV here..."></textarea>
+    </div>
+    
+    <div id="subscription-tab" class="tab-content">
+      <p>Upload your YouTube Subscription Status CSV file or paste the content directly:</p>
+      <input type="file" id="youtube-subscription-file" accept=".csv" onchange="handleFileSelect(this, 'youtube-subscription-csv')">
+      <textarea id="youtube-subscription-csv" placeholder="Paste YouTube Subscription Status CSV here..."></textarea>
+    </div>
+    
+    <button onclick="processYouTubeCSV()">Process YouTube Data</button>
+    <div id="youtube-status" class="status hidden"></div>
+    <div id="youtube-output" class="output hidden"></div>
+  </div>
+  
+  <div class="section">
+    <h2>Generate Combined Dashboard Data</h2>
+    <p>After processing all individual data sources, click below to generate the combined JSON files for your dashboard:</p>
+    <button onclick="generateCombinedData()">Generate JSON Files</button>
+    <div class="note">This will create JSON files that you need to upload to the /data folder in your GitHub repository.</div>
+    <div id="combined-status" class="status hidden"></div>
+    <div id="combined-output" class="output hidden"></div>
+    
+    <div id="download-section" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ccc;">
+      <h3>Download JSON Files</h3>
+      <p>Click the links below to download each JSON file:</p>
+      <div id="download-links"></div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>Deployment Instructions</h2>
+    <p>Follow these steps to deploy your dashboard:</p>
+    <ol>
+      <li>Create a new GitHub repository named "marketing-dashboard" (or any name you prefer)</li>
+      <li>Upload all HTML, CSS, and JavaScript files maintaining their directory structure</li>
+      <li>Create a "data" folder in the repository root</li>
+      <li>Upload the generated JSON files to the data folder</li>
+      <li>Enable GitHub Pages in your repository settings (Settings > Pages)</li>
+      <li>Select the branch containing your files (usually "main" or "master")</li>
+      <li>Your dashboard will be available at https://yourusername.github.io/marketing-dashboard/</li>
+    </ol>
+    <p>For weekly updates, simply generate new JSON files and replace the old ones in your repository's data folder.</p>
+  </div>
+  
+  <script src="csv-to-json.js"></script>
+  <script>
+    // Store processed data
+    const processedData = {
+      facebook: null,
+      instagram: null,
+      email: null,
+      youtube: null,
+      crossChannel: null
+    };
+    
+    // File input handler
+    function handleFileSelect(fileInput, textareaId) {
+      const file = fileInput.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(textareaId).value = e.target.result;
+      };
+      reader.readAsText(file);
+    }
+    
+    // Tab switching logic
+    function switchTab(tabId, tabButton) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Deactivate all tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Activate selected tab and content
+      document.getElementById(`${tabId}-tab`).classList.add('active');
+      tabButton.classList.add('active');
+    }
+    
+    // Status message helper functions
+    function showStatus(elementId, message, isSuccess) {
+      const statusElement = document.getElementById(elementId);
+      statusElement.textContent = message;
+      statusElement.classList.remove('hidden', 'success', 'error');
+      statusElement.classList.add(isSuccess ? 'success' : 'error');
+    }
+    
+    function hideStatus(elementId) {
+      document.getElementById(elementId).classList.add('hidden');
+    }
+    
+    // Process Facebook CSV
+    function processFacebookCSV() {
+      const csvContent = document.getElementById('facebook-csv').value;
+      if (!csvContent.trim()) {
+        showStatus('facebook-status', 'Error: Please provide Facebook CSV data', false);
+        return;
+      }
+      
+      try {
+        processedData.facebook = processFacebookData(csvContent);
+        const outputEl = document.getElementById('facebook-output');
+        outputEl.textContent = JSON.stringify(processedData.facebook, null, 2);
+        outputEl.classList.remove('hidden');
+        showStatus('facebook-status', 'Facebook data processed successfully!', true);
+      } catch (error) {
+        console.error('Error processing Facebook data:', error);
+        showStatus('facebook-status', `Error processing Facebook data: ${error.message}`, false);
+      }
+    }
+    
+    // Process Instagram CSV
+    function processInstagramCSV() {
+      const csvContent = document.getElementById('instagram-csv').value;
+      if (!csvContent.trim()) {
+        showStatus('instagram-status', 'Error: Please provide Instagram CSV data', false);
+        return;
+      }
+      
+      try {
+        processedData.instagram = processInstagramData(csvContent);
+        const outputEl = document.getElementById('instagram-output');
+        outputEl.textContent = JSON.stringify(processedData.instagram, null, 2);
+        outputEl.classList.remove('hidden');
+        showStatus('instagram-status', 'Instagram data processed successfully!', true);
+      } catch (error) {
+        console.error('Error processing Instagram data:', error);
+        showStatus('instagram-status', `Error processing Instagram data: ${error.message}`, false);
+      }
+    }
+    
+    // Process Email CSV
+    function processEmailCSV() {
+      const csvContent = document.getElementById('email-csv').value;
+      if (!csvContent.trim()) {
+        showStatus('email-status', 'Error: Please provide Email CSV data', false);
+        return;
+      }
+      
+      try {
+        processedData.email = processEmailData(csvContent);
+        const outputEl = document.getElementById('email-output');
+        outputEl.textContent = JSON.stringify(processedData.email, null, 2);
+        outputEl.classList.remove('hidden');
+        showStatus('email-status', 'Email data processed successfully!', true);
+      } catch (error) {
+        console.error('Error processing Email data:', error);
+        showStatus('email-status', `Error processing Email data: ${error.message}`, false);
+      }
+    }
+    
+    // Process YouTube CSV
+    function processYouTubeCSV() {
+      const ageContent = document.getElementById('youtube-age-csv').value;
+      const genderContent = document.getElementById('youtube-gender-csv').value;
+      const geoContent = document.getElementById('youtube-geo-csv').value;
+      const subscriptionContent = document.getElementById('youtube-subscription-csv').value;
+      
+      if (!ageContent.trim() || !genderContent.trim() || !geoContent.trim() || !subscriptionContent.trim()) {
+        showStatus('youtube-status', 'Error: Please provide all YouTube CSV data files', false);
+        return;
+      }
+      
+      try {
+        processedData.youtube = processYouTubeData(ageContent, genderContent, geoContent, subscriptionContent);
+        const outputEl = document.getElementById('youtube-output');
+        outputEl.textContent = JSON.stringify(processedData.youtube, null, 2);
+        outputEl.classList.remove('hidden');
+        showStatus('youtube-status', 'YouTube data processed successfully!', true);
+      } catch (error) {
+        console.error('Error processing YouTube data:', error);
+        showStatus('youtube-status', `Error processing YouTube data: ${error.message}`, false);
+      }
+    }
+    
+    // Generate combined data for all files
+    function generateCombinedData() {
+      // Check if any data sources are missing
+      const missingData = [];
+      if (!processedData.facebook) missingData.push('Facebook');
+      if (!processedData.instagram) missingData.push('Instagram');
+      if (!processedData.email) missingData.push('Email');
+      if (!processedData.youtube) missingData.push('YouTube');
+      
+      if (missingData.length > 0) {
+        showStatus('combined-status', `Error: Missing data for ${missingData.join(', ')}. Please process all data sources first.`, false);
+        return;
+      }
+      
+      try {
+        // Generate cross-channel data
+        processedData.crossChannel = generateCrossChannelData(
+          processedData.facebook,
+          processedData.instagram,
+          processedData.youtube,
+          processedData.email
+        );
+        
+        // Create separate JSON files
+        const files = {
+          'facebook_data.json': processedData.facebook,
+          'instagram_data.json': processedData.instagram,
+          'email_data.json': processedData.email,
+          'youtube_data.json': processedData.youtube,
+          'cross_channel_data.json': processedData.crossChannel
+        };
+        
+        // Create download links
+        const downloadSection = document.getElementById('download-section');
+        const downloadLinks = document.getElementById('download-links');
+        downloadLinks.innerHTML = '';
+        
+        for (const filename in files) {
+          const jsonData = JSON.stringify(files[filename], null, 2);
+          const blob = new Blob([jsonData], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          
+          const downloadLink = document.createElement('div');
+          downloadLink.style.margin = '10px 0';
+          downloadLink.innerHTML = `
+            <a href="${url}" download="${filename}" style="display: inline-block; padding: 8px 12px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px;">
+              Download ${filename}
+            </a>
+            <span style="margin-left: 10px; color: #666; font-size: 14px;">
+              (${(jsonData.length / 1024).toFixed(1)} KB)
+            </span>
+          `;
+          
+          downloadLinks.appendChild(downloadLink);
+        }
+        
+        downloadSection.classList.remove('hidden');
+        
+        // Show output summary
+        const outputEl = document.getElementById('combined-output');
+        outputEl.innerHTML = `<strong>JSON files generated successfully!</strong><br><br>
+          The following files were created:
+          <ul>
+            ${Object.keys(files).map(filename => `
+              <li>${filename} - ${(JSON.stringify(files[filename], null, 2).length / 1024).toFixed(1)} KB</li>
+            `).join('')}
+          </ul>
+          <br>
+          Download these files and upload them to the <code>/data</code> folder in your GitHub repository to update your dashboard.
+        `;
+        outputEl.classList.remove('hidden');
+        
+        showStatus('combined-status', 'All JSON files generated successfully!', true);
+      } catch (error) {
+        console.error('Error generating combined data:', error);
+        showStatus('combined-status', `Error generating combined data: ${error.message}`, false);
+      }
+    }
+  </script>
+</body>
+</html>
