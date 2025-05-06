@@ -214,9 +214,9 @@ function initializeConverter() {
   console.log('Initializing CSV converter with enhanced processor integration...');
   
   // First, make sure csv-processor functions are available
-  if (typeof enhancedCsvToJson !== 'function' || 
-      typeof processFacebookData !== 'function' || 
-      typeof processInstagramData !== 'function') {
+  if (typeof window.enhancedCsvToJson !== 'function' || 
+      typeof window.processFacebookData !== 'function' || 
+      typeof window.processInstagramData !== 'function') {
     console.error('CSV Processor functions not found! Make sure csv-processor.js is loaded before csv-converter.js');
     
     // Show error in the converter dashboard
