@@ -985,7 +985,24 @@ function calculateYearOverYearGrowth(data) {
 }
 
 // Export all functions
-return {
+window.enhancedCsvToJson = enhancedCsvToJson;
+window.parseCSVLine = parseCSVLine;
+window.processFacebookData = processFacebookData;
+window.processInstagramData = processInstagramData;
+window.processEmailData = processEmailData;
+window.processYouTubeData = processYouTubeData;
+window.processGoogleAnalyticsData = processGoogleAnalyticsData;
+window.generateCrossChannelData = generateCrossChannelData;
+window.mergePerformanceTrends = mergePerformanceTrends;
+window.generatePerformanceTrend = generatePerformanceTrend;
+window.generateEmailPerformanceTrend = generateEmailPerformanceTrend;
+window.generateYouTubePerformanceTrend = generateYouTubePerformanceTrend;
+window.generateGAPerformanceTrend = generateGAPerformanceTrend;
+window.processMultiYearData = processMultiYearData;
+window.calculateYearOverYearGrowth = calculateYearOverYearGrowth;
+
+// Optional: Also create a namespace object for organized access
+window.csvProcessor = {
   enhancedCsvToJson,
   parseCSVLine,
   processFacebookData,
