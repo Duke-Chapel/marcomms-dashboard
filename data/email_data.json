@@ -177,63 +177,63 @@
   "performance_trend": [
     {
       "month": "Jan",
-      "openRate": 21.097228711496406,
-      "clickRate": 2.5057390239153814
+      "openRate": 21.08264686703471,
+      "clickRate": 2.5027265425987566
     },
     {
       "month": "Feb",
-      "openRate": 21.27892122248231,
-      "clickRate": 2.5629942670947616
+      "openRate": 21.25721881254862,
+      "clickRate": 2.563565899405807
     },
     {
       "month": "Mar",
-      "openRate": 21.524806139797665,
-      "clickRate": 2.6158181293650697
+      "openRate": 21.56341513532856,
+      "clickRate": 2.610814184002554
     },
     {
       "month": "Apr",
-      "openRate": 21.80448887937337,
-      "clickRate": 2.669895047542422
+      "openRate": 21.838258216241346,
+      "clickRate": 2.663683919354673
     },
     {
       "month": "May",
-      "openRate": 22.00715609078837,
-      "clickRate": 2.7007375857749634
+      "openRate": 22.097200628649954,
+      "clickRate": 2.7115445727502623
     },
     {
       "month": "Jun",
-      "openRate": 22.34797056773328,
-      "clickRate": 2.7582099094490453
+      "openRate": 22.304610465507277,
+      "clickRate": 2.7682843207010137
     },
     {
       "month": "Jul",
-      "openRate": 22.527296207390346,
-      "clickRate": 2.8090212449390006
+      "openRate": 22.59865009325093,
+      "clickRate": 2.8188741252486915
     },
     {
       "month": "Aug",
-      "openRate": 22.760662677037903,
-      "clickRate": 2.850570012177079
+      "openRate": 22.801117963332448,
+      "clickRate": 2.8589163971079476
     },
     {
       "month": "Sep",
-      "openRate": 23.086764201620454,
-      "clickRate": 2.919846685299414
+      "openRate": 23.06653409426478,
+      "clickRate": 2.915215232620963
     },
     {
       "month": "Oct",
-      "openRate": 23.310909005812043,
-      "clickRate": 2.9622934173862427
+      "openRate": 23.33762982528564,
+      "clickRate": 2.9549820616591562
     },
     {
       "month": "Nov",
-      "openRate": 23.594368600432635,
-      "clickRate": 3.0146523161908756
+      "openRate": 23.5468342501883,
+      "clickRate": 3.006686883249486
     },
     {
       "month": "Dec",
-      "openRate": 23.75228449477597,
-      "clickRate": 3.055270934078218
+      "openRate": 23.82602066849034,
+      "clickRate": 3.0562977952472155
     }
   ]
 }

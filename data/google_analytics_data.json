@@ -59,63 +59,63 @@
     "countries": [
       {
         "country": "United States",
-        "users": 15355.638267332955,
-        "sessions": 32508.353943204125,
-        "percentage": 10.043379094797622
+        "users": 15429.506777687751,
+        "sessions": 33205.02643395284,
+        "percentage": 10.16267992659337
       },
       {
         "country": "United Kingdom",
-        "users": 13836.886960414007,
-        "sessions": 31182.21631981729,
-        "percentage": 9.442220850434019
+        "users": 14198.585721344596,
+        "sessions": 31088.27383794434,
+        "percentage": 9.412707271390731
       },
       {
         "country": "Canada",
-        "users": 12659.608017862369,
-        "sessions": 27360.310876187326,
-        "percentage": 8.676664335209376
+        "users": 13183.496160386709,
+        "sessions": 27451.28210236169,
+        "percentage": 8.769327499229806
       },
       {
         "country": "Australia",
-        "users": 11537.387430788765,
-        "sessions": 25399.49420823354,
-        "percentage": 7.610362086724949
+        "users": 11766.62638875931,
+        "sessions": 25022.21132546124,
+        "percentage": 7.64654597022185
       },
       {
         "country": "Germany",
-        "users": 10475.714705905033,
-        "sessions": 22778.761416984973,
-        "percentage": 6.916920839784686
+        "users": 10490.692546612314,
+        "sessions": 22783.729812518646,
+        "percentage": 7.065439478170363
       },
       {
         "country": "France",
-        "users": 9540.808522448915,
-        "sessions": 19597.0248785227,
-        "percentage": 6.020637749240796
+        "users": 9467.574828181707,
+        "sessions": 20274.147660006587,
+        "percentage": 6.103277497940785
       },
       {
         "country": "Japan",
-        "users": 7850.842526821885,
-        "sessions": 18066.779027704877,
-        "percentage": 5.388643719405999
+        "users": 7835.374748751054,
+        "sessions": 18123.322721051885,
+        "percentage": 5.2144221765540655
       },
       {
         "country": "Brazil",
-        "users": 6937.239366009409,
-        "sessions": 14310.174685227386,
-        "percentage": 4.600162794808827
+        "users": 6641.451638318044,
+        "sessions": 14308.798709855564,
+        "percentage": 4.412781767589461
       },
       {
         "country": "India",
-        "users": 5555.832284323427,
-        "sessions": 11827.50229420905,
-        "percentage": 3.8952395870485055
+        "users": 5861.218194342936,
+        "sessions": 12177.487587644131,
+        "percentage": 3.889504200876399
       },
       {
         "country": "Mexico",
-        "users": 4482.848944493165,
-        "sessions": 9367.566099571986,
-        "percentage": 3.0491598523049275
+        "users": 4283.022935354421,
+        "sessions": 9584.84203842407,
+        "percentage": 2.806061339372152
       }
     ]
   }
