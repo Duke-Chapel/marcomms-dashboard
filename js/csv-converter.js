@@ -1017,7 +1017,7 @@ window.removeFile = function(type, index) {
   }
 };
 
-// Process files and generate JSON
+// Update the processFiles function to use window-scoped functions
 function processFiles() {
   console.log('Processing files with enhanced processor...');
   
@@ -1046,7 +1046,8 @@ function processFiles() {
                          converterState.processedFiles.facebookSpecific.interactions.content : null
       };
       
-      converterState.outputData.facebook_data = processFacebookData(csvData, options);
+      // Use window-scoped function
+      converterState.outputData.facebook_data = window.processFacebookData(csvData, options);
       console.log('Facebook data processed');
     }
     
@@ -1062,14 +1063,16 @@ function processFiles() {
                          converterState.processedFiles.instagramSpecific.interactions.content : null
       };
       
-      converterState.outputData.instagram_data = processInstagramData(csvData, options);
+      // Use window-scoped function
+      converterState.outputData.instagram_data = window.processInstagramData(csvData, options);
       console.log('Instagram data processed');
     }
     
     // Process Email data
     if (converterState.processedFiles.email) {
       const csvData = converterState.processedFiles.email.content;
-      converterState.outputData.email_data = processEmailData(csvData);
+      // Use window-scoped function
+      converterState.outputData.email_data = window.processEmailData(csvData);
       console.log('Email data processed');
     }
     
@@ -1093,8 +1096,8 @@ function processFiles() {
                    converterState.processedFiles.youtube.cities.content : null
       };
       
-      // Process YouTube data using the csv-processor function
-      converterState.outputData.youtube_data = processYouTubeData(
+      // Process YouTube data using the window-scoped function
+      converterState.outputData.youtube_data = window.processYouTubeData(
         ageData, genderData, geoData, subscriptionData, contentData, options
       );
       console.log('YouTube data processed');
@@ -1112,15 +1115,15 @@ function processFiles() {
       const utmsData = converterState.processedFiles.googleAnalytics.utms ? 
         converterState.processedFiles.googleAnalytics.utms.content : '';
       
-      // Process Google Analytics data using the csv-processor function
-      converterState.outputData.google_analytics_data = processGoogleAnalyticsData(
+      // Process Google Analytics data using the window-scoped function
+      converterState.outputData.google_analytics_data = window.processGoogleAnalyticsData(
         demographicsData, pagesData, trafficData, utmsData
       );
       console.log('Google Analytics data processed');
     }
     
     // Generate cross-channel data from processed platform data
-    converterState.outputData.cross_channel_data = generateCrossChannelData(
+    converterState.outputData.cross_channel_data = window.generateCrossChannelData(
       converterState.outputData.facebook_data,
       converterState.outputData.instagram_data,
       converterState.outputData.youtube_data,
