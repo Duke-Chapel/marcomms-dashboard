@@ -213,7 +213,7 @@ const converterState = {
 function initializeConverter() {
   console.log('Initializing CSV converter with enhanced processor integration...');
   
-  // First, make sure csv-processor functions are available
+  // First, make sure csv-processor functions are available - use window scope
   if (typeof window.enhancedCsvToJson !== 'function' || 
       typeof window.processFacebookData !== 'function' || 
       typeof window.processInstagramData !== 'function') {
@@ -1017,7 +1017,7 @@ window.removeFile = function(type, index) {
   }
 };
 
-// Update the processFiles function to use window-scoped functions
+// Process files and generate JSON - UPDATED to use window-scoped functions
 function processFiles() {
   console.log('Processing files with enhanced processor...');
   
