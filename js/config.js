@@ -6,7 +6,7 @@ const DASHBOARD_CONFIG = {
     companyName: "Your Company",
     
     // Data path - change this if needed for your GitHub Pages setup
-    dataPath: "data",
+    dataPath: "./data",
     
     // Dashboard title
     dashboardTitle: "Marketing Analytics Dashboard",
