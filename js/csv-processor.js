@@ -1063,27 +1063,6 @@ function calculateYearOverYearGrowth(data) {
   return growth;
 }
 
-// Export all functions
-module.exports = {
-  enhancedCsvToJson,
-  normalizeValue,
-  normalizeObject,
-  parseCSVLine,
-  processFacebookData,
-  processInstagramData,
-  processEmailData,
-  processYouTubeData,
-  processGoogleAnalyticsData,
-  generateCrossChannelData,
-  mergePerformanceTrends,
-  generatePerformanceTrend,
-  generateEmailPerformanceTrend,
-  generateYouTubePerformanceTrend,
-  generateGAPerformanceTrend,
-  processMultiYearData,
-  calculateYearOverYearGrowth
-};
-
 // Make all functions available in the window scope for browser usage
 if (typeof window !== 'undefined') {
   window.enhancedCsvToJson = enhancedCsvToJson;

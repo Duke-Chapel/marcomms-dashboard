@@ -608,7 +608,7 @@ function getAttentionAreasInsight(yoyChanges) {
 
 function getYoYRecommendations(yoyChanges) {
   if (!yoyChanges) {
-    return 'Focus resources on Instagram's growing momentum while implementing A/B testing to improve email engagement metrics.';
+    return 'Focus resources on Instagrams growing momentum while implementing A/B testing to improve email engagement metrics.';
   }
   
   // Find platform with highest reach growth to double down on
