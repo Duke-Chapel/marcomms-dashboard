@@ -109,10 +109,10 @@ async function loadCSV(fileName, options = {}) {
                 const text = await response.text();
                 data = await parseCSV(text, options);
                 console.log('Successfully loaded from:', path);
-                
+
                 // Cache the data for future use
                 dashboardState.dataCache[fileName] = data;
-                
+
                 return data;
             }
         } catch (error) {
@@ -203,7 +203,7 @@ async function loadAllData() {
                 const ytGender = await loadCSV('YouTube_Gender.csv');
                 const ytGeography = await loadCSV('YouTube_Geography.csv');
                 let ytSubscription = [];
-                
+
                 try {
                     // Try to load subscription data
                     ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
@@ -216,7 +216,7 @@ async function loadAllData() {
                         { 'Subscription status': 'Total', 'Views': 100000, 'Watch time (hours)': 7500 }
                     ];
                 }
-                
+
                 const ytContent = await loadCSV('YouTube_Content.csv');
                 const ytCities = await loadCSV('YouTube_Cities.csv');
 
@@ -427,7 +427,7 @@ async function loadYearlyData() {
                         const ytAge = await loadCSV(`${year}/YouTube_Age.csv`).catch(() => loadCSV('YouTube_Age.csv'));
                         const ytGender = await loadCSV(`${year}/YouTube_Gender.csv`).catch(() => loadCSV('YouTube_Gender.csv'));
                         const ytGeography = await loadCSV(`${year}/YouTube_Geography.csv`).catch(() => loadCSV('YouTube_Geography.csv'));
-                        
+
                         // For subscription data, use default if missing
                         let ytSubscription = [];
                         try {
@@ -444,10 +444,10 @@ async function loadYearlyData() {
                                 ];
                             }
                         }
-                        
+
                         const ytContent = await loadCSV(`${year}/YouTube_Content.csv`).catch(() => loadCSV('YouTube_Content.csv'));
                         const ytCities = await loadCSV(`${year}/YouTube_Cities.csv`).catch(() => loadCSV('YouTube_Cities.csv'));
-                        
+
                         // Process YouTube data
                         youtubeData = processYouTubeData(
                             convertArrayToCSV(ytAge),
@@ -633,22 +633,558 @@ function renderActiveDashboard() {
 
 function renderConverterDashboard() {
     const container = document.getElementById('converter-dashboard');
-    if (container) {
-        container.innerHTML = `
-            <div class="bg-white p-4 rounded-lg shadow">
-                <h2 class="text-2xl font-bold text-gray-800">CSV Converter</h2>
-                <p class="text-gray-600 my-4">The CSV converter allows you to upload and process your marketing data files.</p>
-                
-                <div class="bg-yellow-50 p-4 rounded-lg">
-                    <p class="text-yellow-700">Please upload your CSV files from your marketing platforms to begin processing.</p>
-                </div>
-                
-                <!-- File upload area can be added here later -->
+    if (!container) return;
+
+    // Initialize converter state object if it doesn't exist
+    if (!window.converterState) {
+        window.converterState = {
+            files: [],
+            processedFiles: {
+                facebook: null,
+                facebookSpecific: {
+                    posts: null,
+                    reach: null,
+                    interactions: null
+                },
+                instagram: null,
+                instagramSpecific: {
+                    reach: null,
+                    interactions: null
+                },
+                email: null,
+                youtube: {
+                    age: null,
+                    gender: null,
+                    geography: null,
+                    subscription: null,
+                    content: null,
+                    cities: null
+                },
+                googleAnalytics: {
+                    demographics: null,
+                    pagesAndScreens: null,
+                    trafficAcquisition: null,
+                    utms: null
+                }
+            },
+            outputData: {},
+            loading: false,
+            step: 'upload' // upload, processing, results, error
+        };
+    }
+
+    // Render the converter UI
+    container.innerHTML = `
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Marketing Data CSV Converter</h2>
+                <p class="text-gray-600">
+                    Upload your marketing data CSV files, and this tool will convert them into standardized JSON formats for the dashboard.
+                </p>
             </div>
-        `;
+            
+            <!-- Step indicator -->
+            <div class="mb-8">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${window.converterState.step === 'upload' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-500'}">1</div>
+                    <div class="flex-1 h-1 mx-2 bg-gray-200">
+                        <div class="h-full ${window.converterState.step !== 'upload' ? 'bg-blue-500' : 'bg-gray-200'}" style="width: ${window.converterState.step === 'upload' ? '0%' : '100%'}"></div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${window.converterState.step === 'processing' ? 'bg-blue-500 text-white' : window.converterState.step === 'results' || window.converterState.step === 'error' ? 'bg-blue-100 text-blue-500' : 'bg-gray-200 text-gray-500'}">2</div>
+                    <div class="flex-1 h-1 mx-2 bg-gray-200">
+                        <div class="h-full ${window.converterState.step === 'results' || window.converterState.step === 'error' ? 'bg-blue-500' : 'bg-gray-200'}" style="width: ${window.converterState.step === 'results' || window.converterState.step === 'error' ? '100%' : '0%'}"></div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center ${window.converterState.step === 'results' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'}">3</div>
+                </div>
+                <div class="flex text-sm mt-2">
+                    <div class="flex-1 text-center">Upload Files</div>
+                    <div class="flex-1 text-center">Process Data</div>
+                    <div class="flex-1 text-center">Download Results</div>
+                </div>
+            </div>
+            
+            ${renderConverterStep()}
+        </div>
+    `;
+
+    // Add event listeners after rendering the UI
+    attachConverterEventListeners();
+}
+
+// Render the appropriate step based on the current state
+function renderConverterStep() {
+    switch(window.converterState.step) {
+        case 'upload':
+            return renderUploadStep();
+        case 'processing':
+            return renderProcessingStep();
+        case 'error':
+            return renderErrorStep();
+        case 'results':
+            return renderResultsStep();
+        default:
+            return renderUploadStep();
     }
 }
 
+// Render the upload files step
+function renderUploadStep() {
+    const filesList = window.converterState.files.length > 0 ? `
+        <div class="mt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Uploaded Files (${window.converterState.files.length})</h3>
+            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <ul class="divide-y divide-gray-200">
+                    ${window.converterState.files.map((file, index) => `
+                        <li class="px-4 py-3 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span class="text-sm font-medium text-gray-800">${file.name}</span>
+                            </div>
+                            <span class="text-sm text-gray-500">${Math.round(file.size / 1024)} KB</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="mt-4 flex justify-between">
+                <button
+                    id="converter-clear-btn"
+                    class="bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300 transition"
+                >
+                    Clear All
+                </button>
+                <button
+                    id="converter-process-btn"
+                    class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition ${window.converterState.files.length === 0 || window.converterState.loading ? 'opacity-50 cursor-not-allowed' : ''}"
+                >
+                    ${window.converterState.loading ? 'Processing...' : 'Process Files'}
+                </button>
+            </div>
+        </div>
+    ` : '';
+
+    return `
+        <div class="upload-section">
+            <div class="max-w-xl mx-auto">
+                <div class="bg-gray-50 p-6 rounded-lg border-2 border-dashed border-gray-300">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Drag and drop your CSV files, or <span class="text-blue-500 font-medium">browse</span>
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <input
+                            type="file"
+                            id="file-upload"
+                            class="hidden"
+                            multiple
+                            accept=".csv"
+                        />
+                        <label
+                            for="file-upload"
+                            class="cursor-pointer w-full bg-blue-500 text-white font-medium py-2 px-4 rounded text-center block hover:bg-blue-600 transition"
+                        >
+                            Select CSV Files
+                        </label>
+                    </div>
+                </div>
+                
+                ${filesList}
+            </div>
+        </div>
+    `;
+}
+
+// Render the processing step
+function renderProcessingStep() {
+    return `
+        <div class="processing-section flex flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">Processing Files...</h3>
+            <p class="text-gray-600">This may take a few moments depending on the file size.</p>
+        </div>
+    `;
+}
+
+// Render the error step
+function renderErrorStep() {
+    return `
+        <div class="error-section bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-medium text-red-800 mb-2">Processing Error</h3>
+            <p class="text-red-700 mb-4">${window.converterState.error || 'An unknown error occurred'}</p>
+            <button
+                id="converter-reset-btn"
+                class="bg-red-100 text-red-700 py-2 px-4 rounded hover:bg-red-200 transition"
+            >
+                Go Back and Try Again
+            </button>
+        </div>
+    `;
+}
+
+// Render the results step
+function renderResultsStep() {
+    const outputKeys = Object.keys(window.converterState.outputData);
+    
+    return `
+        <div class="results-section">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                <div class="flex items-start">
+                    <div class="mr-3 bg-green-100 rounded-full p-2">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-green-800">Processing Successful!</h3>
+                        <p class="text-green-700">Your data has been successfully processed. You can now download the results.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">Download Options</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-2">Individual Files</h4>
+                        ${outputKeys.map(key => `
+                            <button
+                                class="download-file-btn block w-full text-left px-3 py-2 mt-2 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition"
+                                data-key="${key}"
+                            >
+                                ${key}.json
+                            </button>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-2">Download All</h4>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Download all processed data files in a single ZIP archive.
+                        </p>
+                        <button
+                            id="download-zip-btn"
+                            class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                        >
+                            Download ZIP Archive
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-medium text-gray-700 mb-2">Data Preview</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
+                        <pre class="text-xs text-gray-700 whitespace-pre-wrap">
+${JSON.stringify(outputKeys.reduce((acc, key) => {
+    acc[key] = {
+        type: 'json',
+        size: JSON.stringify(window.converterState.outputData[key]).length,
+        sample: '...'
+    };
+    return acc;
+}, {}), null, 2)}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <button
+                    id="converter-reset-btn"
+                    class="bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300 transition"
+                >
+                    Process New Files
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Attach event listeners for the converter
+function attachConverterEventListeners() {
+    // File upload
+    const fileUpload = document.getElementById('file-upload');
+    if (fileUpload) {
+        fileUpload.addEventListener('change', handleFileUpload);
+    }
+    
+    // Clear all button
+    const clearBtn = document.getElementById('converter-clear-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', resetConverter);
+    }
+    
+    // Process button
+    const processBtn = document.getElementById('converter-process-btn');
+    if (processBtn) {
+        processBtn.addEventListener('click', processFiles);
+    }
+    
+    // Reset button
+    const resetBtn = document.getElementById('converter-reset-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetConverter);
+    }
+    
+    // Download ZIP button
+    const downloadZipBtn = document.getElementById('download-zip-btn');
+    if (downloadZipBtn) {
+        downloadZipBtn.addEventListener('click', downloadZip);
+    }
+    
+    // Individual file download buttons
+    const downloadFileBtns = document.querySelectorAll('.download-file-btn');
+    downloadFileBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const key = this.getAttribute('data-key');
+            downloadFile(key);
+        });
+    });
+}
+// Render the appropriate step based on the current state
+function renderConverterStep() {
+    switch (window.converterState.step) {
+        case 'upload':
+            return renderUploadStep();
+        case 'processing':
+            return renderProcessingStep();
+        case 'error':
+            return renderErrorStep();
+        case 'results':
+            return renderResultsStep();
+        default:
+            return renderUploadStep();
+    }
+}
+
+// Render the upload files step
+function renderUploadStep() {
+    const filesList = window.converterState.files.length > 0 ? `
+        <div class="mt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Uploaded Files (${window.converterState.files.length})</h3>
+            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <ul class="divide-y divide-gray-200">
+                    ${window.converterState.files.map((file, index) => `
+                        <li class="px-4 py-3 flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span class="text-sm font-medium text-gray-800">${file.name}</span>
+                            </div>
+                            <span class="text-sm text-gray-500">${Math.round(file.size / 1024)} KB</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="mt-4 flex justify-between">
+                <button
+                    id="converter-clear-btn"
+                    class="bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300 transition"
+                >
+                    Clear All
+                </button>
+                <button
+                    id="converter-process-btn"
+                    class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition ${window.converterState.files.length === 0 || window.converterState.loading ? 'opacity-50 cursor-not-allowed' : ''}"
+                >
+                    ${window.converterState.loading ? 'Processing...' : 'Process Files'}
+                </button>
+            </div>
+        </div>
+    ` : '';
+
+    return `
+        <div class="upload-section">
+            <div class="max-w-xl mx-auto">
+                <div class="bg-gray-50 p-6 rounded-lg border-2 border-dashed border-gray-300">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Drag and drop your CSV files, or <span class="text-blue-500 font-medium">browse</span>
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <input
+                            type="file"
+                            id="file-upload"
+                            class="hidden"
+                            multiple
+                            accept=".csv"
+                        />
+                        <label
+                            for="file-upload"
+                            class="cursor-pointer w-full bg-blue-500 text-white font-medium py-2 px-4 rounded text-center block hover:bg-blue-600 transition"
+                        >
+                            Select CSV Files
+                        </label>
+                    </div>
+                </div>
+                
+                ${filesList}
+            </div>
+        </div>
+    `;
+}
+
+// Render the processing step
+function renderProcessingStep() {
+    return `
+        <div class="processing-section flex flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <h3 class="text-lg font-medium text-gray-800 mb-2">Processing Files...</h3>
+            <p class="text-gray-600">This may take a few moments depending on the file size.</p>
+        </div>
+    `;
+}
+
+// Render the error step
+function renderErrorStep() {
+    return `
+        <div class="error-section bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-medium text-red-800 mb-2">Processing Error</h3>
+            <p class="text-red-700 mb-4">${window.converterState.error || 'An unknown error occurred'}</p>
+            <button
+                id="converter-reset-btn"
+                class="bg-red-100 text-red-700 py-2 px-4 rounded hover:bg-red-200 transition"
+            >
+                Go Back and Try Again
+            </button>
+        </div>
+    `;
+}
+
+// Render the results step
+function renderResultsStep() {
+    const outputKeys = Object.keys(window.converterState.outputData);
+
+    return `
+        <div class="results-section">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                <div class="flex items-start">
+                    <div class="mr-3 bg-green-100 rounded-full p-2">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-green-800">Processing Successful!</h3>
+                        <p class="text-green-700">Your data has been successfully processed. You can now download the results.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                <h3 class="text-lg font-medium text-gray-800 mb-4">Download Options</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-2">Individual Files</h4>
+                        ${outputKeys.map(key => `
+                            <button
+                                class="download-file-btn block w-full text-left px-3 py-2 mt-2 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition"
+                                data-key="${key}"
+                            >
+                                ${key}.json
+                            </button>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-2">Download All</h4>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Download all processed data files in a single ZIP archive.
+                        </p>
+                        <button
+                            id="download-zip-btn"
+                            class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+                        >
+                            Download ZIP Archive
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <h4 class="font-medium text-gray-700 mb-2">Data Preview</h4>
+                    <div class="bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
+                        <pre class="text-xs text-gray-700 whitespace-pre-wrap">
+${JSON.stringify(outputKeys.reduce((acc, key) => {
+        acc[key] = {
+            type: 'json',
+            size: JSON.stringify(window.converterState.outputData[key]).length,
+            sample: '...'
+        };
+        return acc;
+    }, {}), null, 2)}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <button
+                    id="converter-reset-btn"
+                    class="bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300 transition"
+                >
+                    Process New Files
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Attach event listeners for the converter
+function attachConverterEventListeners() {
+    // File upload
+    const fileUpload = document.getElementById('file-upload');
+    if (fileUpload) {
+        fileUpload.addEventListener('change', handleFileUpload);
+    }
+
+    // Clear all button
+    const clearBtn = document.getElementById('converter-clear-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', resetConverter);
+    }
+
+    // Process button
+    const processBtn = document.getElementById('converter-process-btn');
+    if (processBtn) {
+        processBtn.addEventListener('click', processFiles);
+    }
+
+    // Reset button
+    const resetBtn = document.getElementById('converter-reset-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetConverter);
+    }
+
+    // Download ZIP button
+    const downloadZipBtn = document.getElementById('download-zip-btn');
+    if (downloadZipBtn) {
+        downloadZipBtn.addEventListener('click', downloadZip);
+    }
+
+    // Individual file download buttons
+    const downloadFileBtns = document.querySelectorAll('.download-file-btn');
+    downloadFileBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const key = this.getAttribute('data-key');
+            downloadFile(key);
+        });
+    });
+}
 // Clear data cache
 function clearDataCache() {
     dashboardState.dataCache = {};
