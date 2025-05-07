@@ -1,6 +1,6 @@
 /**
  * Main Dashboard Logic
- * Enhanced with multi-year and Google Analytics support
+ * Enhanced with direct CSV processing for GitHub Pages
  */
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize dashboard
@@ -16,7 +16,8 @@ const dashboardState = {
         multiYearData: null, // Processed multi-year data
     },
     selectedYears: [],
-    isLoading: false
+    isLoading: false,
+    dataCache: {} // Cache for loaded CSV data
 };
 
 // Initialize dashboard
@@ -34,14 +35,14 @@ function setupEventListeners() {
         timeframeSelector.value = dashboardState.timeframe;
         timeframeSelector.addEventListener('change', async function () {
             dashboardState.timeframe = this.value;
-
+            
             // If year-based timeframe, update selected years
             if (this.value === 'yoy' || this.value === '5y') {
                 await loadYearlyData();
             } else {
                 await loadAllData();
             }
-
+            
             renderActiveDashboard();
         });
     }
@@ -82,32 +83,182 @@ function setActiveDashboard(dashboard) {
     renderActiveDashboard();
 }
 
+/**
+ * Load a CSV file and parse it with PapaParse
+ * @param {string} fileName - The name of the CSV file to load
+ * @param {object} options - Options for parsing
+ * @returns {Promise<Array>} - Parsed CSV data
+ */
+async function loadCSV(fileName, options = {}) {
+    // Check if data is already in cache
+    const cacheKey = `${dashboardState.timeframe}_${fileName}`;
+    if (dashboardState.dataCache[cacheKey]) {
+        return dashboardState.dataCache[cacheKey];
+    }
+    
+    try {
+        // Construct the file path based on timeframe
+        let filePath = '';
+        const currentYear = new Date().getFullYear().toString();
+        
+        // Handle year-specific paths
+        if (dashboardState.timeframe === 'yoy' || dashboardState.timeframe === '5y') {
+            // Use the first year in selectedYears, or fallback to current year
+            const year = dashboardState.selectedYears.length > 0 ? 
+                dashboardState.selectedYears[0] : currentYear;
+            filePath = `${DASHBOARD_CONFIG.dataPath}/${year}/${fileName}`;
+        } else {
+            filePath = `${DASHBOARD_CONFIG.dataPath}/${fileName}`;
+        }
+        
+        // Fetch the CSV file
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            console.warn(`Could not fetch ${filePath}: ${response.status} ${response.statusText}`);
+            // Try fallback to base path if year-specific file not found
+            if (filePath.includes('/')) {
+                const fallbackPath = `${DASHBOARD_CONFIG.dataPath}/${fileName}`;
+                console.log(`Trying fallback path: ${fallbackPath}`);
+                const fallbackResponse = await fetch(fallbackPath);
+                if (!fallbackResponse.ok) {
+                    throw new Error(`Failed to load ${fileName}`);
+                }
+                return parseCSV(await fallbackResponse.text(), options);
+            }
+            throw new Error(`Failed to load ${fileName}`);
+        }
+        
+        const csvText = await response.text();
+        const parsedData = await parseCSV(csvText, options);
+        
+        // Store in cache
+        dashboardState.dataCache[cacheKey] = parsedData;
+        
+        return parsedData;
+    } catch (error) {
+        console.error(`Error loading CSV ${fileName}:`, error);
+        return [];
+    }
+}
+
+/**
+ * Parse CSV text using PapaParse
+ * @param {string} csvText - The CSV text to parse
+ * @param {object} options - Options for parsing
+ * @returns {Promise<Array>} - Parsed CSV data
+ */
+function parseCSV(csvText, options = {}) {
+    return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            ...options,
+            complete: (results) => {
+                resolve(results.data);
+            },
+            error: (error) => {
+                console.error('Error parsing CSV:', error);
+                reject(error);
+            }
+        });
+    });
+}
+
 // Load all data
 async function loadAllData() {
     setLoading(true);
 
     try {
         // Determine current year based on timeframe
-        let currentYear = new Date().getFullYear().toString();
-        let previousYear = (parseInt(currentYear) - 1).toString();
-
+        const currentYear = new Date().getFullYear().toString();
+        
         // If timeframe is year-over-year or 5-year
         if (dashboardState.timeframe === 'yoy' || dashboardState.timeframe === '5y') {
             await loadYearlyData();
         } else {
-            // Load data for current timeframe
-            dashboardState.data.facebook = await fetchData('facebook_data.json');
-            dashboardState.data.instagram = await fetchData('instagram_data.json');
-            dashboardState.data.youtube = await fetchData('youtube_data.json');
-            dashboardState.data.email = await fetchData('email_data.json');
-            dashboardState.data.googleAnalytics = await fetchData('google_analytics_data.json');
-            dashboardState.data.crossChannel = await fetchData('cross_channel_data.json');
-
+            // Load Facebook data
+            const fbPosts = await loadCSV('FB_Posts.csv');
+            const fbVideos = await loadCSV('FB_Videos.csv');
+            const fbReach = await loadCSV('FB_Reach.csv');
+            const fbInteractions = await loadCSV('FB_Interactions.csv');
+            
+            // Process Facebook data
+            dashboardState.data.facebook = processFacebookData(
+                convertArrayToCSV(fbPosts), 
+                {
+                    postsData: convertArrayToCSV(fbPosts),
+                    reachData: convertArrayToCSV(fbReach),
+                    interactionsData: convertArrayToCSV(fbInteractions)
+                }
+            );
+            
+            // Load Instagram data
+            const igPosts = await loadCSV('IG_Posts.csv');
+            const igReach = await loadCSV('IG_Reach.csv');
+            const igInteractions = await loadCSV('IG_Interactions.csv');
+            
+            // Process Instagram data
+            dashboardState.data.instagram = processInstagramData(
+                convertArrayToCSV(igPosts),
+                {
+                    reachData: convertArrayToCSV(igReach),
+                    interactionsData: convertArrayToCSV(igInteractions)
+                }
+            );
+            
+            // Load Email data
+            const emailData = await loadCSV('Email_Campaign_Performance.csv');
+            
+            // Process Email data
+            dashboardState.data.email = processEmailData(convertArrayToCSV(emailData));
+            
+            // Load YouTube data
+            const ytAge = await loadCSV('YouTube_Age.csv');
+            const ytGender = await loadCSV('YouTube_Gender.csv');
+            const ytGeography = await loadCSV('YouTube_Geography.csv');
+            const ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
+            const ytContent = await loadCSV('YouTube_Content.csv');
+            const ytCities = await loadCSV('YouTube_Cities.csv');
+            
+            // Process YouTube data
+            dashboardState.data.youtube = processYouTubeData(
+                convertArrayToCSV(ytAge),
+                convertArrayToCSV(ytGender),
+                convertArrayToCSV(ytGeography),
+                convertArrayToCSV(ytSubscription),
+                convertArrayToCSV(ytContent),
+                { citiesData: convertArrayToCSV(ytCities) }
+            );
+            
+            // Load Google Analytics data
+            const gaDemographics = await loadCSV('GA_Demographics.csv');
+            const gaPages = await loadCSV('GA_Pages_And_Screens.csv');
+            const gaTraffic = await loadCSV('GA_Traffic_Acquisition.csv');
+            const gaUTMs = await loadCSV('GA_UTMs.csv');
+            
+            // Process Google Analytics data
+            dashboardState.data.googleAnalytics = processGoogleAnalyticsData(
+                convertArrayToCSV(gaDemographics),
+                convertArrayToCSV(gaPages),
+                convertArrayToCSV(gaTraffic),
+                convertArrayToCSV(gaUTMs)
+            );
+            
+            // Generate cross-channel data
+            dashboardState.data.crossChannel = generateCrossChannelData(
+                dashboardState.data.facebook,
+                dashboardState.data.instagram,
+                dashboardState.data.youtube,
+                dashboardState.data.email,
+                dashboardState.data.googleAnalytics
+            );
+            
             // Add to yearly data for current year
             if (!dashboardState.data.yearlyData) {
                 dashboardState.data.yearlyData = {};
             }
-
+            
             dashboardState.data.yearlyData[currentYear] = {
                 facebook: dashboardState.data.facebook,
                 instagram: dashboardState.data.instagram,
@@ -136,20 +287,61 @@ async function loadAllData() {
     setLoading(false);
 }
 
+/**
+ * Convert an array of objects to CSV string
+ * This helps reuse existing processing functions that expect CSV strings
+ * @param {Array} array - Array of objects
+ * @returns {string} - CSV string
+ */
+function convertArrayToCSV(array) {
+    if (!array || array.length === 0) return '';
+    
+    // Get headers from the first object
+    const headers = Object.keys(array[0]);
+    
+    // Create CSV header row
+    let csv = headers.join(',') + '\n';
+    
+    // Add data rows
+    array.forEach(obj => {
+        const row = headers.map(header => {
+            const value = obj[header];
+            
+            // Handle different value types
+            if (value === null || value === undefined) {
+                return '';
+            } else if (typeof value === 'string') {
+                // Escape quotes and wrap in quotes if it contains comma or quotes
+                if (value.includes(',') || value.includes('"')) {
+                    return `"${value.replace(/"/g, '""')}"`;
+                } else {
+                    return value;
+                }
+            } else {
+                return value.toString();
+            }
+        });
+        
+        csv += row.join(',') + '\n';
+    });
+    
+    return csv;
+}
+
 // Load data for multiple years
 async function loadYearlyData() {
     setLoading(true);
-
+    
     try {
         // Initialize yearly data if not exists
         if (!dashboardState.data.yearlyData) {
             dashboardState.data.yearlyData = {};
         }
-
+        
         // Determine years to load based on timeframe
         let years = [];
         const currentYear = new Date().getFullYear();
-
+        
         if (dashboardState.timeframe === 'yoy') {
             // Last two years for year-over-year
             years = [(currentYear - 1).toString(), currentYear.toString()];
@@ -159,73 +351,145 @@ async function loadYearlyData() {
                 years.push((currentYear - 4 + i).toString());
             }
         }
-
+        
         // Update selected years
         dashboardState.selectedYears = years;
-
+        
         // Load data for each year
         for (const year of years) {
             if (!dashboardState.data.yearlyData[year]) {
                 try {
-                    // Try to load specific year's data
-                    const yearData = {
-                        facebook: await fetchData(`${year}/facebook_data.json`),
-                        instagram: await fetchData(`${year}/instagram_data.json`),
-                        youtube: await fetchData(`${year}/youtube_data.json`),
-                        email: await fetchData(`${year}/email_data.json`),
-                        googleAnalytics: await fetchData(`${year}/google_analytics_data.json`),
-                        crossChannel: await fetchData(`${year}/cross_channel_data.json`)
-                    };
-
-                    dashboardState.data.yearlyData[year] = yearData;
-                } catch (error) {
-                    console.warn(`Could not load data for year ${year}. Using default data.`);
-
-                    // Use default data for year
+                    // Set the year in options for loading from year-specific folders
+                    const yearOption = { year };
+                    
+                    // Try to load from year-specific folder
+                    const fbPosts = await loadCSV(`${year}/FB_Posts.csv`).catch(() => loadCSV('FB_Posts.csv'));
+                    const fbVideos = await loadCSV(`${year}/FB_Videos.csv`).catch(() => loadCSV('FB_Videos.csv'));
+                    const fbReach = await loadCSV(`${year}/FB_Reach.csv`).catch(() => loadCSV('FB_Reach.csv'));
+                    const fbInteractions = await loadCSV(`${year}/FB_Interactions.csv`).catch(() => loadCSV('FB_Interactions.csv'));
+                    
+                    // Process Facebook data
+                    const facebookData = processFacebookData(
+                        convertArrayToCSV(fbPosts), 
+                        {
+                            postsData: convertArrayToCSV(fbPosts),
+                            reachData: convertArrayToCSV(fbReach),
+                            interactionsData: convertArrayToCSV(fbInteractions),
+                            year: parseInt(year)
+                        }
+                    );
+                    
+                    // Load Instagram data
+                    const igPosts = await loadCSV(`${year}/IG_Posts.csv`).catch(() => loadCSV('IG_Posts.csv'));
+                    const igReach = await loadCSV(`${year}/IG_Reach.csv`).catch(() => loadCSV('IG_Reach.csv'));
+                    const igInteractions = await loadCSV(`${year}/IG_Interactions.csv`).catch(() => loadCSV('IG_Interactions.csv'));
+                    
+                    // Process Instagram data
+                    const instagramData = processInstagramData(
+                        convertArrayToCSV(igPosts),
+                        {
+                            reachData: convertArrayToCSV(igReach),
+                            interactionsData: convertArrayToCSV(igInteractions),
+                            year: parseInt(year)
+                        }
+                    );
+                    
+                    // Load Email data
+                    const emailCsv = await loadCSV(`${year}/Email_Campaign_Performance.csv`).catch(() => loadCSV('Email_Campaign_Performance.csv'));
+                    
+                    // Process Email data
+                    const emailData = processEmailData(
+                        convertArrayToCSV(emailCsv),
+                        { year: parseInt(year) }
+                    );
+                    
+                    // Load YouTube data
+                    const ytAge = await loadCSV(`${year}/YouTube_Age.csv`).catch(() => loadCSV('YouTube_Age.csv'));
+                    const ytGender = await loadCSV(`${year}/YouTube_Gender.csv`).catch(() => loadCSV('YouTube_Gender.csv'));
+                    const ytGeography = await loadCSV(`${year}/YouTube_Geography.csv`).catch(() => loadCSV('YouTube_Geography.csv'));
+                    const ytSubscription = await loadCSV(`${year}/YouTube_Subscription_Status.csv`).catch(() => loadCSV('YouTube_Subscription_Status.csv'));
+                    const ytContent = await loadCSV(`${year}/YouTube_Content.csv`).catch(() => loadCSV('YouTube_Content.csv'));
+                    
+                    // Process YouTube data
+                    const youtubeData = processYouTubeData(
+                        convertArrayToCSV(ytAge),
+                        convertArrayToCSV(ytGender),
+                        convertArrayToCSV(ytGeography),
+                        convertArrayToCSV(ytSubscription),
+                        convertArrayToCSV(ytContent),
+                        { year: parseInt(year) }
+                    );
+                    
+                    // Load Google Analytics data
+                    const gaDemographics = await loadCSV(`${year}/GA_Demographics.csv`).catch(() => loadCSV('GA_Demographics.csv'));
+                    const gaPages = await loadCSV(`${year}/GA_Pages_And_Screens.csv`).catch(() => loadCSV('GA_Pages_And_Screens.csv'));
+                    const gaTraffic = await loadCSV(`${year}/GA_Traffic_Acquisition.csv`).catch(() => loadCSV('GA_Traffic_Acquisition.csv'));
+                    const gaUTMs = await loadCSV(`${year}/GA_UTMs.csv`).catch(() => loadCSV('GA_UTMs.csv'));
+                    
+                    // Process Google Analytics data
+                    const googleAnalyticsData = processGoogleAnalyticsData(
+                        convertArrayToCSV(gaDemographics),
+                        convertArrayToCSV(gaPages),
+                        convertArrayToCSV(gaTraffic),
+                        convertArrayToCSV(gaUTMs),
+                        { year: parseInt(year) }
+                    );
+                    
+                    // Generate cross-channel data
+                    const crossChannelData = generateCrossChannelData(
+                        facebookData,
+                        instagramData,
+                        youtubeData,
+                        emailData,
+                        googleAnalyticsData,
+                        { year: parseInt(year) }
+                    );
+                    
+                    // Store year data
                     dashboardState.data.yearlyData[year] = {
-                        facebook: dashboardState.data.facebook || await fetchData('facebook_data.json'),
-                        instagram: dashboardState.data.instagram || await fetchData('instagram_data.json'),
-                        youtube: dashboardState.data.youtube || await fetchData('youtube_data.json'),
-                        email: dashboardState.data.email || await fetchData('email_data.json'),
-                        googleAnalytics: dashboardState.data.googleAnalytics || await fetchData('google_analytics_data.json'),
-                        crossChannel: dashboardState.data.crossChannel || await fetchData('cross_channel_data.json')
+                        facebook: facebookData,
+                        instagram: instagramData,
+                        youtube: youtubeData,
+                        email: emailData,
+                        googleAnalytics: googleAnalyticsData,
+                        crossChannel: crossChannelData
+                    };
+                } catch (error) {
+                    console.warn(`Could not load complete data for year ${year}. Using available data.`, error);
+                    
+                    // Initialize with empty objects if loading fails
+                    dashboardState.data.yearlyData[year] = {
+                        facebook: {},
+                        instagram: {},
+                        youtube: {},
+                        email: {},
+                        googleAnalytics: {},
+                        crossChannel: {}
                     };
                 }
             }
         }
-
+        
         // Process multi-year data
         dashboardState.data.multiYearData = processMultiYearData(dashboardState.data.yearlyData);
-
+        
         // Set currently active data to most recent year
         const mostRecentYear = years[years.length - 1];
-        dashboardState.data.facebook = dashboardState.data.yearlyData[mostRecentYear].facebook;
-        dashboardState.data.instagram = dashboardState.data.yearlyData[mostRecentYear].instagram;
-        dashboardState.data.youtube = dashboardState.data.yearlyData[mostRecentYear].youtube;
-        dashboardState.data.email = dashboardState.data.yearlyData[mostRecentYear].email;
-        dashboardState.data.googleAnalytics = dashboardState.data.yearlyData[mostRecentYear].googleAnalytics;
-        dashboardState.data.crossChannel = dashboardState.data.yearlyData[mostRecentYear].crossChannel;
-
+        if (dashboardState.data.yearlyData[mostRecentYear]) {
+            dashboardState.data.facebook = dashboardState.data.yearlyData[mostRecentYear].facebook;
+            dashboardState.data.instagram = dashboardState.data.yearlyData[mostRecentYear].instagram;
+            dashboardState.data.youtube = dashboardState.data.yearlyData[mostRecentYear].youtube;
+            dashboardState.data.email = dashboardState.data.yearlyData[mostRecentYear].email;
+            dashboardState.data.googleAnalytics = dashboardState.data.yearlyData[mostRecentYear].googleAnalytics;
+            dashboardState.data.crossChannel = dashboardState.data.yearlyData[mostRecentYear].crossChannel;
+        }
+        
     } catch (error) {
         console.error('Error loading yearly data:', error);
         alert('Error loading yearly data. Please check the console for details.');
     }
-
+    
     setLoading(false);
-}
-
-// Fetch data from JSON file
-async function fetchData(filename) {
-    try {
-        const response = await fetch(`${DASHBOARD_CONFIG.dataPath}/${filename}`);
-        if (!response.ok) {
-            throw new Error(`Failed to load ${filename}: ${response.status} ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.warn(`Could not fetch ${filename}:`, error);
-        throw error;
-    }
 }
 
 // Set loading state
@@ -282,77 +546,10 @@ function renderActiveDashboard() {
             renderConverterDashboard();
             break;
     }
-    function renderConverterDashboard() {
-        const container = document.getElementById('converter-dashboard');
+}
 
-        if (!container) return;
-
-        container.innerHTML = `
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">CSV to JSON Converter</h2>
-            <p class="text-gray-600">Upload your marketing data CSV files to convert them to dashboard-ready JSON</p>
-          </div>
-          
-          <div class="bg-white p-4 rounded-lg shadow mb-6">
-            <h3 class="font-bold text-gray-800 mb-4">Upload Files</h3>
-            
-            <div class="flex flex-col space-y-4">
-              <div class="file-upload-container">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Facebook Data</label>
-                <input type="file" class="csv-file-input" data-type="facebook" accept=".csv">
-              </div>
-              
-              <div class="file-upload-container">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Instagram Data</label>
-                <input type="file" class="csv-file-input" data-type="instagram" accept=".csv">
-              </div>
-              
-              <div class="file-upload-container">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email Data</label>
-                <input type="file" class="csv-file-input" data-type="email" accept=".csv">
-              </div>
-              
-              <div class="file-upload-container">
-                <label class="block text-sm font-medium text-gray-700 mb-1">YouTube Data</label>
-                <input type="file" class="csv-file-input" data-type="youtube" accept=".csv">
-              </div>
-              
-              <div class="file-upload-container">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Google Analytics Data</label>
-                <input type="file" class="csv-file-input" data-type="googleAnalytics" accept=".csv">
-              </div>
-            </div>
-            
-            <div class="mt-4">
-              <button id="process-files-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Process Files
-              </button>
-            </div>
-          </div>
-          
-          <div id="results-container" class="hidden bg-white p-4 rounded-lg shadow">
-            <h3 class="font-bold text-gray-800 mb-4">Conversion Results</h3>
-            
-            <div id="download-links" class="flex flex-col space-y-2">
-              <!-- Download links will appear here -->
-            </div>
-            
-            <div class="mt-4">
-              <button id="download-all-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                Download All as ZIP
-              </button>
-            </div>
-          </div>
-        `;
-
-        // Add event listeners
-        document.getElementById('process-files-btn')?.addEventListener('click', processFiles);
-        document.getElementById('download-all-btn')?.addEventListener('click', downloadZip);
-
-        // Initialize converter state
-        if (typeof initializeConverter === 'function') {
-            initializeConverter();
-        }
-    }
-
+// Clear data cache
+function clearDataCache() {
+    dashboardState.dataCache = {};
+    console.log('Data cache cleared');
 }
