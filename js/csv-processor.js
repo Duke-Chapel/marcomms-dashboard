@@ -1,10 +1,10 @@
 /**
  * Enhanced CSV Processor
- * Supports year-based data processing and multi-year comparison
+ * Supports year-based data processing with proper data type normalization
  */
 
 /**
- * Convert CSV to JSON with enhanced features
+ * Convert CSV to JSON with enhanced features and proper data typing
  * @param {string} csv - CSV content
  * @param {object} options - Processing options
  * @returns {array} - Processed JSON data
@@ -28,7 +28,7 @@ function enhancedCsvToJson(csv, options = {}) {
     // Process each column
     for (let j = 0; j < headers.length; j++) {
       // Try to convert to number if possible
-      const value = currentLine[j] ? currentLine[j].trim() : '';
+      let value = currentLine[j] ? currentLine[j].trim() : '';
       
       // Handle date fields
       if (options.dateFields && options.dateFields.includes(headers[j])) {
@@ -39,8 +39,8 @@ function enhancedCsvToJson(csv, options = {}) {
           obj.year = new Date(value).getFullYear();
         }
       } else {
-        // Convert to number if possible
-        obj[headers[j]] = !isNaN(value) && value !== '' ? Number(value) : value;
+        // Convert to number if possible - this is the key change
+        obj[headers[j]] = normalizeValue(value);
       }
     }
 
@@ -53,6 +53,54 @@ function enhancedCsvToJson(csv, options = {}) {
   }
 
   return result;
+}
+
+/**
+ * Normalize a value (convert string numbers to actual numbers)
+ * @param {any} value - The value to normalize
+ * @returns {any} - The normalized value
+ */
+function normalizeValue(value) {
+  // If it's not a string, return as is
+  if (typeof value !== 'string') return value;
+  
+  // Remove commas from number strings
+  const cleanValue = value.replace(/,/g, '');
+  
+  // Try to convert to number if it looks like a number
+  if (/^-?\d+(\.\d+)?$/.test(cleanValue)) {
+    return parseFloat(cleanValue);
+  }
+  
+  // For percentage strings (if they end with %)
+  if (/^-?\d+(\.\d+)?%$/.test(cleanValue)) {
+    return parseFloat(cleanValue.replace('%', ''));
+  }
+  
+  // Return original value if it's not a number
+  return value;
+}
+
+/**
+ * Recursively normalize an object or array
+ * @param {object|array} data - The data to normalize
+ * @returns {object|array} - The normalized data
+ */
+function normalizeObject(data) {
+  if (Array.isArray(data)) {
+    // Process each item in the array
+    return data.map(item => normalizeObject(item));
+  } else if (data && typeof data === 'object') {
+    // Process each property in the object
+    const result = {};
+    for (const [key, value] of Object.entries(data)) {
+      result[key] = normalizeObject(value);
+    }
+    return result;
+  } else {
+    // It's a primitive value, normalize it
+    return normalizeValue(data);
+  }
 }
 
 /**
@@ -87,7 +135,7 @@ function parseCSVLine(line) {
 }
 
 /**
- * Process Facebook data with enhanced year handling
+ * Process Facebook data with enhanced year handling and proper data typing
  * @param {string} csvData - CSV content
  * @param {object} options - Processing options
  * @returns {object} - Processed Facebook data
@@ -124,8 +172,8 @@ function processFacebookData(csvData, options = {}) {
     ? data.filter(item => item.year === options.year)
     : data;
   
-  // Process the data
-  return {
+  // Process the data - all values will be properly typed now
+  const result = {
     reach: filteredData.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'Page Reach', 'reach', 'total reach', 'Impressions']), 0),
     engagement: filteredData.reduce((sum, item) => {
       const reactions = getValueByPossibleNames(item, ['Reactions', 'reactions', 'Total reactions']);
@@ -142,7 +190,7 @@ function processFacebookData(csvData, options = {}) {
       }, 0);
       const totalReach = filteredData.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'Page Reach', 'reach', 'total reach', 'Impressions']), 0);
       
-      return totalReach > 0 ? ((totalEngagement / totalReach) * 100).toFixed(2) : 0;
+      return totalReach > 0 ? ((totalEngagement / totalReach) * 100) : 0;
     })(),
     views: filteredData.reduce((sum, item) => sum + getValueByPossibleNames(item, ['3-second video views', 'Video Views', 'views', 'Views']), 0),
     posts: filteredData.map(item => ({
@@ -157,10 +205,13 @@ function processFacebookData(csvData, options = {}) {
     })),
     performance_trend: generatePerformanceTrend(filteredData, 'facebook')
   };
+  
+  // Return the normalized result to ensure all values are properly typed
+  return normalizeObject(result);
 }
 
 /**
- * Process Instagram data with enhanced year handling
+ * Process Instagram data with enhanced year handling and proper data typing
  * @param {string} csvData - CSV content
  * @param {object} options - Processing options
  * @returns {object} - Processed Instagram data
@@ -197,8 +248,8 @@ function processInstagramData(csvData, options = {}) {
     ? data.filter(item => item.year === options.year)
     : data;
   
-  // Process the data
-  return {
+  // Process the data - all values will be properly typed now
+  const result = {
     reach: filteredData.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'reach', 'Total reach', 'Impressions']), 0),
     engagement: filteredData.reduce((sum, item) => {
       const likes = getValueByPossibleNames(item, ['Likes', 'likes', 'Total likes']);
@@ -217,7 +268,7 @@ function processInstagramData(csvData, options = {}) {
       }, 0);
       const totalReach = filteredData.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Reach', 'reach', 'Total reach', 'Impressions']), 0);
       
-      return totalReach > 0 ? ((totalEngagement / totalReach) * 100).toFixed(2) : 0;
+      return totalReach > 0 ? ((totalEngagement / totalReach) * 100) : 0;
     })(),
     likes: filteredData.reduce((sum, item) => sum + getValueByPossibleNames(item, ['Likes', 'likes', 'Total likes']), 0),
     posts: filteredData.map(item => ({
@@ -233,10 +284,13 @@ function processInstagramData(csvData, options = {}) {
     })),
     performance_trend: generatePerformanceTrend(filteredData, 'instagram')
   };
+  
+  // Return the normalized result to ensure all values are properly typed
+  return normalizeObject(result);
 }
 
 /**
- * Process Email data with enhanced year handling
+ * Process Email data with enhanced year handling and proper data typing
  * @param {string} csvData - CSV content
  * @param {object} options - Processing options
  * @returns {object} - Processed Email data
@@ -248,109 +302,119 @@ function processEmailData(csvData, options = {}) {
     ...options
   });
   
-  // Helper function to clean percentage values
-  const cleanPercentage = (value) => {
-    if (typeof value === 'string' && value.includes('%')) {
-      return parseFloat(value.replace('%', ''));
-    }
-    return value || 0;
-  };
-  
   // Filter data by year if specified
   const filteredData = options.year 
     ? data.filter(item => item.year === options.year)
     : data;
   
-  // Process Email data
-  return {
+  // Process Email data with proper data typing
+  const result = {
     campaigns: filteredData.length,
-    totalSent: filteredData.reduce((sum, item) => sum + (parseInt(item['Emails sent'] || 0)), 0),
-    totalDelivered: filteredData.reduce((sum, item) => sum + (parseInt(item['Email deliveries'] || 0)), 0),
-    totalOpens: filteredData.reduce((sum, item) => sum + (parseInt(item['Email opened (MPP excluded)'] || 0)), 0),
-    totalClicks: filteredData.reduce((sum, item) => sum + (parseInt(item['Email clicked'] || 0)), 0),
+    totalSent: filteredData.reduce((sum, item) => sum + normalizeValue(item['Emails sent'] || 0), 0),
+    totalDelivered: filteredData.reduce((sum, item) => sum + normalizeValue(item['Email deliveries'] || 0), 0),
+    totalOpens: filteredData.reduce((sum, item) => sum + normalizeValue(item['Email opened (MPP excluded)'] || 0), 0),
+    totalClicks: filteredData.reduce((sum, item) => sum + normalizeValue(item['Email clicked'] || 0), 0),
     openRate: filteredData.length > 0 ? 
-      (filteredData.reduce((sum, item) => sum + cleanPercentage(item['Email open rate (MPP excluded)']), 0) / filteredData.length).toFixed(2) : 0,
+      (filteredData.reduce((sum, item) => sum + normalizeValue(item['Email open rate (MPP excluded)']), 0) / filteredData.length) : 0,
     clickRate: filteredData.length > 0 ? 
-      (filteredData.reduce((sum, item) => sum + cleanPercentage(item['Email click rate']), 0) / filteredData.length).toFixed(2) : 0,
+      (filteredData.reduce((sum, item) => sum + normalizeValue(item['Email click rate']), 0) / filteredData.length) : 0,
     bounceRate: filteredData.length > 0 ? 
-      (filteredData.reduce((sum, item) => sum + cleanPercentage(item['Email bounce rate']), 0) / filteredData.length).toFixed(2) : 0,
+      (filteredData.reduce((sum, item) => sum + normalizeValue(item['Email bounce rate']), 0) / filteredData.length) : 0,
     unsubscribeRate: filteredData.length > 0 ? 
-      (filteredData.reduce((sum, item) => sum + cleanPercentage(item['Email unsubscribe rate']), 0) / filteredData.length).toFixed(2) : 0,
+      (filteredData.reduce((sum, item) => sum + normalizeValue(item['Email unsubscribe rate']), 0) / filteredData.length) : 0,
     campaigns: filteredData.map(item => ({
       name: item.Campaign || 'Unnamed Campaign',
-      sent: item['Emails sent'] || 0,
-      delivered: item['Email deliveries'] || 0,
-      opened: item['Email opened (MPP excluded)'] || 0,
-      clicked: item['Email clicked'] || 0,
-      openRate: cleanPercentage(item['Email open rate (MPP excluded)']),
-      clickRate: cleanPercentage(item['Email click rate']),
-      bounceRate: cleanPercentage(item['Email bounce rate']),
-      unsubscribeRate: cleanPercentage(item['Email unsubscribe rate']),
+      sent: normalizeValue(item['Emails sent'] || 0),
+      delivered: normalizeValue(item['Email deliveries'] || 0),
+      opened: normalizeValue(item['Email opened (MPP excluded)'] || 0),
+      clicked: normalizeValue(item['Email clicked'] || 0),
+      openRate: normalizeValue(item['Email open rate (MPP excluded)']),
+      clickRate: normalizeValue(item['Email click rate']),
+      bounceRate: normalizeValue(item['Email bounce rate']),
+      unsubscribeRate: normalizeValue(item['Email unsubscribe rate']),
       year: item.year || (options.year || new Date().getFullYear())
     })),
     performance_trend: generateEmailPerformanceTrend(filteredData)
   };
+  
+  // Return the normalized result to ensure all values are properly typed
+  return normalizeObject(result);
 }
 
 /**
- * Process YouTube data with enhanced year handling
+ * Process YouTube data with enhanced year handling and proper data typing
  * @param {string} ageData - Age demographics CSV
  * @param {string} genderData - Gender demographics CSV
  * @param {string} geoData - Geography CSV
  * @param {string} subscriptionData - Subscription status CSV
+ * @param {string} contentData - Content CSV
  * @param {object} options - Processing options
  * @returns {object} - Processed YouTube data
  */
-function processYouTubeData(ageData, genderData, geoData, subscriptionData, options = {}) {
-  // Process YouTube data from multiple CSV sources
+function processYouTubeData(ageData, genderData, geoData, subscriptionData, contentData, options = {}) {
+  // Process YouTube data from multiple CSV sources with proper typing
   const age = enhancedCsvToJson(ageData, options);
   const gender = enhancedCsvToJson(genderData, options);
   const geo = enhancedCsvToJson(geoData, options);
   const subscription = enhancedCsvToJson(subscriptionData, options);
+  const content = enhancedCsvToJson(contentData, options);
   
   // Get total views and watch time
   const totalStats = subscription.find(item => item['Subscription status'] === 'Total') || {};
   
-  return {
-    totalViews: totalStats.Views || 0,
-    totalWatchTime: totalStats['Watch time (hours)'] || 0,
+  const result = {
+    totalViews: normalizeValue(totalStats.Views || 0),
+    totalWatchTime: normalizeValue(totalStats['Watch time (hours)'] || 0),
     averageViewDuration: totalStats['Average view duration'] || '0:00',
     demographics: {
       age: age.map(item => ({
         group: item['Viewer age'] || '',
-        viewPercentage: item['Views (%)'] || 0,
-        watchTimePercentage: item['Watch time (hours) (%)'] || 0
+        viewPercentage: normalizeValue(item['Views (%)'] || 0),
+        watchTimePercentage: normalizeValue(item['Watch time (hours) (%)'] || 0)
       })),
       gender: gender.map(item => ({
         group: item['Viewer gender'] || '',
-        viewPercentage: item['Views (%)'] || 0,
-        watchTimePercentage: item['Watch time (hours) (%)'] || 0
+        viewPercentage: normalizeValue(item['Views (%)'] || 0),
+        watchTimePercentage: normalizeValue(item['Watch time (hours) (%)'] || 0)
       }))
     },
     geography: geo
       .filter(item => item.Geography !== 'Total')
-      .sort((a, b) => (b.Views || 0) - (a.Views || 0))
+      .sort((a, b) => normalizeValue(b.Views || 0) - normalizeValue(a.Views || 0))
       .slice(0, 10)
       .map(item => ({
         country: item.Geography || '',
-        views: item.Views || 0,
-        watchTime: item['Watch time (hours)'] || 0,
+        views: normalizeValue(item.Views || 0),
+        watchTime: normalizeValue(item['Watch time (hours)'] || 0),
         averageDuration: item['Average view duration'] || '0:00'
       })),
     subscriptionStatus: subscription
       .filter(item => item['Subscription status'] !== 'Total')
       .map(item => ({
         status: item['Subscription status'] || '',
-        views: item.Views || 0,
-        watchTime: item['Watch time (hours)'] || 0,
-        percentage: totalStats.Views ? (item.Views / totalStats.Views * 100).toFixed(1) : 0
+        views: normalizeValue(item.Views || 0),
+        watchTime: normalizeValue(item['Watch time (hours)'] || 0),
+        percentage: normalizeValue(totalStats.Views) ? 
+          (normalizeValue(item.Views) / normalizeValue(totalStats.Views) * 100) : 0
       })),
+    content: content.map(item => ({
+      title: item['Video title'] || '',
+      views: normalizeValue(item['Views'] || 0),
+      watchTime: normalizeValue(item['Watch time (hours)'] || 0),
+      averageDuration: item['Average view duration'] || '0:00',
+      publishDate: item['Publish date'] || '',
+      likes: normalizeValue(item['Likes'] || 0),
+      comments: normalizeValue(item['Comments'] || 0)
+    })),
     performance_trend: generateYouTubePerformanceTrend(totalStats, options.year)
   };
+  
+  // Return the normalized result to ensure all values are properly typed
+  return normalizeObject(result);
 }
 
 /**
- * Process Google Analytics data with enhanced features
+ * Process Google Analytics data with enhanced features and proper data typing
  * @param {string} demographicsData - Demographics CSV
  * @param {string} pagesData - Pages & screens CSV
  * @param {string} trafficData - Traffic acquisition CSV
@@ -399,14 +463,14 @@ function processGoogleAnalyticsData(demographicsData, pagesData, trafficData, ut
     for (const name of possibleNames) {
       // Check for exact match
       if (item[name] !== undefined) {
-        return item[name];
+        return normalizeValue(item[name]);
       }
       
       // Check for partial match
       const matchingKey = Object.keys(item).find(key => 
         key.toLowerCase().includes(name.toLowerCase()));
       if (matchingKey) {
-        return item[matchingKey];
+        return normalizeValue(item[matchingKey]);
       }
     }
     return defaultValue;
@@ -495,15 +559,15 @@ function processGoogleAnalyticsData(demographicsData, pagesData, trafficData, ut
     // Calculate percentages
     if (result.totalUsers > 0) {
       result.demographics.ageGroups.forEach(group => {
-        group.percentage = ((group.users / result.totalUsers) * 100).toFixed(1);
+        group.percentage = ((group.users / result.totalUsers) * 100);
       });
       
       result.demographics.genderGroups.forEach(group => {
-        group.percentage = ((group.users / result.totalUsers) * 100).toFixed(1);
+        group.percentage = ((group.users / result.totalUsers) * 100);
       });
       
       result.demographics.countries.forEach(country => {
-        country.percentage = ((country.users / result.totalUsers) * 100).toFixed(1);
+        country.percentage = ((country.users / result.totalUsers) * 100);
       });
     }
   }
@@ -536,11 +600,11 @@ function processGoogleAnalyticsData(demographicsData, pagesData, trafficData, ut
     // Calculate engagement metrics and percentages
     if (filteredTraffic.length > 0) {
       result.engagedSessions = result.trafficSources.reduce((sum, item) => sum + item.engagedSessions, 0);
-      result.engagementRate = (result.engagedSessions / result.totalSessions * 100).toFixed(2);
+      result.engagementRate = (result.engagedSessions / result.totalSessions * 100);
       
       // Calculate percentages
       result.trafficSources.forEach(source => {
-        source.percentage = ((source.sessions / result.totalSessions) * 100).toFixed(1);
+        source.percentage = ((source.sessions / result.totalSessions) * 100);
       });
     }
   }
@@ -560,15 +624,16 @@ function processGoogleAnalyticsData(demographicsData, pagesData, trafficData, ut
     // Calculate conversion rates
     result.campaigns.forEach(campaign => {
       campaign.conversionRate = campaign.users ? 
-        ((campaign.conversions / campaign.users) * 100).toFixed(2) : 0;
+        ((campaign.conversions / campaign.users) * 100) : 0;
     });
   }
   
-  return result;
+  // Return the normalized result to ensure all values are properly typed
+  return normalizeObject(result);
 }
 
 /**
- * Generate cross-channel data with multi-year support
+ * Generate cross-channel data with multi-year support and proper data typing
  * @param {object} facebook - Facebook data
  * @param {object} instagram - Instagram data
  * @param {object} youtube - YouTube data
@@ -591,7 +656,7 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
   if (googleAnalytics && googleAnalytics.trafficSources && googleAnalytics.trafficSources.length > 0) {
     attributionData = googleAnalytics.trafficSources.map(source => ({
       name: source.medium || source.source || 'Unknown',
-      value: parseFloat(source.percentage) || 0
+      value: normalizeValue(source.percentage) || 0
     }));
   }
   
@@ -620,7 +685,7 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
         const existingGroup = demographicsData.age.find(a => a.age === group.ageRange);
         return {
           age: group.ageRange,
-          ga: parseFloat(group.percentage) || 0,
+          ga: normalizeValue(group.percentage) || 0,
           facebook: existingGroup ? existingGroup.facebook : 0,
           instagram: existingGroup ? existingGroup.instagram : 0,
           youtube: existingGroup ? existingGroup.youtube : 0
@@ -632,34 +697,34 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
   // Get year if specified
   const year = options.year || new Date().getFullYear();
   
-  return {
+  const result = {
     year,
     reach: {
-      total: (facebook?.reach || 0) + (instagram?.reach || 0),
+      total: normalizeValue(facebook?.reach || 0) + normalizeValue(instagram?.reach || 0),
       byPlatform: {
-        facebook: facebook?.reach || 0,
-        instagram: instagram?.reach || 0,
-        youtube: youtube?.totalViews || 0,
-        web: googleAnalytics?.totalUsers || 0
+        facebook: normalizeValue(facebook?.reach || 0),
+        instagram: normalizeValue(instagram?.reach || 0),
+        youtube: normalizeValue(youtube?.totalViews || 0),
+        web: normalizeValue(googleAnalytics?.totalUsers || 0)
       }
     },
     engagement: {
-      total: (facebook?.engagement || 0) + (instagram?.engagement || 0),
+      total: normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0),
       byPlatform: {
-        facebook: facebook?.engagement || 0,
-        instagram: instagram?.engagement || 0,
-        youtube: (youtube?.totalViews || 0) * 0.1, // Rough estimate of engagement
-        web: googleAnalytics?.engagedSessions || 0
+        facebook: normalizeValue(facebook?.engagement || 0),
+        instagram: normalizeValue(instagram?.engagement || 0),
+        youtube: normalizeValue(youtube?.totalViews || 0) * 0.1, // Rough estimate of engagement
+        web: normalizeValue(googleAnalytics?.engagedSessions || 0)
       }
     },
     engagement_rate: {
-      overall: ((facebook?.engagement || 0) + (instagram?.engagement || 0)) / 
-              ((facebook?.reach || 1) + (instagram?.reach || 1)) * 100,
+      overall: (normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0)) / 
+              (normalizeValue(facebook?.reach || 1) + normalizeValue(instagram?.reach || 1)) * 100,
       byPlatform: {
-        facebook: facebook?.engagement_rate || 0,
-        instagram: instagram?.engagement_rate || 0,
-        email: email?.clickRate || 0,
-        web: googleAnalytics?.engagementRate || 0
+        facebook: normalizeValue(facebook?.engagement_rate || 0),
+        instagram: normalizeValue(instagram?.engagement_rate || 0),
+        email: normalizeValue(email?.clickRate || 0),
+        web: normalizeValue(googleAnalytics?.engagementRate || 0)
       }
     },
     performance_trend: mergePerformanceTrends([
@@ -687,6 +752,9 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
       year
     }
   };
+  
+  // Return the normalized result to ensure all values are properly typed
+  return normalizeObject(result);
 }
 
 /**
@@ -711,7 +779,7 @@ function mergePerformanceTrends(trends) {
       // Merge all properties except month
       Object.keys(item).forEach(key => {
         if (key !== 'month') {
-          result[monthIndex][key] = item[key];
+          result[monthIndex][key] = normalizeValue(item[key]);
         }
       });
     });
@@ -753,28 +821,39 @@ function generatePerformanceTrend(data, platform) {
   const monthlyData = {};
   
   data.forEach(item => {
-    const date = new Date(item.date);
-    if (isNaN(date.getTime())) return;
-    
-    const month = months[date.getMonth()];
-    if (!monthlyData[month]) {
-      monthlyData[month] = {
-        reach: 0,
-        engagement: 0,
-        count: 0
-      };
+    let dateStr = item.date;
+    // Handle potential string format issues
+    if (typeof dateStr === 'string' && dateStr) {
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        const month = months[date.getMonth()];
+        if (!monthlyData[month]) {
+          monthlyData[month] = {
+            reach: 0,
+            engagement: 0,
+            count: 0
+          };
+        }
+        
+        // Accumulate values with proper normalization
+        if (platform === 'facebook') {
+          monthlyData[month].reach += normalizeValue(item.reach || 0);
+          monthlyData[month].engagement += 
+            normalizeValue(item.reactions || 0) + 
+            normalizeValue(item.comments || 0) + 
+            normalizeValue(item.shares || 0);
+        } else if (platform === 'instagram') {
+          monthlyData[month].reach += normalizeValue(item.reach || 0);
+          monthlyData[month].engagement += 
+            normalizeValue(item.likes || 0) + 
+            normalizeValue(item.comments || 0) + 
+            normalizeValue(item.shares || 0) + 
+            normalizeValue(item.saves || 0);
+        }
+        
+        monthlyData[month].count++;
+      }
     }
-    
-    // Accumulate values
-    if (platform === 'facebook') {
-      monthlyData[month].reach += item.reach || 0;
-      monthlyData[month].engagement += (item.reactions || 0) + (item.comments || 0) + (item.shares || 0);
-    } else if (platform === 'instagram') {
-      monthlyData[month].reach += item.reach || 0;
-      monthlyData[month].engagement += (item.likes || 0) + (item.comments || 0) + (item.shares || 0) + (item.saves || 0);
-    }
-    
-    monthlyData[month].count++;
   });
   
   // Update result with actual data
@@ -807,8 +886,8 @@ function generateEmailPerformanceTrend(data) {
   const result = months.map((month, index) => {
     return {
       month,
-      openRate: (baseOpenRate + (index * openRateIncrease)).toFixed(2),
-      clickRate: (baseClickRate + (index * clickRateIncrease)).toFixed(2)
+      openRate: baseOpenRate + (index * openRateIncrease),
+      clickRate: baseClickRate + (index * clickRateIncrease)
     };
   });
   
@@ -904,16 +983,16 @@ function processMultiYearData(dataSources) {
     const yearData = dataSources[year];
     
     // Aggregate metrics
-    result.metrics.reach[year] = yearData.crossChannel?.reach?.total || 0;
-    result.metrics.engagement[year] = yearData.crossChannel?.engagement?.total || 0;
-    result.metrics.engagement_rate[year] = yearData.crossChannel?.engagement_rate?.overall || 0;
+    result.metrics.reach[year] = normalizeValue(yearData.crossChannel?.reach?.total || 0);
+    result.metrics.engagement[year] = normalizeValue(yearData.crossChannel?.engagement?.total || 0);
+    result.metrics.engagement_rate[year] = normalizeValue(yearData.crossChannel?.engagement_rate?.overall || 0);
     
     // Aggregate channel data
-    result.channels.facebook[year] = yearData.crossChannel?.reach?.byPlatform?.facebook || 0;
-    result.channels.instagram[year] = yearData.crossChannel?.reach?.byPlatform?.instagram || 0;
-    result.channels.youtube[year] = yearData.crossChannel?.reach?.byPlatform?.youtube || 0;
-    result.channels.email[year] = yearData.crossChannel?.reach?.byPlatform?.email || 0;
-    result.channels.web[year] = yearData.crossChannel?.reach?.byPlatform?.web || 0;
+    result.channels.facebook[year] = normalizeValue(yearData.crossChannel?.reach?.byPlatform?.facebook || 0);
+    result.channels.instagram[year] = normalizeValue(yearData.crossChannel?.reach?.byPlatform?.instagram || 0);
+    result.channels.youtube[year] = normalizeValue(yearData.crossChannel?.reach?.byPlatform?.youtube || 0);
+    result.channels.email[year] = normalizeValue(yearData.crossChannel?.reach?.byPlatform?.email || 0);
+    result.channels.web[year] = normalizeValue(yearData.crossChannel?.reach?.byPlatform?.web || 0);
     
     // Process monthly data for seasonal analysis
     if (yearData.crossChannel?.performance_trend) {
@@ -921,11 +1000,11 @@ function processMultiYearData(dataSources) {
       
       yearData.crossChannel.performance_trend.forEach(item => {
         result.monthly[year][item.month] = {
-          facebook: item.facebook || 0,
-          instagram: item.instagram || 0,
-          youtube: item.youtube || 0,
-          email: item.email || 0,
-          web: item.web || 0
+          facebook: normalizeValue(item.facebook || 0),
+          instagram: normalizeValue(item.instagram || 0),
+          youtube: normalizeValue(item.youtube || 0),
+          email: normalizeValue(item.email || 0),
+          web: normalizeValue(item.web || 0)
         };
       });
     }
@@ -964,20 +1043,20 @@ function calculateYearOverYearGrowth(data) {
     const previousYear = years[i-1];
     
     // Calculate reach growth
-    const currentReach = data.metrics.reach[currentYear] || 0;
-    const previousReach = data.metrics.reach[previousYear] || 1; // Avoid division by zero
-    growth.reach[`${previousYear}_${currentYear}`] = ((currentReach - previousReach) / previousReach * 100).toFixed(2);
+    const currentReach = normalizeValue(data.metrics.reach[currentYear] || 0);
+    const previousReach = normalizeValue(data.metrics.reach[previousYear] || 1); // Avoid division by zero
+    growth.reach[`${previousYear}_${currentYear}`] = ((currentReach - previousReach) / previousReach * 100);
     
     // Calculate engagement growth
-    const currentEngagement = data.metrics.engagement[currentYear] || 0;
-    const previousEngagement = data.metrics.engagement[previousYear] || 1;
-    growth.engagement[`${previousYear}_${currentYear}`] = ((currentEngagement - previousEngagement) / previousEngagement * 100).toFixed(2);
+    const currentEngagement = normalizeValue(data.metrics.engagement[currentYear] || 0);
+    const previousEngagement = normalizeValue(data.metrics.engagement[previousYear] || 1);
+    growth.engagement[`${previousYear}_${currentYear}`] = ((currentEngagement - previousEngagement) / previousEngagement * 100);
     
     // Calculate channel growth
     Object.keys(data.channels).forEach(channel => {
-      const currentValue = data.channels[channel][currentYear] || 0;
-      const previousValue = data.channels[channel][previousYear] || 1;
-      growth.channels[channel][`${previousYear}_${currentYear}`] = ((currentValue - previousValue) / previousValue * 100).toFixed(2);
+      const currentValue = normalizeValue(data.channels[channel][currentYear] || 0);
+      const previousValue = normalizeValue(data.channels[channel][previousYear] || 1);
+      growth.channels[channel][`${previousYear}_${currentYear}`] = ((currentValue - previousValue) / previousValue * 100);
     });
   }
   
@@ -985,25 +1064,10 @@ function calculateYearOverYearGrowth(data) {
 }
 
 // Export all functions
-window.enhancedCsvToJson = enhancedCsvToJson;
-window.parseCSVLine = parseCSVLine;
-window.processFacebookData = processFacebookData;
-window.processInstagramData = processInstagramData;
-window.processEmailData = processEmailData;
-window.processYouTubeData = processYouTubeData;
-window.processGoogleAnalyticsData = processGoogleAnalyticsData;
-window.generateCrossChannelData = generateCrossChannelData;
-window.mergePerformanceTrends = mergePerformanceTrends;
-window.generatePerformanceTrend = generatePerformanceTrend;
-window.generateEmailPerformanceTrend = generateEmailPerformanceTrend;
-window.generateYouTubePerformanceTrend = generateYouTubePerformanceTrend;
-window.generateGAPerformanceTrend = generateGAPerformanceTrend;
-window.processMultiYearData = processMultiYearData;
-window.calculateYearOverYearGrowth = calculateYearOverYearGrowth;
-
-// Optional: Also create a namespace object for organized access
-window.csvProcessor = {
+module.exports = {
   enhancedCsvToJson,
+  normalizeValue,
+  normalizeObject,
   parseCSVLine,
   processFacebookData,
   processInstagramData,
@@ -1019,3 +1083,45 @@ window.csvProcessor = {
   processMultiYearData,
   calculateYearOverYearGrowth
 };
+
+// Make all functions available in the window scope for browser usage
+if (typeof window !== 'undefined') {
+  window.enhancedCsvToJson = enhancedCsvToJson;
+  window.normalizeValue = normalizeValue;
+  window.normalizeObject = normalizeObject;
+  window.parseCSVLine = parseCSVLine;
+  window.processFacebookData = processFacebookData;
+  window.processInstagramData = processInstagramData;
+  window.processEmailData = processEmailData;
+  window.processYouTubeData = processYouTubeData;
+  window.processGoogleAnalyticsData = processGoogleAnalyticsData;
+  window.generateCrossChannelData = generateCrossChannelData;
+  window.mergePerformanceTrends = mergePerformanceTrends;
+  window.generatePerformanceTrend = generatePerformanceTrend;
+  window.generateEmailPerformanceTrend = generateEmailPerformanceTrend;
+  window.generateYouTubePerformanceTrend = generateYouTubePerformanceTrend;
+  window.generateGAPerformanceTrend = generateGAPerformanceTrend;
+  window.processMultiYearData = processMultiYearData;
+  window.calculateYearOverYearGrowth = calculateYearOverYearGrowth;
+  
+  // Create a namespace object for organized access
+  window.csvProcessor = {
+    enhancedCsvToJson,
+    normalizeValue,
+    normalizeObject,
+    parseCSVLine,
+    processFacebookData,
+    processInstagramData,
+    processEmailData,
+    processYouTubeData,
+    processGoogleAnalyticsData,
+    generateCrossChannelData,
+    mergePerformanceTrends,
+    generatePerformanceTrend,
+    generateEmailPerformanceTrend,
+    generateYouTubePerformanceTrend,
+    generateGAPerformanceTrend,
+    processMultiYearData,
+    calculateYearOverYearGrowth
+  };
+}
