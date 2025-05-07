@@ -535,6 +535,23 @@ function renderActiveDashboard() {
             break;
     }
 }
+function renderConverterDashboard() {
+    const container = document.getElementById('converter-dashboard');
+    if (container) {
+        container.innerHTML = `
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h2 class="text-2xl font-bold text-gray-800">CSV Converter</h2>
+                <p class="text-gray-600 my-4">The CSV converter allows you to upload and process your marketing data files.</p>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <p class="text-yellow-700">Please upload your CSV files from your marketing platforms to begin processing.</p>
+                </div>
+                
+                <!-- File upload area can be added here later -->
+            </div>
+        `;
+    }
+}
 
 // Clear data cache
 function clearDataCache() {
