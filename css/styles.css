@@ -1,0 +1,204 @@
+/* Dashboard Styles */
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Dashboard sections */
+.dashboard-section {
+    transition: opacity 0.3s ease;
+}
+
+/* Card hover effect */
+.bg-white {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bg-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* KPI card styles */
+.kpi-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.kpi-title {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.kpi-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+.kpi-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+.kpi-change.positive {
+    color: #10b981;
+}
+
+.kpi-change.negative {
+    color: #ef4444;
+}
+
+/* Tab system */
+.dashboard-tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.dashboard-tab {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.dashboard-tab:hover {
+    color: #4b5563;
+}
+
+.dashboard-tab.active {
+    color: #1f2937;
+    border-color: #3b82f6;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Data cards */
+.data-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    margin-bottom: 1rem;
+}
+
+.data-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+/* Tables */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #f9fafb;
+    font-weight: 500;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: #4b5563;
+    font-size: 0.875rem;
+}
+
+.data-table td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #e5e7eb;
+    color: #1f2937;
+    font-size: 0.875rem;
+}
+
+.data-table tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .chart-container {
+        height: 250px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+    }
+}
+
+/* CSV Converter Styles */
+.border-dashed {
+    transition: all 0.2s ease;
+}
+
+.processing-section .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.results-section pre {
+    font-family: 'Courier New', monospace;
+}
+
+/* Progress bar animation */
+.processing-section .bg-blue-600 {
+    transition: width 0.3s ease;
+}
+
+/* Dropzone highlight effects */
+.border-dashed.bg-blue-50 {
+    border-style: dashed;
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.border-dashed.bg-blue-50:hover {
+    border-color: rgba(59, 130, 246, 0.8);
+}
