@@ -89,16 +89,39 @@ function setActiveDashboard(dashboard) {
  * @param {object} options - Options for parsing
  * @returns {Promise<Array>} - Parsed CSV data
  */
+async function loadCSV(fileName, options = {}) {
+    // Try different paths
+    const paths = [
+        `./data/${fileName}`,
+        `/data/${fileName}`,
+        `/marcomms-dashboard/data/${fileName}`,
+        `../data/${fileName}`
+    ];
 
-// Function to handle missing file gracefully with default data
-async function loadCSVWithFallback(fileName, defaultData = []) {
-    try {
-        const data = await loadCSV(fileName);
-        return data.length > 0 ? data : defaultData;
-    } catch (error) {
-        console.warn(`Could not load ${fileName}, using default data instead.`);
-        return defaultData;
+    let response = null;
+    let data = null;
+
+    for (const path of paths) {
+        try {
+            console.log('Trying to fetch from:', path);
+            response = await fetch(path);
+            if (response.ok) {
+                const text = await response.text();
+                data = await parseCSV(text, options);
+                console.log('Successfully loaded from:', path);
+                
+                // Cache the data for future use
+                dashboardState.dataCache[fileName] = data;
+                
+                return data;
+            }
+        } catch (error) {
+            console.warn(`Error fetching from ${path}:`, error);
+        }
     }
+
+    console.log(`Failed to load ${fileName} from any path`);
+    throw new Error(`Could not load ${fileName}`);
 }
 
 /**
@@ -173,8 +196,57 @@ async function loadAllData() {
             // Process Email data
             dashboardState.data.email = processEmailData(convertArrayToCSV(emailData));
 
-            // Load YouTube data with fallbacks for missing files
-            dashboardState.data.youtube = await loadYouTubeDataWithDefaults();
+            // Load YouTube data with fallbacks
+            try {
+                // First try to load data normally
+                const ytAge = await loadCSV('YouTube_Age.csv');
+                const ytGender = await loadCSV('YouTube_Gender.csv');
+                const ytGeography = await loadCSV('YouTube_Geography.csv');
+                let ytSubscription = [];
+                
+                try {
+                    // Try to load subscription data
+                    ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
+                } catch (e) {
+                    console.warn('Could not load YouTube_Subscription_Status.csv, using fallback data');
+                    // Default subscription data if file is missing
+                    ytSubscription = [
+                        { 'Subscription status': 'Subscribed', 'Views': 25000, 'Watch time (hours)': 2500 },
+                        { 'Subscription status': 'Not subscribed', 'Views': 75000, 'Watch time (hours)': 5000 },
+                        { 'Subscription status': 'Total', 'Views': 100000, 'Watch time (hours)': 7500 }
+                    ];
+                }
+                
+                const ytContent = await loadCSV('YouTube_Content.csv');
+                const ytCities = await loadCSV('YouTube_Cities.csv');
+
+                // Process YouTube data
+                dashboardState.data.youtube = processYouTubeData(
+                    convertArrayToCSV(ytAge),
+                    convertArrayToCSV(ytGender),
+                    convertArrayToCSV(ytGeography),
+                    convertArrayToCSV(ytSubscription),
+                    convertArrayToCSV(ytContent),
+                    { citiesData: convertArrayToCSV(ytCities) }
+                );
+            } catch (error) {
+                console.error('Error loading YouTube data:', error);
+                // Create minimal default YouTube data structure
+                dashboardState.data.youtube = {
+                    totalViews: 100000,
+                    totalWatchTime: 7500,
+                    averageViewDuration: '4:30',
+                    demographics: {
+                        age: [],
+                        gender: []
+                    },
+                    subscriptionStatus: [
+                        { status: 'Subscribed', views: 25000, watchTime: 2500, percentage: 25 },
+                        { status: 'Not subscribed', views: 75000, watchTime: 5000, percentage: 75 }
+                    ],
+                    performance_trend: []
+                };
+            }
 
             // Load Google Analytics data
             const gaDemographics = await loadCSV('GA_Demographics.csv');
@@ -348,22 +420,61 @@ async function loadYearlyData() {
                         { year: parseInt(year) }
                     );
 
-                    // Load YouTube data
-                    const ytAge = await loadCSV(`${year}/YouTube_Age.csv`).catch(() => loadCSV('YouTube_Age.csv'));
-                    const ytGender = await loadCSV(`${year}/YouTube_Gender.csv`).catch(() => loadCSV('YouTube_Gender.csv'));
-                    const ytGeography = await loadCSV(`${year}/YouTube_Geography.csv`).catch(() => loadCSV('YouTube_Geography.csv'));
-                    const ytSubscription = await loadCSV(`${year}/YouTube_Subscription_Status.csv`).catch(() => loadCSV('YouTube_Subscription_Status.csv'));
-                    const ytContent = await loadCSV(`${year}/YouTube_Content.csv`).catch(() => loadCSV('YouTube_Content.csv'));
-
-                    // Process YouTube data
-                    const youtubeData = processYouTubeData(
-                        convertArrayToCSV(ytAge),
-                        convertArrayToCSV(ytGender),
-                        convertArrayToCSV(ytGeography),
-                        convertArrayToCSV(ytSubscription),
-                        convertArrayToCSV(ytContent),
-                        { year: parseInt(year) }
-                    );
+                    // Load YouTube data with fallbacks
+                    let youtubeData = {};
+                    try {
+                        // Try loading YouTube data with fallbacks for each file
+                        const ytAge = await loadCSV(`${year}/YouTube_Age.csv`).catch(() => loadCSV('YouTube_Age.csv'));
+                        const ytGender = await loadCSV(`${year}/YouTube_Gender.csv`).catch(() => loadCSV('YouTube_Gender.csv'));
+                        const ytGeography = await loadCSV(`${year}/YouTube_Geography.csv`).catch(() => loadCSV('YouTube_Geography.csv'));
+                        
+                        // For subscription data, use default if missing
+                        let ytSubscription = [];
+                        try {
+                            ytSubscription = await loadCSV(`${year}/YouTube_Subscription_Status.csv`);
+                        } catch (e) {
+                            try {
+                                ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
+                            } catch (e2) {
+                                console.warn('Could not load YouTube_Subscription_Status.csv, using default data');
+                                ytSubscription = [
+                                    { 'Subscription status': 'Subscribed', 'Views': 25000, 'Watch time (hours)': 2500 },
+                                    { 'Subscription status': 'Not subscribed', 'Views': 75000, 'Watch time (hours)': 5000 },
+                                    { 'Subscription status': 'Total', 'Views': 100000, 'Watch time (hours)': 7500 }
+                                ];
+                            }
+                        }
+                        
+                        const ytContent = await loadCSV(`${year}/YouTube_Content.csv`).catch(() => loadCSV('YouTube_Content.csv'));
+                        const ytCities = await loadCSV(`${year}/YouTube_Cities.csv`).catch(() => loadCSV('YouTube_Cities.csv'));
+                        
+                        // Process YouTube data
+                        youtubeData = processYouTubeData(
+                            convertArrayToCSV(ytAge),
+                            convertArrayToCSV(ytGender),
+                            convertArrayToCSV(ytGeography),
+                            convertArrayToCSV(ytSubscription),
+                            convertArrayToCSV(ytContent),
+                            { year: parseInt(year), citiesData: convertArrayToCSV(ytCities) }
+                        );
+                    } catch (error) {
+                        console.warn(`Could not load complete YouTube data for year ${year}:`, error);
+                        // Set default YouTube data
+                        youtubeData = {
+                            totalViews: 100000,
+                            totalWatchTime: 7500,
+                            averageViewDuration: '4:30',
+                            demographics: {
+                                age: [],
+                                gender: []
+                            },
+                            subscriptionStatus: [
+                                { status: 'Subscribed', views: 25000, watchTime: 2500, percentage: 25 },
+                                { status: 'Not subscribed', views: 75000, watchTime: 5000, percentage: 75 }
+                            ],
+                            performance_trend: []
+                        };
+                    }
 
                     // Load Google Analytics data
                     const gaDemographics = await loadCSV(`${year}/GA_Demographics.csv`).catch(() => loadCSV('GA_Demographics.csv'));
@@ -449,33 +560,8 @@ function setLoading(isLoading) {
         }
     }
 }
-// Updated YouTube data loading with default values for missing files
-async function loadYouTubeDataWithDefaults() {
-    const ytAge = await loadCSVWithFallback('YouTube_Age.csv');
-    const ytGender = await loadCSVWithFallback('YouTube_Gender.csv');
-    const ytGeography = await loadCSVWithFallback('YouTube_Geography.csv');
 
-    // Use default subscription data if file is missing
-    const ytSubscription = await loadCSVWithFallback('YouTube_Subscription_Status.csv', [
-        { 'Subscription status': 'Subscribed', 'Views': 25000, 'Watch time (hours)': 2500 },
-        { 'Subscription status': 'Not subscribed', 'Views': 75000, 'Watch time (hours)': 5000 },
-        { 'Subscription status': 'Total', 'Views': 100000, 'Watch time (hours)': 7500 }
-    ]);
-
-    const ytContent = await loadCSVWithFallback('YouTube_Content.csv');
-    const ytCities = await loadCSVWithFallback('YouTube_Cities.csv');
-
-    // Process YouTube data with fallbacks
-    return processYouTubeData(
-        convertArrayToCSV(ytAge),
-        convertArrayToCSV(ytGender),
-        convertArrayToCSV(ytGeography),
-        convertArrayToCSV(ytSubscription),
-        convertArrayToCSV(ytContent),
-        { citiesData: convertArrayToCSV(ytCities) }
-    );
-}
-// Update the renderActiveDashboard function with safety checks
+// Render active dashboard with safety checks
 function renderActiveDashboard() {
     if (dashboardState.isLoading) return;
 
@@ -504,11 +590,11 @@ function renderActiveDashboard() {
                 const container = document.getElementById('multi-year-dashboard');
                 if (container) {
                     container.innerHTML = `
-              <div class="bg-yellow-50 p-4 rounded-lg">
-                <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
-                <p class="text-yellow-700">The multi-year trends dashboard module could not be loaded. Please check your JavaScript files.</p>
-              </div>
-            `;
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
+                            <p class="text-yellow-700">The multi-year trends dashboard module could not be loaded. Please check your JavaScript files.</p>
+                        </div>
+                    `;
                 }
             }
             break;
@@ -531,11 +617,11 @@ function renderActiveDashboard() {
                 const container = document.getElementById('yoy-dashboard');
                 if (container) {
                     container.innerHTML = `
-              <div class="bg-yellow-50 p-4 rounded-lg">
-                <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
-                <p class="text-yellow-700">The year-over-year dashboard module could not be loaded. Please check your JavaScript files.</p>
-              </div>
-            `;
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
+                            <p class="text-yellow-700">The year-over-year dashboard module could not be loaded. Please check your JavaScript files.</p>
+                        </div>
+                    `;
                 }
             }
             break;
