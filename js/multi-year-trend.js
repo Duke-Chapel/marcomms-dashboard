@@ -285,7 +285,7 @@ function renderMultiYearEngagementChart(multiYearData, years) {
             text: 'Engagement Rate (%)'
           },
           ticks: {
-            callback: function (value) {
+            callback: function(value) {
               return value + '%';
             }
           }

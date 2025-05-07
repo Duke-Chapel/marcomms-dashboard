@@ -61,24 +61,190 @@ function enhancedCsvToJson(csv, options = {}) {
  * @returns {any} - The normalized value
  */
 function normalizeValue(value) {
-  // If it's not a string, return as is
-  if (typeof value !== 'string') return value;
-  
-  // Remove commas from number strings
-  const cleanValue = value.replace(/,/g, '');
-  
-  // Try to convert to number if it looks like a number
-  if (/^-?\d+(\.\d+)?$/.test(cleanValue)) {
-    return parseFloat(cleanValue);
-  }
-  
-  // For percentage strings (if they end with %)
-  if (/^-?\d+(\.\d+)?%$/.test(cleanValue)) {
-    return parseFloat(cleanValue.replace('%', ''));
-  }
-  
-  // Return original value if it's not a number
-  return value;
+ // If it's not a string, return as is
+ if (typeof value !== 'string') return value;
+ 
+ // Check if it's a very large number in scientific notation and handle it carefully
+ if (/^-?\d+(\.\d+)?[eE][+\-]\d+$/.test(value)) {
+   // For scientific notation, convert to a regular number but cap at reasonable values
+   try {
+     const num = Number(value);
+     if (isNaN(num) || !isFinite(num)) return 0;
+     
+     // Cap very large numbers to prevent overflow issues
+     const MAX_SAFE_VALUE = 1e12; // 1 trillion
+     return Math.min(Math.abs(num), MAX_SAFE_VALUE) * (num < 0 ? -1 : 1);
+   } catch (e) {
+     return 0;
+   }
+ }
+ 
+ // Remove commas from number strings
+ const cleanValue = value.replace(/,/g, '');
+ 
+ // Try to convert to number if it looks like a number
+ if (/^-?\d+(\.\d+)?$/.test(cleanValue)) {
+   const num = parseFloat(cleanValue);
+   
+   // Cap very large numbers to prevent overflow issues
+   const MAX_SAFE_VALUE = 1e12; // 1 trillion
+   return Math.min(Math.abs(num), MAX_SAFE_VALUE) * (num < 0 ? -1 : 1);
+ }
+ 
+ // For percentage strings (if they end with %)
+ if (/^-?\d+(\.\d+)?%$/.test(cleanValue)) {
+   return parseFloat(cleanValue);
+ }
+ 
+ // Return original value if it's not a number
+ return value;
+}
+
+/**
+* Generate cross-channel data with multi-year support and proper data typing
+* @param {object} facebook - Facebook data
+* @param {object} instagram - Instagram data
+* @param {object} youtube - YouTube data
+* @param {object} email - Email data
+* @param {object} googleAnalytics - Google Analytics data
+* @param {object} options - Processing options
+* @returns {object} - Cross-channel data
+*/
+function generateCrossChannelData(facebook, instagram, youtube, email, googleAnalytics, options = {}) {
+ // Use Google Analytics attribution data if available, otherwise use default values
+ let attributionData = [
+   { name: 'Organic Search', value: 32 },
+   { name: 'Direct', value: 15 },
+   { name: 'Social', value: 22 },
+   { name: 'Email', value: 18 },
+   { name: 'Referral', value: 8 },
+   { name: 'Paid Search', value: 5 }
+ ];
+ 
+ if (googleAnalytics && googleAnalytics.trafficSources && googleAnalytics.trafficSources.length > 0) {
+   attributionData = googleAnalytics.trafficSources.map(source => ({
+     name: source.medium || source.source || 'Unknown',
+     value: normalizeValue(source.percentage) || 0
+   }));
+ }
+ 
+ // Incorporate Google Analytics data into demographics if available
+ let demographicsData = {
+   age: [
+     { age: '18-24', facebook: 15, instagram: 30, youtube: 18 },
+     { age: '25-34', facebook: 28, instagram: 35, youtube: 31 },
+     { age: '35-44', facebook: 22, instagram: 20, youtube: 23 },
+     { age: '45-54', facebook: 18, instagram: 10, youtube: 14 },
+     { age: '55-64', facebook: 12, instagram: 3, youtube: 8 },
+     { age: '65+', facebook: 5, instagram: 2, youtube: 6 }
+   ]
+ };
+ 
+ if (googleAnalytics && googleAnalytics.demographics) {
+   // Merge GA demographics with existing data
+   demographicsData.countries = googleAnalytics.demographics.countries;
+   demographicsData.cities = googleAnalytics.demographics.cities;
+   demographicsData.languages = googleAnalytics.demographics.languages;
+   
+   // If GA has age data, update the existing age data
+   if (googleAnalytics.demographics.ageGroups && googleAnalytics.demographics.ageGroups.length > 0) {
+     demographicsData.age = googleAnalytics.demographics.ageGroups.map(group => {
+       // Find matching age group in existing data
+       const existingGroup = demographicsData.age.find(a => a.age === group.ageRange);
+       return {
+         age: group.ageRange,
+         ga: normalizeValue(group.percentage) || 0,
+         facebook: existingGroup ? existingGroup.facebook : 0,
+         instagram: existingGroup ? existingGroup.instagram : 0,
+         youtube: existingGroup ? existingGroup.youtube : 0
+       };
+     });
+   }
+ }
+ 
+ // Get year if specified
+ const year = options.year || new Date().getFullYear();
+ 
+ // Make sure to safely get values and handle undefined/null cases
+ const getFacebookReach = () => {
+   const reach = facebook?.reach || 0;
+   return typeof reach === 'number' ? reach : 0;
+ };
+ 
+ const getInstagramReach = () => {
+   const reach = instagram?.reach || 0;
+   return typeof reach === 'number' ? reach : 0;
+ };
+ 
+ // Calculate total reach with validation
+ const totalReach = getFacebookReach() + getInstagramReach();
+ 
+ const result = {
+   year,
+   reach: {
+     total: totalReach,
+     byPlatform: {
+       facebook: getFacebookReach(),
+       instagram: getInstagramReach(),
+       youtube: normalizeValue(youtube?.totalViews || 0),
+       web: normalizeValue(googleAnalytics?.totalUsers || 0)
+     }
+   },
+   engagement: {
+     total: normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0),
+     byPlatform: {
+       facebook: normalizeValue(facebook?.engagement || 0),
+       instagram: normalizeValue(instagram?.engagement || 0),
+       youtube: normalizeValue(youtube?.totalViews || 0) * 0.1, // Rough estimate of engagement
+       web: normalizeValue(googleAnalytics?.engagedSessions || 0)
+     }
+   },
+   engagement_rate: {
+     overall: calculateEngagementRate(
+       normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0), 
+       totalReach
+     ),
+     byPlatform: {
+       facebook: normalizeValue(facebook?.engagement_rate || 0),
+       instagram: normalizeValue(instagram?.engagement_rate || 0),
+       email: normalizeValue(email?.clickRate || 0),
+       web: normalizeValue(googleAnalytics?.engagementRate || 0)
+     }
+   },
+   performance_trend: mergePerformanceTrends([
+     facebook?.performance_trend || [],
+     instagram?.performance_trend || [],
+     youtube?.performance_trend || [],
+     email?.performance_trend || [],
+     googleAnalytics?.performance_trend || []
+   ]),
+   attribution: attributionData,
+   content_performance: [
+     { subject: 'Reach', Video: 92, Image: 68, Text: 42 },
+     { subject: 'Engagement', Video: 85, Image: 65, Text: 38 },
+     { subject: 'Clicks', Video: 78, Image: 62, Text: 45 },
+     { subject: 'Shares', Video: 83, Image: 58, Text: 31 },
+     { subject: 'Comments', Video: 75, Image: 52, Text: 35 }
+   ],
+   demographics: demographicsData,
+   web: {
+     topPages: googleAnalytics?.topPages || [],
+     campaigns: googleAnalytics?.campaigns || []
+   },
+   meta: {
+     last_updated: new Date().toISOString(),
+     year
+   }
+ };
+ 
+ // Return the normalized result to ensure all values are properly typed
+ return normalizeObject(result);
+}
+
+// Helper function to safely calculate engagement rate
+function calculateEngagementRate(engagement, reach) {
+ if (!reach || reach === 0) return 0;
+ return (engagement / reach * 100);
 }
 
 /**
