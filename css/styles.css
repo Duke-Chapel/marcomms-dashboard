@@ -158,8 +158,47 @@
     .chart-container {
         height: 250px;
     }
-    
-    .data-table th, .data-table td {
+
+    .data-table th,
+    .data-table td {
         padding: 0.5rem;
     }
+}
+
+/* CSV Converter Styles */
+.border-dashed {
+    transition: all 0.2s ease;
+}
+
+.processing-section .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.results-section pre {
+    font-family: 'Courier New', monospace;
+}
+
+/* Progress bar animation */
+.processing-section .bg-blue-600 {
+    transition: width 0.3s ease;
+}
+
+/* Dropzone highlight effects */
+.border-dashed.bg-blue-50 {
+    border-style: dashed;
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.border-dashed.bg-blue-50:hover {
+    border-color: rgba(59, 130, 246, 0.8);
 }
