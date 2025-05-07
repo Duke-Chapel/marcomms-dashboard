@@ -90,51 +90,39 @@ function setActiveDashboard(dashboard) {
  * @returns {Promise<Array>} - Parsed CSV data
  */
 async function loadCSV(fileName, options = {}) {
-    // Check if data is already in cache
-    const cacheKey = `${dashboardState.timeframe}_${fileName}`;
-    if (dashboardState.dataCache[cacheKey]) {
-        return dashboardState.dataCache[cacheKey];
-    }
-    
     try {
-        // Construct the file path based on timeframe
-        let filePath = '';
-        const currentYear = new Date().getFullYear().toString();
+        // Try a few different path patterns
+        const possiblePaths = [
+            `${DASHBOARD_CONFIG.dataPath}/${fileName}`,
+            `./data/${fileName}`,
+            `/data/${fileName}`,
+            `/marcomms-dashboard/data/${fileName}`,
+            `../data/${fileName}`
+        ];
         
-        // Handle year-specific paths
-        if (dashboardState.timeframe === 'yoy' || dashboardState.timeframe === '5y') {
-            // Use the first year in selectedYears, or fallback to current year
-            const year = dashboardState.selectedYears.length > 0 ? 
-                dashboardState.selectedYears[0] : currentYear;
-            filePath = `${DASHBOARD_CONFIG.dataPath}/${year}/${fileName}`;
-        } else {
-            filePath = `${DASHBOARD_CONFIG.dataPath}/${fileName}`;
-        }
+        let csvText = null;
         
-        // Fetch the CSV file
-        const response = await fetch(filePath);
-        if (!response.ok) {
-            console.warn(`Could not fetch ${filePath}: ${response.status} ${response.statusText}`);
-            // Try fallback to base path if year-specific file not found
-            if (filePath.includes('/')) {
-                const fallbackPath = `${DASHBOARD_CONFIG.dataPath}/${fileName}`;
-                console.log(`Trying fallback path: ${fallbackPath}`);
-                const fallbackResponse = await fetch(fallbackPath);
-                if (!fallbackResponse.ok) {
-                    throw new Error(`Failed to load ${fileName}`);
+        // Try each path until one works
+        for (const path of possiblePaths) {
+            try {
+                console.log(`Trying to fetch from: ${path}`);
+                const response = await fetch(path);
+                if (response.ok) {
+                    csvText = await response.text();
+                    console.log(`Successfully loaded from: ${path}`);
+                    break;
                 }
-                return parseCSV(await fallbackResponse.text(), options);
+            } catch (e) {
+                // Continue to next path
             }
-            throw new Error(`Failed to load ${fileName}`);
         }
         
-        const csvText = await response.text();
-        const parsedData = await parseCSV(csvText, options);
+        if (!csvText) {
+            console.error(`Failed to load ${fileName} from any path`);
+            return [];
+        }
         
-        // Store in cache
-        dashboardState.dataCache[cacheKey] = parsedData;
-        
-        return parsedData;
+        return await parseCSV(csvText, options);
     } catch (error) {
         console.error(`Error loading CSV ${fileName}:`, error);
         return [];
