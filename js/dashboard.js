@@ -264,35 +264,9 @@ async function loadAllData() {
                         convertArrayToCSV(ytContent),
                         { citiesData: convertArrayToCSV(ytCities) }
                     );
-                } catch (error) {
-                    console.error('Error loading YouTube data:', error);
-                    // Create minimal empty YouTube data structure (no dummy data)
-                    dashboardState.data.youtube = {
-                        totalViews: 0,
-                        totalWatchTime: 0,
-                        averageViewDuration: '0:00',
-                        demographics: {
-                            age: [],
-                            gender: []
-                        },
-                        subscriptionStatus: [],
-                        performance_trend: []
-                    };
                 }
-
-                const ytContent = await loadCSV('YouTube_Content.csv');
-                const ytCities = await loadCSV('YouTube_Cities.csv');
-
-                // Process YouTube data
-                dashboardState.data.youtube = processYouTubeData(
-                    convertArrayToCSV(ytAge),
-                    convertArrayToCSV(ytGender),
-                    convertArrayToCSV(ytGeography),
-                    convertArrayToCSV(ytSubscription),
-                    convertArrayToCSV(ytContent),
-                    { citiesData: convertArrayToCSV(ytCities) }
-                );
-            } catch (error) {
+                // End of YouTube data loading try
+            catch (error) {
                 console.error('Error loading YouTube data:', error);
                 // Create minimal default YouTube data structure
                 dashboardState.data.youtube = {
