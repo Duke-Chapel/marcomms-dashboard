@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketing Analytics Dashboard</title>
-    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
 </head>
+
 <body class="bg-gray-50">
     <header class="bg-gray-800 text-white shadow-lg">
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 <h1 class="text-xl font-bold">Marketing Dashboard</h1>
                 <div class="flex space-x-2">
-                    <select id="timeframe-selector" class="bg-gray-700 border border-gray-600 text-white rounded px-2 py-1">
+                    <select id="timeframe-selector"
+                        class="bg-gray-700 border border-gray-600 text-white rounded px-2 py-1">
                         <option value="7d">Last 7 Days</option>
                         <option value="30d" selected>Last 30 Days</option>
                         <option value="90d">Last 90 Days</option>
                         <option value="1y">Last Year</option>
                         <option value="all">All Time</option>
+                        <option value="yoy">Year-over-Year</option>
+                        <option value="5y">5-Year Trend</option>
                     </select>
                 </div>
             </div>
@@ -30,17 +37,31 @@
     <nav class="bg-white shadow">
         <div class="container mx-auto px-4">
             <div class="flex flex-wrap space-x-2 overflow-x-auto py-1">
-                <button id="nav-executive" class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-blue-500">Executive Summary</button>
-                <button id="nav-social" class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Social Media</button>
-                <button id="nav-email" class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Email Marketing</button>
-                <button id="nav-youtube" class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">YouTube</button>
-                <button id="nav-google-analytics" class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Google Analytics</button>
+                <button id="nav-executive"
+                    class="nav-btn px-3 py-4 text-sm font-medium border-b-2 border-blue-500">Executive Summary</button>
+                <button id="nav-social"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Social
+                    Media</button>
+                <button id="nav-email"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Email
+                    Marketing</button>
+                <button id="nav-youtube"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">YouTube</button>
+                <button id="nav-google-analytics"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Google Analytics</button>
+                <button id="nav-yoy"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Year-over-Year</button>
+                <button id="nav-multi-year"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">Multi-Year Trends</button>
+                <button id="nav-converter"
+                    class="nav-btn px-3 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">CSV
+                    Converter</button>
             </div>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 py-6">
-        <div id="loading-indicator" class="flex justify-center items-center h-64">
+        <div id="loading-indicator" class="hidden flex justify-center items-center h-64">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
 
@@ -50,6 +71,9 @@
             <div id="email-dashboard" class="dashboard-section hidden"></div>
             <div id="youtube-dashboard" class="dashboard-section hidden"></div>
             <div id="google-analytics-dashboard" class="dashboard-section hidden"></div>
+            <div id="yoy-dashboard" class="dashboard-section hidden"></div>
+            <div id="multi-year-dashboard" class="dashboard-section hidden"></div>
+            <div id="converter-dashboard" class="dashboard-section hidden"></div>
         </div>
     </main>
 
@@ -62,15 +86,22 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="./js/config.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/charts.js"></script>
-    <script src="./js/dashboard.js"></script>
-    <script src="./js/executive-dashboard.js"></script>
-    <script src="./js/social-dashboard.js"></script>
-    <script src="./js/email-dashboard.js"></script>
-    <script src="./js/youtube-dashboard.js"></script>
-    <script src="./js/google-analytics-dashboard.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/csv-processor.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/executive-dashboard.js"></script>
+    <script src="js/social-dashboard.js"></script>
+    <script src="js/email-dashboard.js"></script>
+    <script src="js/youtube-dashboard.js"></script>
+    <script src="js/google-analytics-dashboard.js"></script>
+    <script src="js/yoy-dashboard.js"></script>
+    <script src="js/multi-year-dashboard.js"></script>
+    <script src="js/csv-converter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </body>
+
 </html>
