@@ -77,11 +77,16 @@ function setActiveDashboard(dashboard) {
     document.querySelectorAll('.dashboard-section').forEach(section => {
         section.classList.add('hidden');
     });
-    document.getElementById(`${dashboard}-dashboard`).classList.remove('hidden');
+
+    const dashboardElement = document.getElementById(`${dashboard}-dashboard`);
+    if (dashboardElement) {
+        dashboardElement.classList.remove('hidden');
+    }
 
     // Render the active dashboard
     renderActiveDashboard();
 }
+
 
 /**
  * Load a CSV file and parse it with PapaParse
@@ -776,22 +781,13 @@ function renderActiveDashboard() {
             if (typeof renderMultiYearTrendsDashboard === 'function') {
                 renderMultiYearTrendsDashboard(dashboardState.data, dashboardState.selectedYears);
             } else {
-                // Show error message if function is missing
-                const container = document.getElementById('multi-year-dashboard');
-                if (container) {
-                    container.innerHTML = `
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
-                            <p class="text-yellow-700">The multi-year trends dashboard module could not be loaded. Please check your JavaScript files.</p>
-                        </div>
-                    `;
-                }
+                showModuleNotLoadedMessage('multi-year-dashboard');
             }
             break;
         case 'yoy':
-            // Get current and previous year from selected years
-            const years = dashboardState.selectedYears;
+            // Year-over-year handling
             if (typeof renderYearOverYearDashboard === 'function') {
+                const years = dashboardState.selectedYears;
                 if (years.length >= 2) {
                     const currentYear = years[years.length - 1];
                     const previousYear = years[years.length - 2];
@@ -803,23 +799,42 @@ function renderActiveDashboard() {
                     renderYearOverYearDashboard(dashboardState.data, currentYear, previousYear);
                 }
             } else {
-                // Show error message if function is missing
-                const container = document.getElementById('yoy-dashboard');
-                if (container) {
-                    container.innerHTML = `
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
-                            <p class="text-yellow-700">The year-over-year dashboard module could not be loaded. Please check your JavaScript files.</p>
-                        </div>
-                    `;
-                }
+                showModuleNotLoadedMessage('yoy-dashboard');
             }
             break;
         case 'converter':
             renderConverterDashboard();
             break;
+        case 'data-generator':
+            renderHistoricalDataGenerator();
+            break;
     }
 }
+
+// Helper function to show module not loaded message
+function showModuleNotLoadedMessage(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <h2 class="text-yellow-800 font-bold">Module Not Loaded</h2>
+                <p class="text-yellow-700">This dashboard module could not be loaded. Please check your JavaScript files.</p>
+            </div>
+        `;
+    }
+}
+// Helper function to show/hide loading indicator
+function setLoading(isLoading) {
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        if (isLoading) {
+            loadingIndicator.classList.remove('hidden');
+        } else {
+            loadingIndicator.classList.add('hidden');
+        }
+    }
+}
+
 
 // Clear data cache
 function clearDataCache() {
