@@ -380,14 +380,12 @@ function validateFiles(files) {
     return { errors, csvFiles };
 }
 
-// Removed default subscription data
-try {
-    // Try to load subscription data
-    ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
-} catch (e) {
+// FIX: Removed problematic await outside async function
+// Initialize default YouTube subscription data
+let ytSubscription = [];
+function loadDefaultYouTubeSubscription() {
     console.warn('Could not load YouTube_Subscription_Status.csv, using empty data');
-    // Empty array instead of mock data
-    ytSubscription = [];
+    return [];
 }
 
 // Categorize uploaded files based on filename

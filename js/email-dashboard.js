@@ -389,7 +389,7 @@ function renderEmailCharts(emailData, activeTab) {
     }
 }
 
-// Render email performance chart (removed fallback dummy data)
+// Render email performance chart
 function renderEmailPerformanceChart(emailData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('email-performance-chart')) return;
@@ -528,12 +528,12 @@ function renderEmailFunnelChart(emailData) {
     });
 }
 
-// Render open rate distribution chart (removed fallback dummy data)
+// Render open rate distribution chart
 function renderOpenRateDistributionChart(emailData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('open-rate-distribution-chart')) return;
 
-    // Calculate distribution from actual data rather than using dummy data
+    // Calculate distribution from actual data
     let distributionData = [];
 
     if (emailData && emailData.campaigns && emailData.campaigns.length > 0) {
@@ -557,6 +557,16 @@ function renderOpenRateDistributionChart(emailData) {
             range,
             count: counts[index]
         }));
+    } else {
+        // Default data if no campaigns available
+        distributionData = [
+            { range: '0-10%', count: 0 },
+            { range: '10-20%', count: 0 },
+            { range: '20-30%', count: 0 },
+            { range: '30-40%', count: 0 },
+            { range: '40-50%', count: 0 },
+            { range: '50%+', count: 0 }
+        ];
     }
 
     const chartData = {
@@ -577,6 +587,42 @@ function renderOpenRateDistributionChart(emailData) {
 function renderClickRateDistributionChart(emailData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('click-rate-distribution-chart')) return;
+
+    // Calculate distribution from actual data
+    let distributionData = [];
+
+    if (emailData && emailData.campaigns && emailData.campaigns.length > 0) {
+        // Create buckets for click rate ranges
+        const ranges = ['0-2%', '2-4%', '4-6%', '6-8%', '8-10%', '10%+'];
+        const counts = [0, 0, 0, 0, 0, 0];
+
+        // Count campaigns in each range
+        emailData.campaigns.forEach(campaign => {
+            const clickRate = campaign.clickRate || 0;
+            if (clickRate < 2) counts[0]++;
+            else if (clickRate < 4) counts[1]++;
+            else if (clickRate < 6) counts[2]++;
+            else if (clickRate < 8) counts[3]++;
+            else if (clickRate < 10) counts[4]++;
+            else counts[5]++;
+        });
+
+        // Create distribution data
+        distributionData = ranges.map((range, index) => ({
+            range,
+            count: counts[index]
+        }));
+    } else {
+        // Default data if no campaigns available
+        distributionData = [
+            { range: '0-2%', count: 0 },
+            { range: '2-4%', count: 0 },
+            { range: '4-6%', count: 0 },
+            { range: '6-8%', count: 0 },
+            { range: '8-10%', count: 0 },
+            { range: '10%+', count: 0 }
+        ];
+    }
 
     const chartData = {
         labels: distributionData.map(item => item.range),
@@ -716,6 +762,15 @@ function renderCampaignComparisonChart(emailData) {
 function renderSubscriberSegmentsChart() {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('subscriber-segments-chart')) return;
+
+    // Default segments data
+    const segmentsData = [
+        { name: 'Highly Engaged', value: 35 },
+        { name: 'Engaged', value: 25 },
+        { name: 'Occasional', value: 15 },
+        { name: 'Inactive', value: 15 },
+        { name: 'At Risk', value: 10 }
+    ];
 
     const chartData = {
         labels: segmentsData.map(item => item.name),
