@@ -94,12 +94,12 @@ async function loadCSV(fileName, options = {}) {
     if (dashboardState.dataCache[fileName]) {
         return dashboardState.dataCache[fileName];
     }
-    
+
     // Get repository name for GitHub Pages
     const pathParts = window.location.pathname.split('/').filter(part => part);
     const repoName = pathParts.length > 0 ? pathParts[0] : '';
     const repoPath = repoName ? `/${repoName}` : '';
-    
+
     // Try different paths
     const paths = [
         `./data/${fileName}`,
@@ -131,7 +131,7 @@ async function loadCSV(fileName, options = {}) {
     }
 
     console.log(`Failed to load ${fileName} from any path, trying JSON fallback`);
-    
+
     // Try JSON fallback
     try {
         const jsonFileName = fileName.replace('.csv', '.json');
@@ -157,7 +157,7 @@ async function loadCSV(fileName, options = {}) {
     } catch (jsonError) {
         console.error('JSON fallback failed:', jsonError);
     }
-    
+
     throw new Error(`Could not load ${fileName}`);
 }
 
@@ -235,7 +235,7 @@ async function loadAllData() {
                 // Process Email data
                 dashboardState.data.email = processEmailData(convertArrayToCSV(emailData));
 
-                // Load YouTube data with fallbacks
+                // Try loading YouTube data with fallbacks
                 try {
                     // First try to load data normally
                     const ytAge = await loadCSV('YouTube_Age.csv');
@@ -247,13 +247,9 @@ async function loadAllData() {
                         // Try to load subscription data
                         ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
                     } catch (e) {
-                        console.warn('Could not load YouTube_Subscription_Status.csv, using fallback data');
-                        // Default subscription data if file is missing
-                        ytSubscription = [
-                            { 'Subscription status': 'Subscribed', 'Views': 25000, 'Watch time (hours)': 2500 },
-                            { 'Subscription status': 'Not subscribed', 'Views': 75000, 'Watch time (hours)': 5000 },
-                            { 'Subscription status': 'Total', 'Views': 100000, 'Watch time (hours)': 7500 }
-                        ];
+                        console.warn('Could not load YouTube_Subscription_Status.csv, using empty data');
+                        // Empty array instead of dummy data
+                        ytSubscription = [];
                     }
 
                     const ytContent = await loadCSV('YouTube_Content.csv');
@@ -270,94 +266,122 @@ async function loadAllData() {
                     );
                 } catch (error) {
                     console.error('Error loading YouTube data:', error);
-                    // Create minimal default YouTube data structure
+                    // Create minimal empty YouTube data structure (no dummy data)
                     dashboardState.data.youtube = {
-                        totalViews: 100000,
-                        totalWatchTime: 7500,
-                        averageViewDuration: '4:30',
+                        totalViews: 0,
+                        totalWatchTime: 0,
+                        averageViewDuration: '0:00',
                         demographics: {
                             age: [],
                             gender: []
                         },
-                        subscriptionStatus: [
-                            { status: 'Subscribed', views: 25000, watchTime: 2500, percentage: 25 },
-                            { status: 'Not subscribed', views: 75000, watchTime: 5000, percentage: 75 }
-                        ],
+                        subscriptionStatus: [],
                         performance_trend: []
                     };
                 }
 
-                // Load Google Analytics data
-                const gaDemographics = await loadCSV('GA_Demographics.csv');
-                const gaPages = await loadCSV('GA_Pages_And_Screens.csv');
-                const gaTraffic = await loadCSV('GA_Traffic_Acquisition.csv');
-                const gaUTMs = await loadCSV('GA_UTMs.csv');
+                const ytContent = await loadCSV('YouTube_Content.csv');
+                const ytCities = await loadCSV('YouTube_Cities.csv');
 
-                // Process Google Analytics data
-                dashboardState.data.googleAnalytics = processGoogleAnalyticsData(
-                    convertArrayToCSV(gaDemographics),
-                    convertArrayToCSV(gaPages),
-                    convertArrayToCSV(gaTraffic),
-                    convertArrayToCSV(gaUTMs)
+                // Process YouTube data
+                dashboardState.data.youtube = processYouTubeData(
+                    convertArrayToCSV(ytAge),
+                    convertArrayToCSV(ytGender),
+                    convertArrayToCSV(ytGeography),
+                    convertArrayToCSV(ytSubscription),
+                    convertArrayToCSV(ytContent),
+                    { citiesData: convertArrayToCSV(ytCities) }
                 );
-
-                // Generate cross-channel data
-                dashboardState.data.crossChannel = generateCrossChannelData(
-                    dashboardState.data.facebook,
-                    dashboardState.data.instagram,
-                    dashboardState.data.youtube,
-                    dashboardState.data.email,
-                    dashboardState.data.googleAnalytics
-                );
-            } catch (csvError) {
-                console.warn('CSV loading failed, trying direct JSON loading:', csvError);
-                
-                // Attempt to load JSON files directly as fallback
-                try {
-                    // Try loading from pre-processed JSON files
-                    dashboardState.data.facebook = await loadJSON('facebook_data.json');
-                    dashboardState.data.instagram = await loadJSON('instagram_data.json');
-                    dashboardState.data.email = await loadJSON('email_data.json');
-                    dashboardState.data.youtube = await loadJSON('youtube_data.json');
-                    dashboardState.data.googleAnalytics = await loadJSON('google_analytics_data.json');
-                    dashboardState.data.crossChannel = await loadJSON('cross_channel_data.json');
-                } catch (jsonError) {
-                    console.error('Both CSV and JSON loading failed:', jsonError);
-                    throw new Error('Could not load data from either CSV or JSON sources');
-                }
+            } catch (error) {
+                console.error('Error loading YouTube data:', error);
+                // Create minimal default YouTube data structure
+                dashboardState.data.youtube = {
+                    totalViews: 100000,
+                    totalWatchTime: 7500,
+                    averageViewDuration: '4:30',
+                    demographics: {
+                        age: [],
+                        gender: []
+                    },
+                    subscriptionStatus: [
+                        { status: 'Subscribed', views: 25000, watchTime: 2500, percentage: 25 },
+                        { status: 'Not subscribed', views: 75000, watchTime: 5000, percentage: 75 }
+                    ],
+                    performance_trend: []
+                };
             }
 
-            // Add to yearly data for current year
-            if (!dashboardState.data.yearlyData) {
-                dashboardState.data.yearlyData = {};
-            }
+            // Load Google Analytics data
+            const gaDemographics = await loadCSV('GA_Demographics.csv');
+            const gaPages = await loadCSV('GA_Pages_And_Screens.csv');
+            const gaTraffic = await loadCSV('GA_Traffic_Acquisition.csv');
+            const gaUTMs = await loadCSV('GA_UTMs.csv');
 
-            dashboardState.data.yearlyData[currentYear] = {
-                facebook: dashboardState.data.facebook,
-                instagram: dashboardState.data.instagram,
-                youtube: dashboardState.data.youtube,
-                email: dashboardState.data.email,
-                googleAnalytics: dashboardState.data.googleAnalytics,
-                crossChannel: dashboardState.data.crossChannel
-            };
+            // Process Google Analytics data
+            dashboardState.data.googleAnalytics = processGoogleAnalyticsData(
+                convertArrayToCSV(gaDemographics),
+                convertArrayToCSV(gaPages),
+                convertArrayToCSV(gaTraffic),
+                convertArrayToCSV(gaUTMs)
+            );
+
+            // Generate cross-channel data
+            dashboardState.data.crossChannel = generateCrossChannelData(
+                dashboardState.data.facebook,
+                dashboardState.data.instagram,
+                dashboardState.data.youtube,
+                dashboardState.data.email,
+                dashboardState.data.googleAnalytics
+            );
+        } catch (csvError) {
+            console.warn('CSV loading failed, trying direct JSON loading:', csvError);
+
+            // Attempt to load JSON files directly as fallback
+            try {
+                // Try loading from pre-processed JSON files
+                dashboardState.data.facebook = await loadJSON('facebook_data.json');
+                dashboardState.data.instagram = await loadJSON('instagram_data.json');
+                dashboardState.data.email = await loadJSON('email_data.json');
+                dashboardState.data.youtube = await loadJSON('youtube_data.json');
+                dashboardState.data.googleAnalytics = await loadJSON('google_analytics_data.json');
+                dashboardState.data.crossChannel = await loadJSON('cross_channel_data.json');
+            } catch (jsonError) {
+                console.error('Both CSV and JSON loading failed:', jsonError);
+                throw new Error('Could not load data from either CSV or JSON sources');
+            }
         }
+
+        // Add to yearly data for current year
+        if (!dashboardState.data.yearlyData) {
+            dashboardState.data.yearlyData = {};
+        }
+
+        dashboardState.data.yearlyData[currentYear] = {
+            facebook: dashboardState.data.facebook,
+            instagram: dashboardState.data.instagram,
+            youtube: dashboardState.data.youtube,
+            email: dashboardState.data.email,
+            googleAnalytics: dashboardState.data.googleAnalytics,
+            crossChannel: dashboardState.data.crossChannel
+        };
+    }
 
         // Update last updated timestamp
         const lastUpdatedEl = document.getElementById('last-updated');
-        if (lastUpdatedEl) {
-            if (dashboardState.data.crossChannel && dashboardState.data.crossChannel.meta) {
-                const lastUpdated = new Date(dashboardState.data.crossChannel.meta.last_updated);
-                lastUpdatedEl.textContent = lastUpdated.toLocaleString();
-            } else {
-                lastUpdatedEl.textContent = new Date().toLocaleString();
-            }
+    if (lastUpdatedEl) {
+        if (dashboardState.data.crossChannel && dashboardState.data.crossChannel.meta) {
+            const lastUpdated = new Date(dashboardState.data.crossChannel.meta.last_updated);
+            lastUpdatedEl.textContent = lastUpdated.toLocaleString();
+        } else {
+            lastUpdatedEl.textContent = new Date().toLocaleString();
         }
-    } catch (error) {
-        console.error('Error loading data:', error);
-        alert('Error loading dashboard data. Please check the console for details.');
     }
+} catch (error) {
+    console.error('Error loading data:', error);
+    alert('Error loading dashboard data. Please check the console for details.');
+}
 
-    setLoading(false);
+setLoading(false);
 }
 
 /**
@@ -370,7 +394,7 @@ async function loadJSON(fileName) {
     const pathParts = window.location.pathname.split('/').filter(part => part);
     const repoName = pathParts.length > 0 ? pathParts[0] : '';
     const repoPath = repoName ? `/${repoName}` : '';
-    
+
     // Try different paths
     const paths = [
         `./data/${fileName}`,
@@ -392,7 +416,7 @@ async function loadJSON(fileName) {
             console.warn(`Error fetching JSON from ${path}:`, error);
         }
     }
-    
+
     throw new Error(`Could not load JSON file: ${fileName}`);
 }
 

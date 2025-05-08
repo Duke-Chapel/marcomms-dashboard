@@ -623,25 +623,12 @@ function renderYoutubeWatchtimeChart(youtubeData) {
     createPieChart('youtube-watchtime-chart', chartData);
 }
 
-// Render YouTube performance trend chart
+// Render YouTube performance trend chart (removed fallback dummy data)
 function renderYoutubePerformanceChart(youtubeData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('youtube-performance-chart')) return;
 
-    const performanceTrend = youtubeData?.performance_trend || [
-        { month: 'Jan', views: 4500, watchTime: 450 },
-        { month: 'Feb', views: 4800, watchTime: 480 },
-        { month: 'Mar', views: 5100, watchTime: 510 },
-        { month: 'Apr', views: 5400, watchTime: 540 },
-        { month: 'May', views: 5700, watchTime: 570 },
-        { month: 'Jun', views: 6000, watchTime: 600 },
-        { month: 'Jul', views: 6300, watchTime: 630 },
-        { month: 'Aug', views: 6600, watchTime: 660 },
-        { month: 'Sep', views: 6900, watchTime: 690 },
-        { month: 'Oct', views: 7200, watchTime: 720 },
-        { month: 'Nov', views: 7500, watchTime: 750 },
-        { month: 'Dec', views: 7800, watchTime: 780 }
-    ];
+    const performanceTrend = youtubeData?.performance_trend || [];
 
     const chartData = {
         labels: performanceTrend.map(item => item.month),

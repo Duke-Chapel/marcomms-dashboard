@@ -3,7 +3,7 @@
  */
 function renderExecutiveDashboard(data) {
     const container = document.getElementById('executive-dashboard');
-    
+
     // If no data, show message
     if (!data || !data.crossChannel) {
         container.innerHTML = `
@@ -14,7 +14,7 @@ function renderExecutiveDashboard(data) {
         `;
         return;
     }
-    
+
     // Render dashboard content
     container.innerHTML = `
         <div class="mb-6">
@@ -82,7 +82,7 @@ function renderExecutiveDashboard(data) {
             </div>
         </div>
     `;
-    
+
     // Render charts
     renderChannelPerformanceChart(data);
     renderAttributionChart(data);
@@ -93,7 +93,7 @@ function renderExecutiveDashboard(data) {
 function renderKpiCard(title, value, change, trend) {
     const trendClass = trend === 'positive' ? 'text-green-500' : 'text-red-500';
     const trendIcon = trend === 'positive' ? '↑' : '↓';
-    
+
     return `
         <div class="bg-white p-4 rounded-lg shadow">
             <div class="text-sm text-gray-500 font-medium">${title}</div>
@@ -108,7 +108,7 @@ function renderKpiCard(title, value, change, trend) {
 // Render channel performance chart
 function renderChannelPerformanceChart(data) {
     const performanceTrend = data.crossChannel?.performance_trend || [];
-    
+
     const chartData = {
         labels: performanceTrend.map(item => item.month),
         datasets: [
@@ -142,21 +142,15 @@ function renderChannelPerformanceChart(data) {
             }
         ]
     };
-    
+
     createLineChart('channel-performance-chart', chartData);
 }
 
-// Render attribution chart
+// Render attribution chart (removed fallback dummy data)
 function renderAttributionChart(data) {
-    const attribution = data.crossChannel?.attribution || [
-        { name: 'Organic Search', value: 30 },
-        { name: 'Direct', value: 25 },
-        { name: 'Social', value: 20 },
-        { name: 'Email', value: 15 },
-        { name: 'Referral', value: 7 },
-        { name: 'Paid', value: 3 }
-    ];
-    
+    // Get attribution data without fallback dummy data
+    const attribution = data.crossChannel?.attribution || [];
+
     const chartData = {
         labels: attribution.map(item => item.name),
         datasets: [{
@@ -166,18 +160,14 @@ function renderAttributionChart(data) {
             ]
         }]
     };
-    
+
     createDoughnutChart('attribution-chart', chartData);
 }
 
-// Render content performance chart
+// Render content performance chart (removed fallback dummy data)
 function renderContentPerformanceChart(data) {
-    const contentPerformance = data.crossChannel?.content_performance || [
-        { subject: 'Reach', Video: 85, Image: 70, Text: 50 },
-        { subject: 'Engagement', Video: 90, Image: 65, Text: 40 },
-        { subject: 'Clicks', Video: 75, Image: 60, Text: 45 },
-        { subject: 'Conversions', Video: 80, Image: 55, Text: 35 }
-    ];
+    // Get content performance data without fallback dummy data
+    const contentPerformance = data.crossChannel?.content_performance || [];
     
     const chartData = {
         labels: contentPerformance.map(item => item.subject),

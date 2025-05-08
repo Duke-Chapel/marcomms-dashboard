@@ -358,7 +358,7 @@ function handleFileUpload(event) {
     renderConverterDashboard();
 }
 
-// Enhanced file validation
+// Function that validates files - with increased size limit
 function validateFiles(files) {
     const errors = [];
     const csvFiles = [];
@@ -369,7 +369,7 @@ function validateFiles(files) {
             continue;
         }
 
-        if (file.size > 20 * 1024 * 1024) { // 20 MB limit
+        if (file.size > 20 * 1024 * 1024) { // 20 MB limit (increased from 10MB)
             errors.push(`File "${file.name}" exceeds the maximum size limit of 20 MB.`);
             continue;
         }
@@ -378,6 +378,16 @@ function validateFiles(files) {
     }
 
     return { errors, csvFiles };
+}
+
+// Removed default subscription data
+try {
+    // Try to load subscription data
+    ytSubscription = await loadCSV('YouTube_Subscription_Status.csv');
+} catch (e) {
+    console.warn('Could not load YouTube_Subscription_Status.csv, using empty data');
+    // Empty array instead of mock data
+    ytSubscription = [];
 }
 
 // Categorize uploaded files based on filename

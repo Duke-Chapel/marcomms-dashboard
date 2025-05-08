@@ -389,25 +389,12 @@ function renderEmailCharts(emailData, activeTab) {
     }
 }
 
-// Render email performance chart
+// Render email performance chart (removed fallback dummy data)
 function renderEmailPerformanceChart(emailData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('email-performance-chart')) return;
 
-    const performanceTrend = emailData?.performance_trend || [
-        { month: 'Jan', openRate: 21.2, clickRate: 2.5 },
-        { month: 'Feb', openRate: 21.5, clickRate: 2.6 },
-        { month: 'Mar', openRate: 22.1, clickRate: 2.7 },
-        { month: 'Apr', openRate: 22.4, clickRate: 2.8 },
-        { month: 'May', openRate: 22.7, clickRate: 2.9 },
-        { month: 'Jun', openRate: 23.0, clickRate: 3.0 },
-        { month: 'Jul', openRate: 23.2, clickRate: 3.1 },
-        { month: 'Aug', openRate: 23.3, clickRate: 3.1 },
-        { month: 'Sep', openRate: 23.5, clickRate: 3.2 },
-        { month: 'Oct', openRate: 23.7, clickRate: 3.2 },
-        { month: 'Nov', openRate: 23.8, clickRate: 3.3 },
-        { month: 'Dec', openRate: 24.0, clickRate: 3.3 }
-    ];
+    const performanceTrend = emailData?.performance_trend || [];
 
     const chartData = {
         labels: performanceTrend.map(item => item.month),
@@ -541,21 +528,36 @@ function renderEmailFunnelChart(emailData) {
     });
 }
 
-// Render open rate distribution chart
+// Render open rate distribution chart (removed fallback dummy data)
 function renderOpenRateDistributionChart(emailData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('open-rate-distribution-chart')) return;
 
-    // Placeholder data for distribution
-    // In a real implementation, calculate this from campaign data
-    const distributionData = [
-        { range: '0-10%', count: 2 },
-        { range: '10-20%', count: 8 },
-        { range: '20-30%', count: 15 },
-        { range: '30-40%', count: 10 },
-        { range: '40-50%', count: 5 },
-        { range: '50%+', count: 3 }
-    ];
+    // Calculate distribution from actual data rather than using dummy data
+    let distributionData = [];
+
+    if (emailData && emailData.campaigns && emailData.campaigns.length > 0) {
+        // Create buckets for open rate ranges
+        const ranges = ['0-10%', '10-20%', '20-30%', '30-40%', '40-50%', '50%+'];
+        const counts = [0, 0, 0, 0, 0, 0];
+
+        // Count campaigns in each range
+        emailData.campaigns.forEach(campaign => {
+            const openRate = campaign.openRate || 0;
+            if (openRate < 10) counts[0]++;
+            else if (openRate < 20) counts[1]++;
+            else if (openRate < 30) counts[2]++;
+            else if (openRate < 40) counts[3]++;
+            else if (openRate < 50) counts[4]++;
+            else counts[5]++;
+        });
+
+        // Create distribution data
+        distributionData = ranges.map((range, index) => ({
+            range,
+            count: counts[index]
+        }));
+    }
 
     const chartData = {
         labels: distributionData.map(item => item.range),
@@ -575,17 +577,6 @@ function renderOpenRateDistributionChart(emailData) {
 function renderClickRateDistributionChart(emailData) {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('click-rate-distribution-chart')) return;
-
-    // Placeholder data for distribution
-    // In a real implementation, calculate this from campaign data
-    const distributionData = [
-        { range: '0-2%', count: 4 },
-        { range: '2-5%', count: 12 },
-        { range: '5-10%', count: 18 },
-        { range: '10-15%', count: 6 },
-        { range: '15-20%', count: 2 },
-        { range: '20%+', count: 1 }
-    ];
 
     const chartData = {
         labels: distributionData.map(item => item.range),
@@ -725,15 +716,6 @@ function renderCampaignComparisonChart(emailData) {
 function renderSubscriberSegmentsChart() {
     // If the chart canvas doesn't exist, skip rendering
     if (!document.getElementById('subscriber-segments-chart')) return;
-
-    // Placeholder data for subscriber segments
-    const segmentsData = [
-        { name: 'Highly Engaged', value: 35 },
-        { name: 'Engaged', value: 25 },
-        { name: 'Occasional', value: 15 },
-        { name: 'Inactive', value: 15 },
-        { name: 'At Risk', value: 10 }
-    ];
 
     const chartData = {
         labels: segmentsData.map(item => item.name),
