@@ -56,7 +56,7 @@ function enhancedCsvToJson(csv, options = {}) {
 }
 
 /**
- * Normalize a value (convert string numbers to actual numbers)
+ * Normalize a value (convert string numbers to actual numbers) - FIXED FUNCTION
  * @param {any} value - The value to normalize
  * @returns {any} - The normalized value
  */
@@ -72,7 +72,7 @@ function normalizeValue(value) {
       if (isNaN(num) || !isFinite(num)) return 0;
 
       // Cap very large numbers to prevent overflow issues
-      const MAX_SAFE_VALUE = 1e12; // 1 trillion
+      const MAX_SAFE_VALUE = 1e9; // 1 billion
       return Math.min(Math.abs(num), MAX_SAFE_VALUE) * (num < 0 ? -1 : 1);
     } catch (e) {
       return 0;
@@ -87,7 +87,7 @@ function normalizeValue(value) {
     const num = parseFloat(cleanValue);
 
     // Cap very large numbers to prevent overflow issues
-    const MAX_SAFE_VALUE = 1e12; // 1 trillion
+    const MAX_SAFE_VALUE = 1e9; // 1 billion
     return Math.min(Math.abs(num), MAX_SAFE_VALUE) * (num < 0 ? -1 : 1);
   }
 
@@ -852,8 +852,9 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
       }
     },
     engagement_rate: {
-      overall: (normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0)) /
-        (normalizeValue(facebook?.reach || 1) + normalizeValue(instagram?.reach || 1)) * 100,
+      overall: calculateEngagementRate(
+        normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0),
+        normalizeValue(facebook?.reach || 1) + normalizeValue(instagram?.reach || 1)) * 100,
       byPlatform: {
         facebook: normalizeValue(facebook?.engagement_rate || 0),
         instagram: normalizeValue(instagram?.engagement_rate || 0),

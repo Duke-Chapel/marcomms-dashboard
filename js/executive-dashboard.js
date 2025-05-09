@@ -141,23 +141,28 @@ function renderKpiCard(title, value, change, trend) {
     `;
 }
 
-// Render channel performance chart
+// Render channel performance chart - FIXED FUNCTION
 function renderChannelPerformanceChart(data) {
-    // Get performance trend data
+    // If the chart canvas doesn't exist, skip rendering
+    if (!document.getElementById('channel-performance-chart')) return;
+
+    // Get performance trend data with proper null checks
     let performanceTrend = data.crossChannel?.performance_trend || [];
 
     // Ensure values are numeric and not extremely large
-    performanceTrend.forEach(item => {
-        ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
-            if (item[platform] && item[platform] > 1000000000) {
-                console.warn(`Unrealistic value for ${platform} in month ${item.month}:`, item[platform]);
-                item[platform] = null;
-            }
+    if (performanceTrend && performanceTrend.length > 0) {
+        performanceTrend.forEach(item => {
+            ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
+                if (item[platform] && item[platform] > 1000000000) {
+                    console.warn(`Unrealistic value for ${platform} in month ${item.month}:`, item[platform]);
+                    item[platform] = null;
+                }
+            });
         });
-    });
+    }
 
     // If we have no valid data points
-    if (performanceTrend.length === 0 || 
+    if (!performanceTrend || performanceTrend.length === 0 || 
         performanceTrend.every(item => 
             !item.facebook && !item.instagram && !item.youtube && !item.email)) {
         // Show error message in chart area
@@ -176,6 +181,18 @@ function renderChannelPerformanceChart(data) {
             `;
             return;
         }
+    }
+
+    // Safety check - create empty trend data if needed
+    if (!performanceTrend || performanceTrend.length === 0) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        performanceTrend = months.map(month => ({
+            month,
+            facebook: 0,
+            instagram: 0,
+            youtube: 0,
+            email: 0
+        }));
     }
 
     const chartData = {
@@ -217,6 +234,9 @@ function renderChannelPerformanceChart(data) {
 
 // Render attribution chart
 function renderAttributionChart(data) {
+    // If the chart canvas doesn't exist, skip rendering
+    if (!document.getElementById('attribution-chart')) return;
+
     // Get attribution data
     const attribution = data.crossChannel?.attribution || [];
     
@@ -286,6 +306,9 @@ function renderAttributionChart(data) {
 
 // Render content performance chart
 function renderContentPerformanceChart(data) {
+    // If the chart canvas doesn't exist, skip rendering
+    if (!document.getElementById('content-performance-chart')) return;
+
     // Get content performance data
     const contentPerformance = data.crossChannel?.content_performance || [];
     

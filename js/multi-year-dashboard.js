@@ -165,6 +165,23 @@ function renderMultiYearReachChart(multiYearData, years) {
   // If the chart canvas doesn't exist, skip rendering
   if (!document.getElementById('multi-year-reach-chart')) return;
 
+  // Ensure we have data before attempting to render
+  if (!multiYearData || !multiYearData.metrics || !multiYearData.metrics.reach) {
+    // Show message if no data
+    const chartElement = document.getElementById('multi-year-reach-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <h3 class="font-medium">No Multi-Year Reach Data Available</h3>
+            <p class="text-sm">Please ensure your data includes multiple years of reach metrics.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
   // Prepare chart data
   const chartData = {
     labels: years,
@@ -206,6 +223,23 @@ function renderMultiYearReachChart(multiYearData, years) {
 function renderMultiYearEngagementChart(multiYearData, years) {
   // If the chart canvas doesn't exist, skip rendering
   if (!document.getElementById('multi-year-engagement-chart')) return;
+
+  // Ensure we have data before attempting to render
+  if (!multiYearData || !multiYearData.metrics || !multiYearData.metrics.engagement) {
+    // Show message if no data
+    const chartElement = document.getElementById('multi-year-engagement-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <h3 class="font-medium">No Multi-Year Engagement Data Available</h3>
+            <p class="text-sm">Please ensure your data includes multiple years of engagement metrics.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
 
   // Prepare chart data
   const chartData = {
@@ -295,10 +329,29 @@ function renderMultiYearEngagementChart(multiYearData, years) {
   });
 }
 
-// Render multi-year channel chart
+// FIXED FUNCTION: Render multi-year channel chart
 function renderMultiYearChannelChart(multiYearData, years) {
   // If the chart canvas doesn't exist, skip rendering
   if (!document.getElementById('multi-year-channel-chart')) return;
+
+  // Ensure we have valid data before proceeding
+  if (!multiYearData || !multiYearData.channels) {
+    console.warn('Missing channel data for chart rendering');
+    
+    // Show error message instead of crashing
+    const chartElement = document.getElementById('multi-year-channel-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <h3 class="font-medium">No Channel Data Available</h3>
+            <p class="text-sm">Please ensure your data files contain valid channel information.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
 
   // If we have growth data, show YoY growth by channel
   if (multiYearData.growth && years.length > 1) {
@@ -311,6 +364,22 @@ function renderMultiYearChannelChart(multiYearData, years) {
 
 // Render channel growth chart
 function renderChannelGrowthChart(multiYearData, years) {
+  // If data isn't available, show a message
+  if (!multiYearData || !multiYearData.growth || !multiYearData.growth.channels) {
+    const chartElement = document.getElementById('multi-year-channel-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <h3 class="font-medium">No Growth Data Available</h3>
+            <p class="text-sm">Please ensure your data includes multiple years for growth comparison.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
   // Get all year pairs for growth calculation
   const yearPairs = [];
   for (let i = 1; i < years.length; i++) {
@@ -375,6 +444,22 @@ function renderChannelGrowthChart(multiYearData, years) {
 
 // Render channel performance chart
 function renderChannelPerformanceChart(multiYearData, years) {
+  // If data isn't available, show a message
+  if (!multiYearData || !multiYearData.channels) {
+    const chartElement = document.getElementById('multi-year-channel-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <h3 class="font-medium">No Channel Performance Data Available</h3>
+            <p class="text-sm">Please ensure your data includes channel metrics.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
   // Define channels
   const channels = ['facebook', 'instagram', 'youtube', 'email', 'web'];
 
@@ -425,6 +510,23 @@ function renderChannelPerformanceChart(multiYearData, years) {
 function renderSeasonalAnalysisChart(multiYearData, years) {
   // If the chart canvas doesn't exist, skip rendering
   if (!document.getElementById('seasonal-analysis-chart')) return;
+
+  // Check if we have the required data
+  if (!multiYearData || !multiYearData.monthly) {
+    // Show message if no data
+    const chartElement = document.getElementById('seasonal-analysis-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <h3 class="font-medium">No Seasonal Data Available</h3>
+            <p class="text-sm">Please ensure your data includes monthly performance metrics.</p>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
 
   // Get monthly data
   const monthlyData = multiYearData.monthly || {};

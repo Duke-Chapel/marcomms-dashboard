@@ -258,71 +258,93 @@ async function loadCSV(fileName, options = {}) {
 }
 
 /**
- * Parse CSV text using PapaParse with improved encoding handling
+ * Parse CSV text using PapaParse with improved encoding handling and error recovery
  * @param {string} csvText - The CSV text to parse
  * @param {object} options - Options for parsing
  * @returns {Promise<Array>} - Parsed CSV data
  */
 function parseCSV(csvText, options = {}) {
-    console.log(`🔄 Parsing CSV text of length ${csvText.length}...`);
-    
-    // Fix encoding issues - remove BOM and handle Windows encoding
-    let cleanedText = csvText;
-    
-    // Check for Byte Order Mark (BOM) and special separators
-    if (csvText.startsWith('\uFEFF') || 
-        csvText.startsWith('ï»¿') || 
-        csvText.startsWith('��')) {
+  console.log(`🔄 Parsing CSV text of length ${csvText.length}...`);
+  
+  // Handle empty content
+  if (!csvText || csvText.trim() === '') {
+    console.warn('Empty CSV content provided');
+    return Promise.resolve([]);
+  }
+  
+  // Fix encoding issues - remove BOM and handle Windows encoding
+  let cleanedText = csvText;
+  
+  // Check for Byte Order Mark (BOM) and special separators
+  if (csvText.startsWith('\uFEFF') || 
+      csvText.startsWith('ï»¿') || 
+      csvText.includes('��')) {
+      
+    // Handle 'sep=' directive common in Windows CSVs
+    if (csvText.includes('sep=,')) {
+      const sepIndex = csvText.indexOf('sep=,');
+      const newlineAfterSep = csvText.indexOf('\n', sepIndex);
+      if (newlineAfterSep > -1) {
+        cleanedText = csvText.substring(newlineAfterSep + 1);
+        console.log('🔧 Removed BOM and separator declaration');
+      } else {
+        // Just remove the BOM if newline can't be found
+        cleanedText = csvText.replace(/^\uFEFF|^ï»¿|^��/, '');
+        console.log('🔧 Removed Byte Order Mark (BOM)');
+      }
+    } else {
+      // Just remove the BOM
+      cleanedText = csvText.replace(/^\uFEFF|^ï»¿|^��/, '');
+      console.log('🔧 Removed Byte Order Mark (BOM)');
+    }
+  }
+  
+  // Handle Google Analytics comment headers
+  if (cleanedText.startsWith('# ----') || cleanedText.startsWith('#')) {
+    const lines = cleanedText.split('\n');
+    const dataStart = lines.findIndex(line => !line.startsWith('#'));
+    if (dataStart > 0) {
+      cleanedText = lines.slice(dataStart).join('\n');
+      console.log('🔧 Removed Google Analytics comment headers');
+    }
+  }
+  
+  return new Promise((resolve, reject) => {
+    Papa.parse(cleanedText, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      ...options,
+      complete: (results) => {
+        console.log(`✅ CSV parsing complete - Found ${results.data.length} rows`);
+        if (results.errors && results.errors.length > 0) {
+          console.warn(`⚠️ CSV parsing had ${results.errors.length} errors:`, results.errors);
+        }
         
-        // Handle 'sep=' directive common in Windows CSVs
-        if (csvText.includes('sep=,')) {
-            cleanedText = csvText.substring(csvText.indexOf('\n') + 1);
-            console.log('🔧 Removed BOM and separator declaration');
-        } else {
-            // Just remove the BOM
-            cleanedText = csvText.replace(/^\uFEFF|^ï»¿|^��/, '');
-            console.log('🔧 Removed Byte Order Mark (BOM)');
-        }
-    }
-    
-    // Handle Google Analytics comment headers
-    if (cleanedText.startsWith('# ----')) {
-        const dataStart = cleanedText.split('\n').findIndex(line => !line.startsWith('#'));
-        if (dataStart > 0) {
-            cleanedText = cleanedText.split('\n').slice(dataStart).join('\n');
-            console.log('🔧 Removed Google Analytics comment headers');
-        }
-    }
-    
-    return new Promise((resolve, reject) => {
-        Papa.parse(cleanedText, {
-            header: true,
-            dynamicTyping: true,
-            skipEmptyLines: true,
-            ...options,
-            complete: (results) => {
-                console.log(`✅ CSV parsing complete - Found ${results.data.length} rows`);
-                if (results.errors && results.errors.length > 0) {
-                    console.warn(`⚠️ CSV parsing had ${results.errors.length} errors:`, results.errors);
-                }
-                
-                // Remove any empty rows (sometimes at the end of the file)
-                const cleanData = results.data.filter(row => {
-                    // Check if the row has at least one non-empty value
-                    return Object.values(row).some(val => 
-                        val !== null && val !== undefined && val !== '');
-                });
-                
-                resolve(cleanData);
-            },
-            error: (error) => {
-                console.error('❌ Error parsing CSV:', error);
-                reject(error);
-            }
+        // Remove any empty rows (sometimes at the end of the file)
+        const cleanData = results.data.filter(row => {
+          if (!row || typeof row !== 'object') return false;
+          
+          // Check if the row has at least one non-empty value
+          return Object.values(row).some(val => 
+            val !== null && val !== undefined && val !== '');
         });
+        
+        if (cleanData.length < results.data.length) {
+          console.log(`🔧 Removed ${results.data.length - cleanData.length} empty rows`);
+        }
+        
+        resolve(cleanData);
+      },
+      error: (error) => {
+        console.error('❌ Error parsing CSV:', error);
+        // Instead of rejecting, resolve with empty array to prevent dashboard failure
+        console.warn('Returning empty array due to parsing error');
+        resolve([]);
+      }
     });
+  });
 }
-
 /**
  * Special function to handle Google Analytics CSV files
  * These files have special headers and comment lines
@@ -919,95 +941,96 @@ function validateLoadedData() {
  * Flags problematic values and adds them to data quality issues
  */
 function checkMetricRealism() {
-    // Reasonable threshold values
-    const MAX_REASONABLE_REACH = 1000000000; // 1 billion
-    const MAX_REASONABLE_ENGAGEMENT = 100000000; // 100 million
-    const MAX_REASONABLE_ENGAGEMENT_RATE = 100; // 100%
+  // Reasonable threshold values
+  const MAX_REASONABLE_REACH = 1000000000; // 1 billion
+  const MAX_REASONABLE_ENGAGEMENT = 100000000; // 100 million
+  const MAX_REASONABLE_ENGAGEMENT_RATE = 100; // 100%
+  
+  // Check reach value
+  if (dashboardState.data.crossChannel?.reach?.total > MAX_REASONABLE_REACH) {
+    console.error('⚠️ Unrealistic reach value detected:', dashboardState.data.crossChannel.reach.total);
     
-    // Check reach value
-    if (dashboardState.data.crossChannel?.reach?.total > MAX_REASONABLE_REACH) {
-        console.error('⚠️ Unrealistic reach value detected:', dashboardState.data.crossChannel.reach.total);
-        
-        // Flag the value as invalid
-        dashboardState.data.crossChannel.reach.total = null;
-        
-        // Add to data quality issues
-        dashboardState.dataQualityIssues.push({
-            metric: 'Total Reach',
-            issue: 'Unrealistic value detected',
-            severity: 'high'
-        });
-    }
+    // Cap the value instead of nullifying it
+    dashboardState.data.crossChannel.reach.total = MAX_REASONABLE_REACH;
     
-    // Check engagement value
-    if (dashboardState.data.crossChannel?.engagement?.total > MAX_REASONABLE_ENGAGEMENT) {
-        console.error('⚠️ Unrealistic engagement value detected:', dashboardState.data.crossChannel.engagement.total);
-        
-        // Flag the value as invalid
-        dashboardState.data.crossChannel.engagement.total = null;
-        
-        // Add to data quality issues
-        dashboardState.dataQualityIssues.push({
-            metric: 'Total Engagement',
-            issue: 'Unrealistic value detected',
-            severity: 'high'
-        });
-    }
+    // Add to data quality issues
+    dashboardState.dataQualityIssues.push({
+      metric: 'Total Reach',
+      issue: 'Unrealistic value detected and capped at 1B',
+      severity: 'high'
+    });
+  }
+  
+  // Check engagement value
+  if (dashboardState.data.crossChannel?.engagement?.total > MAX_REASONABLE_ENGAGEMENT) {
+    console.error('⚠️ Unrealistic engagement value detected:', dashboardState.data.crossChannel.engagement.total);
     
-    // Check engagement rate
-    if (dashboardState.data.crossChannel?.engagement_rate?.overall > MAX_REASONABLE_ENGAGEMENT_RATE) {
-        console.error('⚠️ Unrealistic engagement rate detected:', dashboardState.data.crossChannel.engagement_rate.overall);
-        
-        // Flag the value as invalid
-        dashboardState.data.crossChannel.engagement_rate.overall = null;
-        
-        // Add to data quality issues
-        dashboardState.dataQualityIssues.push({
-            metric: 'Engagement Rate',
-            issue: 'Unrealistic value detected (>100%)',
-            severity: 'high'
-        });
-    }
+    // Cap the value instead of nullifying it
+    dashboardState.data.crossChannel.engagement.total = MAX_REASONABLE_ENGAGEMENT;
     
-    // Check performance trend values in crossChannel data
-    if (dashboardState.data.crossChannel?.performance_trend) {
-        dashboardState.data.crossChannel.performance_trend.forEach(item => {
-            ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
-                if (item[platform] && item[platform] > MAX_REASONABLE_REACH) {
-                    console.warn(`Unrealistic ${platform} value in month ${item.month}:`, item[platform]);
-                    item[platform] = null;
-                }
-            });
-        });
-    }
+    // Add to data quality issues
+    dashboardState.dataQualityIssues.push({
+      metric: 'Total Engagement',
+      issue: 'Unrealistic value detected and capped at 100M',
+      severity: 'high'
+    });
+  }
+  
+  // Check engagement rate
+  if (dashboardState.data.crossChannel?.engagement_rate?.overall > MAX_REASONABLE_ENGAGEMENT_RATE) {
+    console.error('⚠️ Unrealistic engagement rate detected:', dashboardState.data.crossChannel.engagement_rate.overall);
     
-    // Additional platform-specific checks
-    if (dashboardState.data.facebook?.reach > MAX_REASONABLE_REACH) {
-        dashboardState.data.facebook.reach = null;
-        dashboardState.dataQualityIssues.push({
-            metric: 'Facebook Reach',
-            issue: 'Unrealistic value detected',
-            severity: 'medium'
-        });
-    }
+    // Cap the value instead of nullifying it
+    dashboardState.data.crossChannel.engagement_rate.overall = MAX_REASONABLE_ENGAGEMENT_RATE;
     
-    if (dashboardState.data.instagram?.reach > MAX_REASONABLE_REACH) {
-        dashboardState.data.instagram.reach = null;
-        dashboardState.dataQualityIssues.push({
-            metric: 'Instagram Reach',
-            issue: 'Unrealistic value detected',
-            severity: 'medium'
-        });
-    }
-    
-    if (dashboardState.data.youtube?.totalViews > MAX_REASONABLE_REACH) {
-        dashboardState.data.youtube.totalViews = null;
-        dashboardState.dataQualityIssues.push({
-            metric: 'YouTube Total Views',
-            issue: 'Unrealistic value detected',
-            severity: 'medium'
-        });
-    }
+    // Add to data quality issues
+    dashboardState.dataQualityIssues.push({
+      metric: 'Engagement Rate',
+      issue: 'Unrealistic value detected (>100%) and capped',
+      severity: 'high'
+    });
+  }
+  
+  // Check performance trend values in crossChannel data
+  if (dashboardState.data.crossChannel?.performance_trend) {
+    dashboardState.data.crossChannel.performance_trend.forEach(item => {
+      ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
+        if (item[platform] && item[platform] > MAX_REASONABLE_REACH) {
+          console.warn(`⚠️ Unrealistic ${platform} value in month ${item.month}:`, item[platform]);
+          // Cap the value instead of nullifying it
+          item[platform] = MAX_REASONABLE_REACH;
+        }
+      });
+    });
+  }
+  
+  // Additional platform-specific checks
+  if (dashboardState.data.facebook?.reach > MAX_REASONABLE_REACH) {
+    dashboardState.data.facebook.reach = MAX_REASONABLE_REACH;
+    dashboardState.dataQualityIssues.push({
+      metric: 'Facebook Reach',
+      issue: 'Unrealistic value detected and capped',
+      severity: 'medium'
+    });
+  }
+  
+  if (dashboardState.data.instagram?.reach > MAX_REASONABLE_REACH) {
+    dashboardState.data.instagram.reach = MAX_REASONABLE_REACH;
+    dashboardState.dataQualityIssues.push({
+      metric: 'Instagram Reach',
+      issue: 'Unrealistic value detected and capped',
+      severity: 'medium'
+    });
+  }
+  
+  if (dashboardState.data.youtube?.totalViews > MAX_REASONABLE_REACH) {
+    dashboardState.data.youtube.totalViews = MAX_REASONABLE_REACH;
+    dashboardState.dataQualityIssues.push({
+      metric: 'YouTube Total Views',
+      issue: 'Unrealistic value detected and capped',
+      severity: 'medium'
+    });
+  }
 }
 
 /**
