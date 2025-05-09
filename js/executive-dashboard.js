@@ -143,93 +143,71 @@ function renderKpiCard(title, value, change, trend) {
 
 // Render channel performance chart - FIXED FUNCTION
 function renderChannelPerformanceChart(data) {
-    // If the chart canvas doesn't exist, skip rendering
-    if (!document.getElementById('channel-performance-chart')) return;
+  // If the chart canvas doesn't exist, skip rendering
+  if (!document.getElementById('channel-performance-chart')) return;
 
-    // Get performance trend data with proper null checks
-    let performanceTrend = data.crossChannel?.performance_trend || [];
+  // Get performance trend data with proper null checks
+  let performanceTrend = data.crossChannel?.performance_trend || [];
 
-    // Ensure values are numeric and not extremely large
-    if (performanceTrend && performanceTrend.length > 0) {
-        performanceTrend.forEach(item => {
-            ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
-                if (item[platform] && item[platform] > 1000000000) {
-                    console.warn(`Unrealistic value for ${platform} in month ${item.month}:`, item[platform]);
-                    item[platform] = null;
-                }
-            });
-        });
+  // If we have no valid data points, show error message
+  if (!performanceTrend || performanceTrend.length === 0 || 
+      performanceTrend.every(item => 
+          !item.facebook && !item.instagram && !item.youtube && !item.email)) {
+    
+    // Show error message in chart area
+    const chartElement = document.getElementById('channel-performance-chart');
+    if (chartElement) {
+      chartElement.parentNode.innerHTML = `
+        <div class="flex h-full items-center justify-center">
+          <div class="text-center text-gray-500">
+            <svg class="h-12 w-12 mx-auto text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-red-800">No Performance Data Available</h3>
+            <p class="mt-1 text-sm">Data for channel performance is missing or invalid.</p>
+          </div>
+        </div>
+      `;
+      return;
     }
+  }
 
-    // If we have no valid data points
-    if (!performanceTrend || performanceTrend.length === 0 || 
-        performanceTrend.every(item => 
-            !item.facebook && !item.instagram && !item.youtube && !item.email)) {
-        // Show error message in chart area
-        const chartElement = document.getElementById('channel-performance-chart');
-        if (chartElement) {
-            chartElement.parentNode.innerHTML = `
-                <div class="flex h-full items-center justify-center">
-                    <div class="text-center text-gray-500">
-                        <svg class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <h3 class="mt-2 text-lg font-medium">No Valid Performance Data Available</h3>
-                        <p class="mt-1 text-sm">Unable to display channel performance chart due to missing or invalid data.</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-    }
+  // Create chart if data is available
+  const chartData = {
+    labels: performanceTrend.map(item => item.month),
+    datasets: [
+      {
+        label: 'Facebook',
+        data: performanceTrend.map(item => item.facebook || 0),
+        borderColor: DASHBOARD_CONFIG.colors.facebook,
+        backgroundColor: 'transparent',
+        tension: 0.4
+      },
+      {
+        label: 'Instagram',
+        data: performanceTrend.map(item => item.instagram || 0),
+        borderColor: DASHBOARD_CONFIG.colors.instagram,
+        backgroundColor: 'transparent',
+        tension: 0.4
+      },
+      {
+        label: 'YouTube',
+        data: performanceTrend.map(item => item.youtube || 0),
+        borderColor: DASHBOARD_CONFIG.colors.youtube,
+        backgroundColor: 'transparent',
+        tension: 0.4
+      },
+      {
+        label: 'Email',
+        data: performanceTrend.map(item => item.email || 0),
+        borderColor: DASHBOARD_CONFIG.colors.email,
+        backgroundColor: 'transparent',
+        tension: 0.4
+      }
+    ]
+  };
 
-    // Safety check - create empty trend data if needed
-    if (!performanceTrend || performanceTrend.length === 0) {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        performanceTrend = months.map(month => ({
-            month,
-            facebook: 0,
-            instagram: 0,
-            youtube: 0,
-            email: 0
-        }));
-    }
-
-    const chartData = {
-        labels: performanceTrend.map(item => item.month),
-        datasets: [
-            {
-                label: 'Facebook',
-                data: performanceTrend.map(item => item.facebook || 0),
-                borderColor: DASHBOARD_CONFIG.colors.facebook,
-                backgroundColor: 'transparent',
-                tension: 0.4
-            },
-            {
-                label: 'Instagram',
-                data: performanceTrend.map(item => item.instagram || 0),
-                borderColor: DASHBOARD_CONFIG.colors.instagram,
-                backgroundColor: 'transparent',
-                tension: 0.4
-            },
-            {
-                label: 'YouTube',
-                data: performanceTrend.map(item => item.youtube || 0),
-                borderColor: DASHBOARD_CONFIG.colors.youtube,
-                backgroundColor: 'transparent',
-                tension: 0.4
-            },
-            {
-                label: 'Email',
-                data: performanceTrend.map(item => item.email || 0),
-                borderColor: DASHBOARD_CONFIG.colors.email,
-                backgroundColor: 'transparent',
-                tension: 0.4
-            }
-        ]
-    };
-
-    createLineChart('channel-performance-chart', chartData);
+  createLineChart('channel-performance-chart', chartData);
 }
 
 // Render attribution chart

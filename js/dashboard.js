@@ -23,21 +23,21 @@ const dashboardState = {
 // Test function for data loading diagnostics
 function testDataLoading() {
     console.log("🧪 TESTING DATA LOADING PROCESS 🧪");
-    
+
     // List of important files to test
     const filesToTest = ['FB_Posts.csv', 'IG_Posts.csv', 'Email_Campaign_Performance.csv', 'YouTube_Age.csv'];
-    
+
     // Test each file
     filesToTest.forEach(file => {
         console.log(`\n📋 Testing file: ${file}`);
-        
+
         // Try different paths to find the file
         const paths = ['./data/', '/data/', '../data/'];
-        
+
         paths.forEach(path => {
             const fullPath = path + file;
             console.log(`🔍 Trying path: ${fullPath}`);
-            
+
             fetch(fullPath)
                 .then(response => {
                     if (response.ok) {
@@ -50,10 +50,10 @@ function testDataLoading() {
                 })
                 .then(text => {
                     console.log(`📄 First 50 chars: ${text.substring(0, 50)}`);
-                    
+
                     // Try parsing a sample
                     try {
-                        const sample = Papa.parse(text.substring(0, 1000), {header: true});
+                        const sample = Papa.parse(text.substring(0, 1000), { header: true });
                         console.log(`📊 Parse sample success - headers:`, sample.meta.fields);
                     } catch (e) {
                         console.error(`❌ Parse error:`, e);
@@ -64,24 +64,53 @@ function testDataLoading() {
                 });
         });
     });
-    
+
     console.log("\n🧪 TEST COMPLETE - Check console for results 🧪");
 }
 
 // Initialize dashboard
 async function initDashboard() {
-    setupEventListeners();
-    await loadAllData();
-    validateLoadedData(); // New validation function to ensure data integrity
-    renderActiveDashboard();
-    
-    // Add a status indicator for debugging
-    if (window.location.search.includes('debug=true')) {
-        addStatusIndicator();
+    try {
+        console.log("🚀 Initializing Marketing Dashboard...");
+
+        // Apply safer chart functions
+        createSafeChartFunctions();
+
+        // Setup event listeners
+        setupEventListeners();
+
+        // Load data with error handling
+        try {
+            await loadAllData();
+        } catch (loadError) {
+            console.error("Failed to load data:", loadError);
+            showErrorMessage("Failed to load dashboard data. Check console for details and reload the page.", "error", false);
+            setLoading(false);
+            return; // Stop initialization if data loading fails
+        }
+
+        // Validate loaded data for required structure but don't create defaults
+        validateDataStructure();
+
+        // Check for data quality issues
+        if (dashboardState.dataQualityIssues && dashboardState.dataQualityIssues.length > 0) {
+            console.warn(`Found ${dashboardState.dataQualityIssues.length} data quality issues`);
+            showDataQualityWarnings();
+        }
+
+        // Render the active dashboard
+        renderActiveDashboard();
+
+        // Add a status indicator for debugging if requested
+        if (window.location.search.includes('debug=true')) {
+            addStatusIndicator();
+        }
+
+        console.log("✅ Dashboard initialized successfully");
+    } catch (error) {
+        console.error("Critical error during dashboard initialization:", error);
+        showErrorMessage("Critical error initializing dashboard: " + error.message, "error", false);
     }
-    
-    // Call test data loading with a small delay
-    setTimeout(testDataLoading, 1000);
 }
 
 // Set up event listeners
@@ -98,7 +127,7 @@ function setupEventListeners() {
             timeframeSelector.value = '30d';
             dashboardState.timeframe = '30d';
         }
-        
+
         timeframeSelector.addEventListener('change', async function () {
             dashboardState.timeframe = this.value;
 
@@ -166,7 +195,7 @@ function setActiveDashboard(dashboard) {
 async function loadCSV(fileName, options = {}) {
     // Add debug logging
     console.log(`⏳ Attempting to load ${fileName}...`);
-    
+
     // Check if we already have this in the cache
     if (dashboardState.dataCache[fileName]) {
         console.log(`✅ Retrieved ${fileName} from cache`);
@@ -177,7 +206,7 @@ async function loadCSV(fileName, options = {}) {
     const pathParts = window.location.pathname.split('/').filter(part => part);
     const repoName = pathParts.length > 0 ? pathParts[0] : '';
     const repoPath = repoName ? `/${repoName}` : '';
-    
+
     // Log current path information
     console.log(`🔍 Current path info - Location: ${window.location.pathname}, Repo: ${repoName}`);
 
@@ -190,7 +219,7 @@ async function loadCSV(fileName, options = {}) {
     ];
 
     console.log(`🔍 Will try paths: ${JSON.stringify(paths)}`);
-    
+
     let response = null;
     let data = null;
 
@@ -201,14 +230,14 @@ async function loadCSV(fileName, options = {}) {
             if (response.ok) {
                 const text = await response.text();
                 console.log(`📄 First 100 chars of ${fileName}: ${text.substring(0, 100)}`);
-                
+
                 // Use the improved parseCSV for better error handling
                 data = await parseCSV(text, options);
                 console.log(`✅ Successfully loaded from: ${path}`);
 
                 // Cache the data for future use
                 dashboardState.dataCache[fileName] = data;
-                
+
                 // Log a sample of the parsed data
                 if (data && data.length > 0) {
                     console.log(`📊 Sample data from ${fileName}:`, data[0]);
@@ -264,87 +293,359 @@ async function loadCSV(fileName, options = {}) {
  * @returns {Promise<Array>} - Parsed CSV data
  */
 function parseCSV(csvText, options = {}) {
-  console.log(`🔄 Parsing CSV text of length ${csvText.length}...`);
-  
-  // Handle empty content
-  if (!csvText || csvText.trim() === '') {
-    console.warn('Empty CSV content provided');
-    return Promise.resolve([]);
-  }
-  
-  // Fix encoding issues - remove BOM and handle Windows encoding
-  let cleanedText = csvText;
-  
-  // Check for Byte Order Mark (BOM) and special separators
-  if (csvText.startsWith('\uFEFF') || 
-      csvText.startsWith('ï»¿') || 
-      csvText.includes('��')) {
-      
-    // Handle 'sep=' directive common in Windows CSVs
-    if (csvText.includes('sep=,')) {
-      const sepIndex = csvText.indexOf('sep=,');
-      const newlineAfterSep = csvText.indexOf('\n', sepIndex);
-      if (newlineAfterSep > -1) {
-        cleanedText = csvText.substring(newlineAfterSep + 1);
-        console.log('🔧 Removed BOM and separator declaration');
-      } else {
-        // Just remove the BOM if newline can't be found
-        cleanedText = csvText.replace(/^\uFEFF|^ï»¿|^��/, '');
-        console.log('🔧 Removed Byte Order Mark (BOM)');
-      }
-    } else {
-      // Just remove the BOM
-      cleanedText = csvText.replace(/^\uFEFF|^ï»¿|^��/, '');
-      console.log('🔧 Removed Byte Order Mark (BOM)');
+    console.log(`🔄 Parsing CSV text of length ${csvText.length}...`);
+
+    // Handle empty content
+    if (!csvText || csvText.trim() === '') {
+        console.warn('Empty CSV content provided');
+        return Promise.resolve([]);
     }
-  }
-  
-  // Handle Google Analytics comment headers
-  if (cleanedText.startsWith('# ----') || cleanedText.startsWith('#')) {
-    const lines = cleanedText.split('\n');
-    const dataStart = lines.findIndex(line => !line.startsWith('#'));
-    if (dataStart > 0) {
-      cleanedText = lines.slice(dataStart).join('\n');
-      console.log('🔧 Removed Google Analytics comment headers');
-    }
-  }
-  
-  return new Promise((resolve, reject) => {
-    Papa.parse(cleanedText, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      ...options,
-      complete: (results) => {
-        console.log(`✅ CSV parsing complete - Found ${results.data.length} rows`);
-        if (results.errors && results.errors.length > 0) {
-          console.warn(`⚠️ CSV parsing had ${results.errors.length} errors:`, results.errors);
+
+    // Fix encoding issues - remove BOM and handle Windows encoding
+    let cleanedText = csvText;
+    let cleanupOperations = [];
+
+    // Check for Byte Order Mark (BOM) and special separators
+    if (csvText.startsWith('\uFEFF') ||
+        csvText.startsWith('ï»¿') ||
+        csvText.includes('��')) {
+
+        // First, try to fix the BOM
+        const originalLength = cleanedText.length;
+        cleanedText = cleanedText.replace(/^\uFEFF|^ï»¿|��/g, '');
+        if (cleanedText.length < originalLength) {
+            cleanupOperations.push('Removed BOM characters');
         }
-        
-        // Remove any empty rows (sometimes at the end of the file)
-        const cleanData = results.data.filter(row => {
-          if (!row || typeof row !== 'object') return false;
-          
-          // Check if the row has at least one non-empty value
-          return Object.values(row).some(val => 
-            val !== null && val !== undefined && val !== '');
+
+        // Handle 'sep=' directive common in Windows CSVs
+        if (cleanedText.includes('sep=,')) {
+            const sepIndex = cleanedText.indexOf('sep=,');
+            const newlineAfterSep = cleanedText.indexOf('\n', sepIndex);
+            if (newlineAfterSep > -1) {
+                cleanedText = cleanedText.substring(newlineAfterSep + 1);
+                cleanupOperations.push('Removed separator declaration');
+            }
+        }
+
+        if (cleanupOperations.length > 0) {
+            console.log(`🔧 ${cleanupOperations.join(', ')}`);
+        }
+    }
+
+    // Handle Google Analytics comment headers
+    if (cleanedText.startsWith('# ----') || cleanedText.startsWith('#')) {
+        // Some GA files have comments at the top
+        const lines = cleanedText.split('\n');
+        let dataStart = -1;
+
+        // Find the first non-comment line
+        for (let i = 0; i < lines.length; i++) {
+            if (!lines[i].startsWith('#')) {
+                dataStart = i;
+                break;
+            }
+        }
+
+        if (dataStart > 0) {
+            cleanedText = lines.slice(dataStart).join('\n');
+            console.log('🔧 Removed Google Analytics comment headers');
+        }
+    }
+
+    // Handle special characters in content
+    cleanedText = cleanedText.replace(/\u0000/g, '');  // Remove NUL characters
+
+    // Handle weird quotes by replacing them with standard quotes
+    cleanedText = cleanedText.replace(/[\u201C\u201D]/g, '"');
+
+    return new Promise((resolve, reject) => {
+        Papa.parse(cleanedText, {
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            delimitersToGuess: [',', '\t', '|', ';'],  // Try to guess delimiter if not clear
+            ...options,
+            complete: (results) => {
+                console.log(`✅ CSV parsing complete - Found ${results.data.length} rows`);
+
+                // Log errors but continue processing
+                if (results.errors && results.errors.length > 0) {
+                    console.warn(`⚠️ CSV parsing had ${results.errors.length} errors:`, results.errors);
+
+                    // Add more detailed error reporting
+                    const errorSummary = {};
+                    results.errors.forEach(error => {
+                        const type = error.type || 'Unknown';
+                        errorSummary[type] = (errorSummary[type] || 0) + 1;
+                    });
+
+                    console.warn('Error breakdown by type:', errorSummary);
+                }
+
+                // Clean the data - remove empty rows and improperly parsed ones
+                const cleanData = results.data.filter(row => {
+                    // Skip if not an object
+                    if (!row || typeof row !== 'object') return false;
+
+                    // Check if the row has at least one non-empty value
+                    return Object.values(row).some(val =>
+                        val !== null && val !== undefined && val !== '');
+                });
+
+                // Report any rows that were removed
+                if (cleanData.length < results.data.length) {
+                    console.log(`🔧 Removed ${results.data.length - cleanData.length} empty or invalid rows`);
+                }
+
+                // Sanitize field values to remove any NaN or Infinity
+                const sanitizedData = cleanData.map(row => {
+                    const cleanRow = {};
+
+                    Object.entries(row).forEach(([key, value]) => {
+                        // Check for NaN, Infinity or extreme values
+                        if (typeof value === 'number' && (!isFinite(value) || Math.abs(value) > 1e15)) {
+                            cleanRow[key] = null;
+                        } else {
+                            cleanRow[key] = value;
+                        }
+                    });
+
+                    return cleanRow;
+                });
+
+                resolve(sanitizedData);
+            },
+            error: (error) => {
+                console.error('❌ Error parsing CSV:', error);
+                // Instead of rejecting, resolve with empty array to prevent dashboard failure
+                console.warn('⚠️ Returning empty array due to parsing error');
+                resolve([]);
+            }
         });
-        
-        if (cleanData.length < results.data.length) {
-          console.log(`🔧 Removed ${results.data.length - cleanData.length} empty rows`);
-        }
-        
-        resolve(cleanData);
-      },
-      error: (error) => {
-        console.error('❌ Error parsing CSV:', error);
-        // Instead of rejecting, resolve with empty array to prevent dashboard failure
-        console.warn('Returning empty array due to parsing error');
-        resolve([]);
-      }
     });
-  });
 }
+
+/**
+ * Special function to handle Google Analytics CSV files with improved compatibility
+ * Replace the existing function in dashboard.js
+ */
+async function loadGoogleAnalyticsCSV(fileName, options = {}) {
+    console.log(`🔍 Loading Google Analytics file: ${fileName}`);
+
+    try {
+        // Check cache first
+        if (dashboardState.dataCache[fileName]) {
+            return dashboardState.dataCache[fileName];
+        }
+
+        // Try the standard paths
+        const paths = [
+            `./data/${fileName}`,
+            `/data/${fileName}`,
+            `../data/${fileName}`
+        ];
+
+        let response;
+        let successfulPath = null;
+
+        for (const path of paths) {
+            try {
+                response = await fetch(path);
+                if (response.ok) {
+                    successfulPath = path;
+                    break;
+                }
+            } catch (e) {
+                console.warn(`Failed to fetch from ${path}:`, e);
+            }
+        }
+
+        if (!response || !response.ok) {
+            console.error(`Could not fetch ${fileName} from any path`);
+            return [];
+        }
+
+        console.log(`✅ Successfully loaded from: ${successfulPath}`);
+
+        // Get the raw text
+        const text = await response.text();
+
+        // For Google Analytics files, we need special preprocessing
+        const lines = text.split('\n');
+
+        // Find where the actual data starts (after # comments)
+        let dataStartIndex = 0;
+        while (dataStartIndex < lines.length && lines[dataStartIndex].startsWith('#')) {
+            dataStartIndex++;
+        }
+
+        if (dataStartIndex >= lines.length) {
+            console.warn('No valid data found in GA file (all lines are comments)');
+            return [];
+        }
+
+        // Extract headers and data
+        const headers = lines[dataStartIndex].split(',').map(h => h.trim().replace(/"/g, ''));
+        const dataLines = lines.slice(dataStartIndex + 1);
+
+        // Convert to CSV format with proper headers
+        const properCsv = [
+            headers.join(','),
+            ...dataLines
+        ].join('\n');
+
+        // Parse with modified options
+        const parsedData = await parseCSV(properCsv, {
+            ...options,
+            header: true,
+            skipEmptyLines: true
+        });
+
+        // Cache the results
+        dashboardState.dataCache[fileName] = parsedData;
+
+        return parsedData;
+    } catch (error) {
+        console.error(`Error processing Google Analytics file ${fileName}:`, error);
+        return [];
+    }
+}
+
+/**
+ * Improved error handling for loadCSV
+ * This function now tracks successful paths to prioritize them in future loads
+ */
+const successfulPaths = new Map(); // Track which paths worked for which files
+
+async function loadCSV(fileName, options = {}) {
+    // Add debug logging
+    console.log(`⏳ Attempting to load ${fileName}...`);
+
+    // Check if we already have this in the cache
+    if (dashboardState.dataCache[fileName]) {
+        console.log(`✅ Retrieved ${fileName} from cache`);
+        return dashboardState.dataCache[fileName];
+    }
+
+    // Check if we know a working path for this file from previous loads
+    if (successfulPaths.has(fileName)) {
+        try {
+            const knownPath = successfulPaths.get(fileName);
+            console.log(`🔄 Trying known working path: ${knownPath}`);
+            const response = await fetch(knownPath);
+
+            if (response.ok) {
+                const text = await response.text();
+                console.log(`📄 First 100 chars of ${fileName}: ${text.substring(0, 100)}`);
+
+                // Use the improved parseCSV for better error handling
+                const data = await parseCSV(text, options);
+                console.log(`✅ Successfully loaded from known path: ${knownPath}`);
+
+                // Cache the data for future use
+                dashboardState.dataCache[fileName] = data;
+
+                // Log a sample of the parsed data
+                if (data && data.length > 0) {
+                    console.log(`📊 Sample data from ${fileName}:`, data[0]);
+                }
+
+                return data;
+            }
+        } catch (error) {
+            console.warn(`⚠️ Known path no longer working for ${fileName}. Trying alternatives...`);
+            // Continue to try other paths if the known path fails
+        }
+    }
+
+    // Get repository name for GitHub Pages
+    const pathParts = window.location.pathname.split('/').filter(part => part);
+    const repoName = pathParts.length > 0 ? pathParts[0] : '';
+    const repoPath = repoName ? `/${repoName}` : '';
+
+    // Log current path information
+    console.log(`🔍 Current path info - Location: ${window.location.pathname}, Repo: ${repoName}`);
+
+    // Prioritize the "./data/" path which seems to be working
+    const paths = [
+        `./data/${fileName}`,  // This path works most consistently based on logs
+        `${repoPath}/data/${fileName}`,
+        `/data/${fileName}`,
+        `../data/${fileName}`
+    ];
+
+    console.log(`🔍 Will try paths: ${JSON.stringify(paths)}`);
+
+    let response = null;
+    let data = null;
+    let workingPath = null;
+
+    for (const path of paths) {
+        try {
+            console.log(`🔄 Fetching from: ${path}`);
+            response = await fetch(path);
+            if (response.ok) {
+                workingPath = path;
+                const text = await response.text();
+                console.log(`📄 First 100 chars of ${fileName}: ${text.substring(0, 100)}`);
+
+                // Use the improved parseCSV for better error handling
+                data = await parseCSV(text, options);
+                console.log(`✅ Successfully loaded from: ${path}`);
+
+                // Remember this path worked for future loads
+                successfulPaths.set(fileName, path);
+
+                // Cache the data for future use
+                dashboardState.dataCache[fileName] = data;
+
+                // Log a sample of the parsed data
+                if (data && data.length > 0) {
+                    console.log(`📊 Sample data from ${fileName}:`, data[0]);
+                }
+
+                return data;
+            } else {
+                console.warn(`⚠️ Failed with status ${response.status} from ${path}`);
+            }
+        } catch (error) {
+            console.warn(`⚠️ Error fetching from ${path}:`, error);
+        }
+    }
+
+    // JSON fallback with simpler path strategy
+    console.log(`❌ Failed to load ${fileName} from any path, trying JSON fallback`);
+
+    // Try JSON fallback
+    try {
+        const jsonFileName = fileName.replace('.csv', '.json');
+        // Only try the most likely paths for JSON
+        for (const path of [
+            `./data/${jsonFileName}`,
+            `${repoPath}/data/${jsonFileName}`
+        ]) {
+            try {
+                console.log(`🔄 Trying JSON fallback: ${path}`);
+                const jsonResponse = await fetch(path);
+                if (jsonResponse.ok) {
+                    const jsonData = await jsonResponse.json();
+                    console.log(`✅ Successfully loaded JSON fallback from: ${path}`);
+                    dashboardState.dataCache[fileName] = jsonData;
+                    return jsonData;
+                }
+            } catch (fallbackError) {
+                console.warn(`⚠️ Error with JSON fallback from ${path}:`, fallbackError);
+            }
+        }
+    } catch (jsonError) {
+        console.error('❌ JSON fallback failed:', jsonError);
+    }
+
+    // Create and return empty data if all attempts fail
+    console.error(`❌ Could not load ${fileName} - returning empty data`);
+    return [];
+}
+
 /**
  * Special function to handle Google Analytics CSV files
  * These files have special headers and comment lines
@@ -354,20 +655,20 @@ function parseCSV(csvText, options = {}) {
  */
 async function loadGoogleAnalyticsCSV(fileName, options = {}) {
     console.log(`🔍 Loading Google Analytics file: ${fileName}`);
-    
+
     try {
         // Check cache first
         if (dashboardState.dataCache[fileName]) {
             return dashboardState.dataCache[fileName];
         }
-        
+
         // Try the standard paths
         const paths = [
             `./data/${fileName}`,
             `/data/${fileName}`,
             `../data/${fileName}`
         ];
-        
+
         let response;
         for (const path of paths) {
             try {
@@ -379,44 +680,44 @@ async function loadGoogleAnalyticsCSV(fileName, options = {}) {
                 console.warn(`Failed to fetch from ${path}:`, e);
             }
         }
-        
+
         if (!response || !response.ok) {
             console.error(`Could not fetch ${fileName} from any path`);
             return [];
         }
-        
+
         // Get the raw text
         const text = await response.text();
-        
+
         // Skip all lines starting with #
         const lines = text.split('\n');
         const dataStartIndex = lines.findIndex(line => !line.trim().startsWith('#'));
-        
+
         if (dataStartIndex === -1) {
             console.warn('No valid data found in GA file');
             return [];
         }
-        
+
         // Extract headers and data
         const headers = lines[dataStartIndex].split(',').map(h => h.trim());
         const dataLines = lines.slice(dataStartIndex + 1);
-        
+
         // Convert to CSV format with proper headers
         const properCsv = [
             headers.join(','),
             ...dataLines
         ].join('\n');
-        
+
         // Parse with modified options
         const parsedData = await parseCSV(properCsv, {
             ...options,
             header: true,
             skipEmptyLines: true
         });
-        
+
         // Cache the results
         dashboardState.dataCache[fileName] = parsedData;
-        
+
         return parsedData;
     } catch (error) {
         console.error(`Error processing Google Analytics file ${fileName}:`, error);
@@ -542,7 +843,7 @@ async function loadAllData() {
                 } catch (jsonError) {
                     console.error('Both CSV and JSON loading failed:', jsonError);
                     console.log('Creating default data instead');
-                    
+
                     // Create default data when all else fails
                     dashboardState.data.facebook = createDefaultFacebookData();
                     dashboardState.data.instagram = createDefaultInstagramData();
@@ -842,195 +1143,173 @@ async function loadYearlyData() {
  * Validate loaded data and create defaults where needed
  * This ensures the dashboard always has something to show
  */
-function validateLoadedData() {
+function validateDataStructure() {
     // Initialize data quality issues tracker if it doesn't exist
     if (!dashboardState.dataQualityIssues) {
         dashboardState.dataQualityIssues = [];
     }
-    
-    // Check if we have the minimum required data
-    if (!dashboardState.data.facebook || typeof dashboardState.data.facebook !== 'object') {
-        console.warn('⚠️ Facebook data is missing or invalid, creating fallback data');
-        dashboardState.data.facebook = createDefaultFacebookData();
-    }
-    
-    if (!dashboardState.data.instagram || typeof dashboardState.data.instagram !== 'object') {
-        console.warn('⚠️ Instagram data is missing or invalid, creating fallback data');
-        dashboardState.data.instagram = createDefaultInstagramData();
-    }
-    
-    if (!dashboardState.data.email || typeof dashboardState.data.email !== 'object') {
-        console.warn('⚠️ Email data is missing or invalid, creating fallback data');
-        dashboardState.data.email = createDefaultEmailData();
-    }
-    
-    if (!dashboardState.data.youtube || typeof dashboardState.data.youtube !== 'object') {
-        console.warn('⚠️ YouTube data is missing or invalid, creating fallback data');
-        dashboardState.data.youtube = createDefaultYouTubeData();
-    }
-    
-    if (!dashboardState.data.googleAnalytics || typeof dashboardState.data.googleAnalytics !== 'object') {
-        console.warn('⚠️ Google Analytics data is missing or invalid, creating fallback data');
-        dashboardState.data.googleAnalytics = createDefaultGoogleAnalyticsData();
-    }
-    
-    if (!dashboardState.data.crossChannel || typeof dashboardState.data.crossChannel !== 'object') {
-        console.warn('⚠️ Cross-channel data is missing or invalid, creating fallback data');
-        dashboardState.data.crossChannel = createDefaultCrossChannelData();
-    }
-    
-    // Verify required properties in each dataset
-    ensureRequiredProperties(dashboardState.data.facebook, {
-        reach: 0,
-        engagement: 0,
-        engagement_rate: 0,
-        posts: [],
-        performance_trend: []
-    });
-    
-    ensureRequiredProperties(dashboardState.data.instagram, {
-        reach: 0,
-        engagement: 0,
-        engagement_rate: 0,
-        posts: [],
-        performance_trend: []
-    });
-    
-    ensureRequiredProperties(dashboardState.data.email, {
-        totalSent: 0,
-        totalDelivered: 0,
-        totalOpens: 0,
-        totalClicks: 0,
-        openRate: 0,
-        clickRate: 0,
-        campaigns: [],
-        performance_trend: []
-    });
-    
-    ensureRequiredProperties(dashboardState.data.youtube, {
-        totalViews: 0,
-        totalWatchTime: 0,
-        averageViewDuration: '0:00',
-        demographics: {
-            age: [],
-            gender: []
-        },
-        geography: [],
-        subscriptionStatus: [],
-        performance_trend: []
-    });
-    
-    ensureRequiredProperties(dashboardState.data.crossChannel, {
-        reach: { total: 0, byPlatform: {} },
-        engagement: { total: 0, byPlatform: {} },
-        engagement_rate: { overall: 0, byPlatform: {} },
-        performance_trend: [],
-        attribution: [],
-        content_performance: [],
-        demographics: { age: [] }
-    });
-    
-    // Check for unrealistic values
-    checkMetricRealism();
-    
-    console.log('✅ Data validation complete');
-}
 
+    // Check if we have the minimum required data structures
+    // Facebook data
+    if (!dashboardState.data.facebook || typeof dashboardState.data.facebook !== 'object') {
+        console.error('❌ Facebook data is missing or invalid');
+        dashboardState.dataQualityIssues.push({
+            metric: 'Facebook Data',
+            issue: 'Missing or invalid data structure',
+            severity: 'high'
+        });
+    }
+
+    // Instagram data
+    if (!dashboardState.data.instagram || typeof dashboardState.data.instagram !== 'object') {
+        console.error('❌ Instagram data is missing or invalid');
+        dashboardState.dataQualityIssues.push({
+            metric: 'Instagram Data',
+            issue: 'Missing or invalid data structure',
+            severity: 'high'
+        });
+    }
+
+    // Email data
+    if (!dashboardState.data.email || typeof dashboardState.data.email !== 'object') {
+        console.error('❌ Email data is missing or invalid');
+        dashboardState.dataQualityIssues.push({
+            metric: 'Email Data',
+            issue: 'Missing or invalid data structure',
+            severity: 'high'
+        });
+    }
+
+    // YouTube data
+    if (!dashboardState.data.youtube || typeof dashboardState.data.youtube !== 'object') {
+        console.error('❌ YouTube data is missing or invalid');
+        dashboardState.dataQualityIssues.push({
+            metric: 'YouTube Data',
+            issue: 'Missing or invalid data structure',
+            severity: 'high'
+        });
+    }
+
+    // Google Analytics data
+    if (!dashboardState.data.googleAnalytics || typeof dashboardState.data.googleAnalytics !== 'object') {
+        console.error('❌ Google Analytics data is missing or invalid');
+        dashboardState.dataQualityIssues.push({
+            metric: 'Google Analytics Data',
+            issue: 'Missing or invalid data structure',
+            severity: 'high'
+        });
+    }
+
+    // Cross-channel data
+    if (!dashboardState.data.crossChannel || typeof dashboardState.data.crossChannel !== 'object') {
+        console.error('❌ Cross-channel data is missing or invalid');
+        dashboardState.dataQualityIssues.push({
+            metric: 'Cross-Channel Data',
+            issue: 'Missing or invalid data structure',
+            severity: 'high'
+        });
+    }
+
+    // Check for realistic values but don't create defaults
+    checkMetricRealism();
+
+    console.log('✅ Data structure validation complete');
+}
 /**
  * Check for unrealistic or invalid metric values
  * Flags problematic values and adds them to data quality issues
  */
 function checkMetricRealism() {
-  // Reasonable threshold values
-  const MAX_REASONABLE_REACH = 1000000000; // 1 billion
-  const MAX_REASONABLE_ENGAGEMENT = 100000000; // 100 million
-  const MAX_REASONABLE_ENGAGEMENT_RATE = 100; // 100%
-  
-  // Check reach value
-  if (dashboardState.data.crossChannel?.reach?.total > MAX_REASONABLE_REACH) {
-    console.error('⚠️ Unrealistic reach value detected:', dashboardState.data.crossChannel.reach.total);
-    
-    // Cap the value instead of nullifying it
-    dashboardState.data.crossChannel.reach.total = MAX_REASONABLE_REACH;
-    
-    // Add to data quality issues
-    dashboardState.dataQualityIssues.push({
-      metric: 'Total Reach',
-      issue: 'Unrealistic value detected and capped at 1B',
-      severity: 'high'
-    });
-  }
-  
-  // Check engagement value
-  if (dashboardState.data.crossChannel?.engagement?.total > MAX_REASONABLE_ENGAGEMENT) {
-    console.error('⚠️ Unrealistic engagement value detected:', dashboardState.data.crossChannel.engagement.total);
-    
-    // Cap the value instead of nullifying it
-    dashboardState.data.crossChannel.engagement.total = MAX_REASONABLE_ENGAGEMENT;
-    
-    // Add to data quality issues
-    dashboardState.dataQualityIssues.push({
-      metric: 'Total Engagement',
-      issue: 'Unrealistic value detected and capped at 100M',
-      severity: 'high'
-    });
-  }
-  
-  // Check engagement rate
-  if (dashboardState.data.crossChannel?.engagement_rate?.overall > MAX_REASONABLE_ENGAGEMENT_RATE) {
-    console.error('⚠️ Unrealistic engagement rate detected:', dashboardState.data.crossChannel.engagement_rate.overall);
-    
-    // Cap the value instead of nullifying it
-    dashboardState.data.crossChannel.engagement_rate.overall = MAX_REASONABLE_ENGAGEMENT_RATE;
-    
-    // Add to data quality issues
-    dashboardState.dataQualityIssues.push({
-      metric: 'Engagement Rate',
-      issue: 'Unrealistic value detected (>100%) and capped',
-      severity: 'high'
-    });
-  }
-  
-  // Check performance trend values in crossChannel data
-  if (dashboardState.data.crossChannel?.performance_trend) {
-    dashboardState.data.crossChannel.performance_trend.forEach(item => {
-      ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
-        if (item[platform] && item[platform] > MAX_REASONABLE_REACH) {
-          console.warn(`⚠️ Unrealistic ${platform} value in month ${item.month}:`, item[platform]);
-          // Cap the value instead of nullifying it
-          item[platform] = MAX_REASONABLE_REACH;
-        }
-      });
-    });
-  }
-  
-  // Additional platform-specific checks
-  if (dashboardState.data.facebook?.reach > MAX_REASONABLE_REACH) {
-    dashboardState.data.facebook.reach = MAX_REASONABLE_REACH;
-    dashboardState.dataQualityIssues.push({
-      metric: 'Facebook Reach',
-      issue: 'Unrealistic value detected and capped',
-      severity: 'medium'
-    });
-  }
-  
-  if (dashboardState.data.instagram?.reach > MAX_REASONABLE_REACH) {
-    dashboardState.data.instagram.reach = MAX_REASONABLE_REACH;
-    dashboardState.dataQualityIssues.push({
-      metric: 'Instagram Reach',
-      issue: 'Unrealistic value detected and capped',
-      severity: 'medium'
-    });
-  }
-  
-  if (dashboardState.data.youtube?.totalViews > MAX_REASONABLE_REACH) {
-    dashboardState.data.youtube.totalViews = MAX_REASONABLE_REACH;
-    dashboardState.dataQualityIssues.push({
-      metric: 'YouTube Total Views',
-      issue: 'Unrealistic value detected and capped',
-      severity: 'medium'
-    });
-  }
+    // Reasonable threshold values
+    const MAX_REASONABLE_REACH = 1000000000; // 1 billion
+    const MAX_REASONABLE_ENGAGEMENT = 100000000; // 100 million
+    const MAX_REASONABLE_ENGAGEMENT_RATE = 100; // 100%
+
+    // Check reach value
+    if (dashboardState.data.crossChannel?.reach?.total > MAX_REASONABLE_REACH) {
+        console.error('⚠️ Unrealistic reach value detected:', dashboardState.data.crossChannel.reach.total);
+
+        // Cap the value instead of nullifying it
+        dashboardState.data.crossChannel.reach.total = MAX_REASONABLE_REACH;
+
+        // Add to data quality issues
+        dashboardState.dataQualityIssues.push({
+            metric: 'Total Reach',
+            issue: 'Unrealistic value detected and capped at 1B',
+            severity: 'high'
+        });
+    }
+
+    // Check engagement value
+    if (dashboardState.data.crossChannel?.engagement?.total > MAX_REASONABLE_ENGAGEMENT) {
+        console.error('⚠️ Unrealistic engagement value detected:', dashboardState.data.crossChannel.engagement.total);
+
+        // Cap the value instead of nullifying it
+        dashboardState.data.crossChannel.engagement.total = MAX_REASONABLE_ENGAGEMENT;
+
+        // Add to data quality issues
+        dashboardState.dataQualityIssues.push({
+            metric: 'Total Engagement',
+            issue: 'Unrealistic value detected and capped at 100M',
+            severity: 'high'
+        });
+    }
+
+    // Check engagement rate
+    if (dashboardState.data.crossChannel?.engagement_rate?.overall > MAX_REASONABLE_ENGAGEMENT_RATE) {
+        console.error('⚠️ Unrealistic engagement rate detected:', dashboardState.data.crossChannel.engagement_rate.overall);
+
+        // Cap the value instead of nullifying it
+        dashboardState.data.crossChannel.engagement_rate.overall = MAX_REASONABLE_ENGAGEMENT_RATE;
+
+        // Add to data quality issues
+        dashboardState.dataQualityIssues.push({
+            metric: 'Engagement Rate',
+            issue: 'Unrealistic value detected (>100%) and capped',
+            severity: 'high'
+        });
+    }
+
+    // Check performance trend values in crossChannel data
+    if (dashboardState.data.crossChannel?.performance_trend) {
+        dashboardState.data.crossChannel.performance_trend.forEach(item => {
+            ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
+                if (item[platform] && item[platform] > MAX_REASONABLE_REACH) {
+                    console.warn(`⚠️ Unrealistic ${platform} value in month ${item.month}:`, item[platform]);
+                    // Cap the value instead of nullifying it
+                    item[platform] = MAX_REASONABLE_REACH;
+                }
+            });
+        });
+    }
+
+    // Additional platform-specific checks
+    if (dashboardState.data.facebook?.reach > MAX_REASONABLE_REACH) {
+        dashboardState.data.facebook.reach = MAX_REASONABLE_REACH;
+        dashboardState.dataQualityIssues.push({
+            metric: 'Facebook Reach',
+            issue: 'Unrealistic value detected and capped',
+            severity: 'medium'
+        });
+    }
+
+    if (dashboardState.data.instagram?.reach > MAX_REASONABLE_REACH) {
+        dashboardState.data.instagram.reach = MAX_REASONABLE_REACH;
+        dashboardState.dataQualityIssues.push({
+            metric: 'Instagram Reach',
+            issue: 'Unrealistic value detected and capped',
+            severity: 'medium'
+        });
+    }
+
+    if (dashboardState.data.youtube?.totalViews > MAX_REASONABLE_REACH) {
+        dashboardState.data.youtube.totalViews = MAX_REASONABLE_REACH;
+        dashboardState.dataQualityIssues.push({
+            metric: 'YouTube Total Views',
+            issue: 'Unrealistic value detected and capped',
+            severity: 'medium'
+        });
+    }
 }
 
 /**
@@ -1040,7 +1319,7 @@ function checkMetricRealism() {
  */
 function ensureRequiredProperties(obj, defaults) {
     if (!obj) return;
-    
+
     for (const [key, defaultValue] of Object.entries(defaults)) {
         if (obj[key] === undefined) {
             obj[key] = defaultValue;
@@ -1093,7 +1372,7 @@ function scaleMetrics(data, factor) {
  */
 function createDefaultFacebookData() {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     return {
         reach: 150000,
         engagement: 15000,
@@ -1139,7 +1418,7 @@ function createDefaultFacebookData() {
  */
 function createDefaultInstagramData() {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     return {
         reach: 120000,
         engagement: 12000,
@@ -1378,68 +1657,51 @@ function createDefaultGoogleAnalyticsData() {
  */
 function createDefaultCrossChannelData() {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     return {
         year: new Date().getFullYear(),
         reach: {
-            total: 620000,
+            total: 0,
             byPlatform: {
-                facebook: 150000,
-                instagram: 120000,
-                youtube: 100000,
-                web: 350000
+                facebook: 0,
+                instagram: 0,
+                youtube: 0,
+                web: 0
             }
         },
         engagement: {
-            total: 27000,
+            total: 0,
             byPlatform: {
-                facebook: 15000,
-                instagram: 12000,
-                youtube: 10000,
-                web: 24500
+                facebook: 0,
+                instagram: 0,
+                youtube: 0,
+                web: 0
             }
         },
         engagement_rate: {
-            overall: 4.35,
+            overall: 0,
             byPlatform: {
-                facebook: 10.0,
-                instagram: 10.0,
-                email: 10.0,
-                web: 7.0
+                facebook: 0,
+                instagram: 0,
+                email: 0,
+                web: 0
             }
         },
-        performance_trend: months.map((month, index) => ({
+        performance_trend: months.map(month => ({
             month,
-            facebook: 10000 + (index * 500),
-            instagram: 8000 + (index * 400),
-            youtube: 7500 + (index * 350),
-            email: 4000 + (index * 200),
-            web: 25000 + (index * 1000)
+            facebook: 0,
+            instagram: 0,
+            youtube: 0,
+            email: 0,
+            web: 0
         })),
-        attribution: [
-            { name: 'Organic Search', value: 32 },
-            { name: 'Direct', value: 20 },
-            { name: 'Social Media', value: 22 },
-            { name: 'Email', value: 10 },
-            { name: 'Referral', value: 10 },
-            { name: 'Paid Search', value: 6 }
-        ],
-        content_performance: [
-            { subject: 'Reach', Video: 92, Image: 68, Text: 42 },
-            { subject: 'Engagement', Video: 85, Image: 65, Text: 38 },
-            { subject: 'Clicks', Video: 78, Image: 62, Text: 45 },
-            { subject: 'Shares', Video: 83, Image: 58, Text: 31 },
-            { subject: 'Comments', Video: 75, Image: 52, Text: 35 }
-        ],
+        attribution: [],
+        content_performance: [],
         demographics: {
-            age: [
-                { age: '18-24', facebook: 15, instagram: 30, youtube: 18, ga: 15 },
-                { age: '25-34', facebook: 28, instagram: 35, youtube: 32, ga: 30 },
-                { age: '35-44', facebook: 22, instagram: 20, youtube: 25, ga: 25 },
-                { age: '45-54', facebook: 18, instagram: 10, youtube: 12, ga: 15 },
-                { age: '55-64', facebook: 12, instagram: 3, youtube: 8, ga: 10 },
-                { age: '65+', facebook: 5, instagram: 2, youtube: 5, ga: 5 }
-            ]
+            age: [],
+            countries: [],
+            cities: [],
+            languages: []
         },
         meta: {
             last_updated: new Date().toISOString(),
@@ -1676,7 +1938,7 @@ function showErrorMessage(message) {
         errorEl = document.createElement('div');
         errorEl.id = 'dashboard-error-message';
         errorEl.className = 'bg-red-50 p-4 rounded-lg border border-red-200 my-4';
-        
+
         // Insert at the top of the dashboard container
         const dashboardContainer = document.getElementById('dashboard-container');
         if (dashboardContainer) {
@@ -1685,7 +1947,7 @@ function showErrorMessage(message) {
             document.body.prepend(errorEl);
         }
     }
-    
+
     // Update error message
     errorEl.innerHTML = `
         <div class="flex items-start">
@@ -1701,9 +1963,9 @@ function showErrorMessage(message) {
             </div>
         </div>
     `;
-    
+
     // Add event listener to dismiss button
-    document.getElementById('dismiss-error').addEventListener('click', function() {
+    document.getElementById('dismiss-error').addEventListener('click', function () {
         errorEl.remove();
     });
 }
@@ -1711,7 +1973,7 @@ function showErrorMessage(message) {
 // Helper function to show/hide loading indicator
 function setLoading(isLoading) {
     dashboardState.isLoading = isLoading;
-    
+
     const loadingIndicator = document.getElementById('loading-indicator');
     if (loadingIndicator) {
         if (isLoading) {
@@ -1740,7 +2002,7 @@ function addStatusIndicator() {
     statusDiv.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
     statusDiv.innerHTML = 'Checking data status...';
     document.body.appendChild(statusDiv);
-    
+
     // Update status every second
     setInterval(updateDataStatus, 1000);
 }
@@ -1749,10 +2011,10 @@ function addStatusIndicator() {
 function updateDataStatus() {
     const statusDiv = document.getElementById('data-status-indicator');
     if (!statusDiv) return;
-    
+
     // Count loaded files
     const loadedFiles = Object.keys(dashboardState.dataCache).length;
-    
+
     // Count available platforms with data
     const platformsWithData = [
         dashboardState.data.facebook ? 'Facebook' : null,
@@ -1761,7 +2023,7 @@ function updateDataStatus() {
         dashboardState.data.youtube ? 'YouTube' : null,
         dashboardState.data.googleAnalytics ? 'Google Analytics' : null
     ].filter(Boolean);
-    
+
     statusDiv.innerHTML = `
         <strong>Dashboard Status</strong><br>
         Files loaded: ${loadedFiles}<br>
@@ -1777,7 +2039,7 @@ function updateDataStatus() {
 }
 
 // Toggle debug information visibility
-window.toggleDebugInfo = function() {
+window.toggleDebugInfo = function () {
     const debugInfo = document.getElementById('debug-info');
     if (debugInfo) {
         debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
@@ -1792,10 +2054,10 @@ function clearDataCache() {
 
 // Minimal implementation of MultiYearTrendsDashboard in case it's missing
 if (typeof renderMultiYearTrendsDashboard !== 'function') {
-    window.renderMultiYearTrendsDashboard = function(data, years = []) {
+    window.renderMultiYearTrendsDashboard = function (data, years = []) {
         const container = document.getElementById('multi-year-dashboard');
         if (!container) return;
-        
+
         container.innerHTML = `
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-2xl font-bold text-gray-800">Multi-Year Analysis</h2>
@@ -1817,10 +2079,10 @@ if (typeof renderMultiYearTrendsDashboard !== 'function') {
 
 // Fallback implementation of YearOverYearDashboard in case it's missing
 if (typeof renderYearOverYearDashboard !== 'function') {
-    window.renderYearOverYearDashboard = function(data, currentYear, previousYear) {
+    window.renderYearOverYearDashboard = function (data, currentYear, previousYear) {
         const container = document.getElementById('yoy-dashboard');
         if (!container) return;
-        
+
         container.innerHTML = `
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h2 class="text-2xl font-bold text-gray-800">Year-over-Year Comparison</h2>

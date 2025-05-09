@@ -61,7 +61,18 @@ function enhancedCsvToJson(csv, options = {}) {
  * @returns {any} - The normalized value
  */
 function normalizeValue(value) {
-  // If it's not a string, return as is
+  // If it's not a string, sanitize numeric values
+  if (typeof value === 'number') {
+    // Cap extremely large numbers to prevent issues
+    const MAX_SAFE_VALUE = 1000000000; // 1 billion
+    if (value > MAX_SAFE_VALUE) {
+      console.warn(`Capping extremely large value: ${value} to ${MAX_SAFE_VALUE}`);
+      return MAX_SAFE_VALUE;
+    }
+    return value;
+  }
+
+  // If it's not a string, return as is (for booleans, etc.)
   if (typeof value !== 'string') return value;
 
   // Check if it's a very large number in scientific notation and handle it carefully
@@ -72,7 +83,7 @@ function normalizeValue(value) {
       if (isNaN(num) || !isFinite(num)) return 0;
 
       // Cap very large numbers to prevent overflow issues
-      const MAX_SAFE_VALUE = 1e9; // 1 billion
+      const MAX_SAFE_VALUE = 1000000000; // 1 billion
       return Math.min(Math.abs(num), MAX_SAFE_VALUE) * (num < 0 ? -1 : 1);
     } catch (e) {
       return 0;
@@ -86,18 +97,197 @@ function normalizeValue(value) {
   if (/^-?\d+(\.\d+)?$/.test(cleanValue)) {
     const num = parseFloat(cleanValue);
 
-    // Cap very large numbers to prevent overflow issues
-    const MAX_SAFE_VALUE = 1e9; // 1 billion
-    return Math.min(Math.abs(num), MAX_SAFE_VALUE) * (num < 0 ? -1 : 1);
+    // Cap very large numbers
+    const MAX_SAFE_VALUE = 1000000000; // 1 billion
+    if (Math.abs(num) > MAX_SAFE_VALUE) {
+      console.warn(`Capping parsed numeric value: ${num} to ${MAX_SAFE_VALUE * (num < 0 ? -1 : 1)}`);
+      return MAX_SAFE_VALUE * (num < 0 ? -1 : 1);
+    }
+
+    return num;
   }
 
   // For percentage strings (if they end with %)
   if (/^-?\d+(\.\d+)?%$/.test(cleanValue)) {
-    return parseFloat(cleanValue);
+    const num = parseFloat(cleanValue);
+    // Cap percentage values at 100
+    return Math.min(Math.abs(num), 100) * (num < 0 ? -1 : 1);
   }
 
   // Return original value if it's not a number
   return value;
+}
+
+// ENHANCEMENT 2: Improve checkMetricRealism function in dashboard.js
+// Reduce maximum thresholds and add more comprehensive checks
+function checkMetricRealism() {
+  // More reasonable threshold values (reduced from original)
+  const MAX_REASONABLE_REACH = 100000000; // 100 million (reduced from 1B)
+  const MAX_REASONABLE_ENGAGEMENT = 10000000; // 10 million (reduced from 100M)
+  const MAX_REASONABLE_ENGAGEMENT_RATE = 100; // 100% (same as before)
+
+  // Track all data quality issues
+  if (!dashboardState.dataQualityIssues) {
+    dashboardState.dataQualityIssues = [];
+  }
+
+  // Check reach value
+  if (dashboardState.data.crossChannel?.reach?.total > MAX_REASONABLE_REACH) {
+    console.warn('⚠️ Unrealistic reach value detected:', dashboardState.data.crossChannel.reach.total);
+
+    // Cap the value instead of nullifying it
+    dashboardState.data.crossChannel.reach.total = MAX_REASONABLE_REACH;
+
+    // Add to data quality issues
+    dashboardState.dataQualityIssues.push({
+      metric: 'Total Reach',
+      issue: 'Unrealistic value detected and capped at 100M',
+      severity: 'high'
+    });
+  }
+
+  // Check engagement value
+  if (dashboardState.data.crossChannel?.engagement?.total > MAX_REASONABLE_ENGAGEMENT) {
+    console.warn('⚠️ Unrealistic engagement value detected:', dashboardState.data.crossChannel.engagement.total);
+
+    // Cap the value instead of nullifying it
+    dashboardState.data.crossChannel.engagement.total = MAX_REASONABLE_ENGAGEMENT;
+
+    // Add to data quality issues
+    dashboardState.dataQualityIssues.push({
+      metric: 'Total Engagement',
+      issue: 'Unrealistic value detected and capped at 10M',
+      severity: 'high'
+    });
+  }
+
+  // Check engagement rate (no greater than 100%)
+  if (dashboardState.data.crossChannel?.engagement_rate?.overall > MAX_REASONABLE_ENGAGEMENT_RATE) {
+    console.warn('⚠️ Unrealistic engagement rate detected:', dashboardState.data.crossChannel.engagement_rate.overall);
+
+    // Cap the value instead of nullifying it
+    dashboardState.data.crossChannel.engagement_rate.overall = MAX_REASONABLE_ENGAGEMENT_RATE;
+
+    // Add to data quality issues
+    dashboardState.dataQualityIssues.push({
+      metric: 'Engagement Rate',
+      issue: 'Unrealistic value detected (>100%) and capped',
+      severity: 'high'
+    });
+  }
+
+  // Add more comprehensive checks for byPlatform metrics
+  if (dashboardState.data.crossChannel?.reach?.byPlatform) {
+    Object.keys(dashboardState.data.crossChannel.reach.byPlatform).forEach(platform => {
+      const value = dashboardState.data.crossChannel.reach.byPlatform[platform];
+      if (value > MAX_REASONABLE_REACH) {
+        console.warn(`⚠️ Unrealistic ${platform} reach detected:`, value);
+        dashboardState.data.crossChannel.reach.byPlatform[platform] = MAX_REASONABLE_REACH;
+      }
+    });
+  }
+
+  if (dashboardState.data.crossChannel?.engagement?.byPlatform) {
+    Object.keys(dashboardState.data.crossChannel.engagement.byPlatform).forEach(platform => {
+      const value = dashboardState.data.crossChannel.engagement.byPlatform[platform];
+      if (value > MAX_REASONABLE_ENGAGEMENT) {
+        console.warn(`⚠️ Unrealistic ${platform} engagement detected:`, value);
+        dashboardState.data.crossChannel.engagement.byPlatform[platform] = MAX_REASONABLE_ENGAGEMENT;
+      }
+    });
+  }
+
+  // Check performance trend values in crossChannel data
+  if (dashboardState.data.crossChannel?.performance_trend) {
+    dashboardState.data.crossChannel.performance_trend.forEach(item => {
+      ['facebook', 'instagram', 'youtube', 'email', 'web'].forEach(platform => {
+        if (item[platform] && item[platform] > MAX_REASONABLE_REACH) {
+          console.warn(`⚠️ Unrealistic ${platform} value in month ${item.month}:`, item[platform]);
+          // Cap the value 
+          item[platform] = MAX_REASONABLE_REACH;
+        }
+      });
+    });
+  }
+
+  // Platform-specific checks with lower thresholds
+  if (dashboardState.data.facebook?.reach > MAX_REASONABLE_REACH) {
+    dashboardState.data.facebook.reach = MAX_REASONABLE_REACH;
+    dashboardState.dataQualityIssues.push({
+      metric: 'Facebook Reach',
+      issue: 'Unrealistic value detected and capped',
+      severity: 'medium'
+    });
+  }
+
+  if (dashboardState.data.instagram?.reach > MAX_REASONABLE_REACH) {
+    dashboardState.data.instagram.reach = MAX_REASONABLE_REACH;
+    dashboardState.dataQualityIssues.push({
+      metric: 'Instagram Reach',
+      issue: 'Unrealistic value detected and capped',
+      severity: 'medium'
+    });
+  }
+
+  if (dashboardState.data.youtube?.totalViews > MAX_REASONABLE_REACH) {
+    dashboardState.data.youtube.totalViews = MAX_REASONABLE_REACH;
+    dashboardState.dataQualityIssues.push({
+      metric: 'YouTube Total Views',
+      issue: 'Unrealistic value detected and capped',
+      severity: 'medium'
+    });
+  }
+}
+
+// ENHANCEMENT 3: Add early validation in generateCrossChannelData function
+// Call this at the top of the existing function
+function validateCrossChannelInputs(facebook, instagram, youtube, email, googleAnalytics) {
+  const MAX_REASONABLE_VALUE = 100000000; // 100 million
+
+  // Create safe copies with validated values
+  const validateMetric = (data, metricName, max) => {
+    if (data && typeof data[metricName] === 'number') {
+      if (data[metricName] > max) {
+        console.warn(`Normalizing unrealistic ${metricName} in input data:`, data[metricName]);
+        data[metricName] = max;
+      }
+    }
+  };
+
+  // Validate Facebook metrics
+  if (facebook) {
+    validateMetric(facebook, 'reach', MAX_REASONABLE_VALUE);
+    validateMetric(facebook, 'engagement', MAX_REASONABLE_VALUE);
+    validateMetric(facebook, 'engagement_rate', 100);
+  }
+
+  // Validate Instagram metrics
+  if (instagram) {
+    validateMetric(instagram, 'reach', MAX_REASONABLE_VALUE);
+    validateMetric(instagram, 'engagement', MAX_REASONABLE_VALUE);
+    validateMetric(instagram, 'engagement_rate', 100);
+  }
+
+  // Validate YouTube metrics
+  if (youtube) {
+    validateMetric(youtube, 'totalViews', MAX_REASONABLE_VALUE);
+    validateMetric(youtube, 'totalWatchTime', MAX_REASONABLE_VALUE);
+  }
+
+  // Validate Email metrics
+  if (email) {
+    validateMetric(email, 'totalSent', MAX_REASONABLE_VALUE);
+    validateMetric(email, 'totalDelivered', MAX_REASONABLE_VALUE);
+    validateMetric(email, 'openRate', 100);
+    validateMetric(email, 'clickRate', 100);
+  }
+
+  // Validate Google Analytics metrics
+  if (googleAnalytics) {
+    validateMetric(googleAnalytics, 'totalUsers', MAX_REASONABLE_VALUE);
+    validateMetric(googleAnalytics, 'totalSessions', MAX_REASONABLE_VALUE);
+    validateMetric(googleAnalytics, 'engagementRate', 100);
+  }
 }
 
 /**
@@ -113,7 +303,12 @@ function normalizeValue(value) {
 
 // Generate cross-channel data with multi-year support
 function generateCrossChannelData(facebook, instagram, youtube, email, googleAnalytics, options = {}) {
-  // Use Google Analytics attribution data if available, otherwise use empty array
+  console.log("Generating cross-channel data with zero defaults...");
+
+  // Validate inputs first
+  validateCrossChannelInputs(facebook, instagram, youtube, email, googleAnalytics);
+  
+  // Use zero arrays for missing data rather than sample data
   let attributionData = [];
 
   if (googleAnalytics && googleAnalytics.trafficSources && googleAnalytics.trafficSources.length > 0) {
@@ -123,82 +318,98 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
     }));
   }
 
-  // Initialize demographics data with empty structure instead of dummy data
+  // Initialize demographics data with empty structure
   let demographicsData = {
-    age: []
+    age: [],
+    countries: [],
+    cities: [],
+    languages: []
   };
 
   if (googleAnalytics && googleAnalytics.demographics) {
-    // Merge GA demographics with existing data
-    demographicsData.countries = googleAnalytics.demographics.countries;
-    demographicsData.cities = googleAnalytics.demographics.cities;
-    demographicsData.languages = googleAnalytics.demographics.languages;
+    demographicsData.countries = googleAnalytics.demographics.countries || [];
+    demographicsData.cities = googleAnalytics.demographics.cities || [];
+    demographicsData.languages = googleAnalytics.demographics.languages || [];
 
-    // If GA has age data, update the existing age data
-    if (googleAnalytics.demographics.ageGroups && googleAnalytics.demographics.ageGroups.length > 0) {
-      demographicsData.age = googleAnalytics.demographics.ageGroups.map(group => {
-        return {
-          age: group.ageRange,
-          ga: normalizeValue(group.percentage) || 0,
-          facebook: 0,
-          instagram: 0,
-          youtube: 0
-        };
-      });
+    if (googleAnalytics.demographics.ageGroups) {
+      demographicsData.age = googleAnalytics.demographics.ageGroups;
     }
   }
 
   // Get year if specified
   const year = options.year || new Date().getFullYear();
 
-  // Calculate total reach with validation
-  const totalReach = (facebook?.reach || 0) + (instagram?.reach || 0);
+  // Use safe getters with zeros as defaults
+  const safeGetValue = (obj, path, defaultValue = 0) => {
+    try {
+      const parts = path.split('.');
+      let value = obj;
+      for (const part of parts) {
+        value = value?.[part];
+        if (value === undefined || value === null) return defaultValue;
+      }
+      // Apply safety cap to prevent unrealistic values
+      if (typeof value === 'number' && value > 100000000) {
+        console.warn(`Capping extreme value for ${path}:`, value);
+        return 100000000;
+      }
+      return value;
+    } catch (e) {
+      return defaultValue;
+    }
+  };
 
+  // Calculate total reach with validation
+  const fbReach = safeGetValue(facebook, 'reach', 0);
+  const igReach = safeGetValue(instagram, 'reach', 0);
+  const totalReach = fbReach + igReach;
+
+  // Create the result object with all zeros for missing values
   const result = {
     year,
     reach: {
       total: totalReach,
       byPlatform: {
-        facebook: facebook?.reach || 0,
-        instagram: instagram?.reach || 0,
-        youtube: normalizeValue(youtube?.totalViews || 0),
-        web: normalizeValue(googleAnalytics?.totalUsers || 0)
+        facebook: fbReach,
+        instagram: igReach,
+        youtube: safeGetValue(youtube, 'totalViews', 0),
+        web: safeGetValue(googleAnalytics, 'totalUsers', 0)
       }
     },
     engagement: {
-      total: normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0),
+      total: safeGetValue(facebook, 'engagement', 0) + safeGetValue(instagram, 'engagement', 0),
       byPlatform: {
-        facebook: normalizeValue(facebook?.engagement || 0),
-        instagram: normalizeValue(instagram?.engagement || 0),
-        youtube: normalizeValue(youtube?.totalViews || 0) * 0.1, // Rough estimate of engagement
-        web: normalizeValue(googleAnalytics?.engagedSessions || 0)
+        facebook: safeGetValue(facebook, 'engagement', 0),
+        instagram: safeGetValue(instagram, 'engagement', 0),
+        youtube: Math.round(safeGetValue(youtube, 'totalViews', 0) * 0.1),
+        web: safeGetValue(googleAnalytics, 'engagedSessions', 0)
       }
     },
     engagement_rate: {
       overall: calculateEngagementRate(
-        normalizeValue(facebook?.engagement || 0) + normalizeValue(instagram?.engagement || 0),
+        safeGetValue(facebook, 'engagement', 0) + safeGetValue(instagram, 'engagement', 0),
         totalReach
       ),
       byPlatform: {
-        facebook: normalizeValue(facebook?.engagement_rate || 0),
-        instagram: normalizeValue(instagram?.engagement_rate || 0),
-        email: normalizeValue(email?.clickRate || 0),
-        web: normalizeValue(googleAnalytics?.engagementRate || 0)
+        facebook: safeGetValue(facebook, 'engagement_rate', 0),
+        instagram: safeGetValue(instagram, 'engagement_rate', 0),
+        email: safeGetValue(email, 'clickRate', 0),
+        web: safeGetValue(googleAnalytics, 'engagementRate', 0)
       }
     },
     performance_trend: mergePerformanceTrends([
-      facebook?.performance_trend || [],
-      instagram?.performance_trend || [],
-      youtube?.performance_trend || [],
-      email?.performance_trend || [],
-      googleAnalytics?.performance_trend || []
+      safeGetValue(facebook, 'performance_trend', []),
+      safeGetValue(instagram, 'performance_trend', []),
+      safeGetValue(youtube, 'performance_trend', []),
+      safeGetValue(email, 'performance_trend', []),
+      safeGetValue(googleAnalytics, 'performance_trend', [])
     ]),
     attribution: attributionData,
     content_performance: [], // Empty array instead of dummy data
     demographics: demographicsData,
     web: {
-      topPages: googleAnalytics?.topPages || [],
-      campaigns: googleAnalytics?.campaigns || []
+      topPages: safeGetValue(googleAnalytics, 'topPages', []),
+      campaigns: safeGetValue(googleAnalytics, 'campaigns', [])
     },
     meta: {
       last_updated: new Date().toISOString(),
@@ -208,11 +419,6 @@ function generateCrossChannelData(facebook, instagram, youtube, email, googleAna
 
   // Return the normalized result to ensure all values are properly typed
   return normalizeObject(result);
-}
-// Helper function to safely calculate engagement rate
-function calculateEngagementRate(engagement, reach) {
-  if (!reach || reach === 0) return 0;
-  return (engagement / reach * 100);
 }
 
 /**
