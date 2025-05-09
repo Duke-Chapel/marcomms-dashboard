@@ -68,6 +68,261 @@ function testDataLoading() {
     console.log("\n🧪 TEST COMPLETE - Check console for results 🧪");
 }
 
+function createSafeChartFunctions() {
+    // Store original chart functions
+    const originalCreateBarChart = window.createBarChart;
+    const originalCreateLineChart = window.createLineChart;
+    const originalCreatePieChart = window.createPieChart;
+    const originalCreateDoughnutChart = window.createDoughnutChart;
+    const originalCreateRadarChart = window.createRadarChart;
+    const originalCreateStackedBarChart = window.createStackedBarChart;
+    const originalCreateHorizontalBarChart = window.createHorizontalBarChart;
+
+    // Override with safe versions that include error handling
+
+    // Safe bar chart
+    window.createBarChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreateBarChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating bar chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Safe line chart
+    window.createLineChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreateLineChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating line chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Safe pie chart
+    window.createPieChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreatePieChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating pie chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Safe doughnut chart
+    window.createDoughnutChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreateDoughnutChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating doughnut chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Safe radar chart
+    window.createRadarChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreateRadarChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating radar chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Safe stacked bar chart
+    window.createStackedBarChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreateStackedBarChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating stacked bar chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Safe horizontal bar chart
+    window.createHorizontalBarChart = function (canvasId, data, options = {}) {
+        try {
+            // Verify canvas element exists
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error(`Canvas element not found: ${canvasId}`);
+                return null;
+            }
+
+            // Validate data
+            if (!data || !data.datasets || data.datasets.length === 0) {
+                console.error(`Invalid data for chart: ${canvasId}`);
+                showErrorInCanvas(canvasId, "Invalid chart data");
+                return null;
+            }
+
+            // Create chart
+            return originalCreateHorizontalBarChart(canvasId, data, options);
+        } catch (error) {
+            console.error(`Error creating horizontal bar chart ${canvasId}:`, error);
+            showErrorInCanvas(canvasId, "Error creating chart");
+            return null;
+        }
+    };
+
+    // Helper function to show error in canvas
+    function showErrorInCanvas(canvasId, errorMessage) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        // Get the canvas context
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw error message
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#F44336';
+
+        // Center the text
+        const x = canvas.width / 2;
+        const y = canvas.height / 2;
+
+        // Draw error text with wrapping
+        const maxWidth = canvas.width - 40; // Keep 20px margin on each side
+        const lineHeight = 20;
+
+        // Simple text wrapping
+        const words = errorMessage.split(' ');
+        let line = '';
+        let lineCount = 0;
+
+        for (let i = 0; i < words.length; i++) {
+            const testLine = line + words[i] + ' ';
+            const metrics = ctx.measureText(testLine);
+            const testWidth = metrics.width;
+
+            if (testWidth > maxWidth && i > 0) {
+                ctx.fillText(line, x, y - lineHeight + (lineCount * lineHeight));
+                line = words[i] + ' ';
+                lineCount++;
+            } else {
+                line = testLine;
+            }
+        }
+
+        // Draw the last line
+        ctx.fillText(line, x, y - lineHeight + (lineCount * lineHeight));
+
+        // Draw error icon
+        ctx.beginPath();
+        ctx.arc(x, y - 30, 15, 0, Math.PI * 2);
+        ctx.fillStyle = '#F44336';
+        ctx.fill();
+
+        ctx.font = 'bold 20px Arial';
+        ctx.fillStyle = 'white';
+        ctx.fillText('!', x, y - 24);
+    }
+
+    console.log("✅ Chart functions wrapped with error handling");
+}
+
 // Initialize dashboard
 async function initDashboard() {
     try {
