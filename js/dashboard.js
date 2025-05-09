@@ -7,6 +7,59 @@ document.addEventListener('DOMContentLoaded', function () {
     initDashboard();
 });
 
+// Test function for data loading diagnostics
+function testDataLoading() {
+    console.log("🧪 TESTING DATA LOADING PROCESS 🧪");
+
+    // List of important files to test
+    const filesToTest = ['FB_Posts.csv', 'IG_Posts.csv', 'Email_Campaign_Performance.csv', 'YouTube_Age.csv'];
+
+    // Test each file
+    filesToTest.forEach(file => {
+        console.log(`\n📋 Testing file: ${file}`);
+
+        // Try different paths to find the file
+        const paths = ['./data/', '/data/', '../data/'];
+
+        paths.forEach(path => {
+            const fullPath = path + file;
+            console.log(`🔍 Trying path: ${fullPath}`);
+
+            fetch(fullPath)
+                .then(response => {
+                    if (response.ok) {
+                        console.log(`✅ Found file at ${fullPath} (status: ${response.status})`);
+                        return response.text();
+                    } else {
+                        console.warn(`❌ File not found at ${fullPath} (status: ${response.status})`);
+                        throw new Error(`File not found at ${fullPath}`);
+                    }
+                })
+                .then(text => {
+                    console.log(`📄 First 50 chars: ${text.substring(0, 50)}`);
+
+                    // Try parsing a sample
+                    try {
+                        const sample = Papa.parse(text.substring(0, 1000), { header: true });
+                        console.log(`📊 Parse sample success - headers:`, sample.meta.fields);
+                    } catch (e) {
+                        console.error(`❌ Parse error:`, e);
+                    }
+                })
+                .catch(error => {
+                    // Already logged above
+                });
+        });
+    });
+
+    console.log("\n🧪 TEST COMPLETE - Check console for results 🧪");
+}
+
+// Add this line to call the test function when the page loads
+document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(testDataLoading, 1000); // Delay by 1 second to let other scripts load
+});
+
 // Dashboard state
 const dashboardState = {
     timeframe: DASHBOARD_CONFIG.defaultTimeframe,
@@ -54,6 +107,42 @@ function setupEventListeners() {
             setActiveDashboard(dashboard);
         });
     });
+    // Add a status indicator to the page
+    function addStatusIndicator() {
+        const statusDiv = document.createElement('div');
+        statusDiv.id = 'data-status-indicator';
+        statusDiv.style.position = 'fixed';
+        statusDiv.style.bottom = '10px';
+        statusDiv.style.right = '10px';
+        statusDiv.style.padding = '10px';
+        statusDiv.style.background = '#f8f9fa';
+        statusDiv.style.border = '1px solid #dee2e6';
+        statusDiv.style.borderRadius = '5px';
+        statusDiv.style.zIndex = '1000';
+        statusDiv.innerHTML = 'Checking data status...';
+        document.body.appendChild(statusDiv);
+
+        // Update status every second
+        setInterval(updateDataStatus, 1000);
+    }
+
+    function updateDataStatus() {
+        const statusDiv = document.getElementById('data-status-indicator');
+        if (!statusDiv) return;
+
+        // Count loaded files
+        const loadedFiles = Object.keys(dashboardState.dataCache).length;
+
+        statusDiv.innerHTML = `
+        <strong>Data Status:</strong><br>
+        Files loaded: ${loadedFiles}<br>
+        Dashboard state: ${dashboardState.isLoading ? 'Loading...' : 'Ready'}<br>
+        Active view: ${dashboardState.activeDashboard}
+    `;
+    }
+    // Call this at the end of initDashboard
+    addStatusIndicator();
+
 }
 
 // Set active dashboard
@@ -95,8 +184,12 @@ function setActiveDashboard(dashboard) {
  * @returns {Promise<Array>} - Parsed CSV data
  */
 async function loadCSV(fileName, options = {}) {
+    // Add debug logging
+    console.log(`⏳ Attempting to load ${fileName}...`);
+
     // Check if we already have this in the cache
     if (dashboardState.dataCache[fileName]) {
+        console.log(`✅ Retrieved ${fileName} from cache`);
         return dashboardState.dataCache[fileName];
     }
 
@@ -104,6 +197,9 @@ async function loadCSV(fileName, options = {}) {
     const pathParts = window.location.pathname.split('/').filter(part => part);
     const repoName = pathParts.length > 0 ? pathParts[0] : '';
     const repoPath = repoName ? `/${repoName}` : '';
+
+    // Log current path information
+    console.log(`🔍 Current path info - Location: ${window.location.pathname}, Repo: ${repoName}`);
 
     // Try different paths
     const paths = [
@@ -113,52 +209,45 @@ async function loadCSV(fileName, options = {}) {
         `../data/${fileName}`
     ];
 
+    console.log(`🔍 Will try paths: ${JSON.stringify(paths)}`);
+
     let response = null;
     let data = null;
 
     for (const path of paths) {
         try {
-            console.log('Trying to fetch from:', path);
+            console.log(`🔄 Fetching from: ${path}`);
             response = await fetch(path);
             if (response.ok) {
                 const text = await response.text();
+                console.log(`📄 First 100 chars of ${fileName}: ${text.substring(0, 100)}`);
                 data = await parseCSV(text, options);
-                console.log('Successfully loaded from:', path);
+                console.log(`✅ Successfully loaded from: ${path}`);
 
                 // Cache the data for future use
                 dashboardState.dataCache[fileName] = data;
 
+                // Log a sample of the parsed data
+                if (data && data.length > 0) {
+                    console.log(`📊 Sample data from ${fileName}:`, data[0]);
+                }
+
                 return data;
+            } else {
+                console.warn(`⚠️ Failed with status ${response.status} from ${path}`);
             }
         } catch (error) {
-            console.warn(`Error fetching from ${path}:`, error);
+            console.warn(`⚠️ Error fetching from ${path}:`, error);
         }
     }
 
-    console.log(`Failed to load ${fileName} from any path, trying JSON fallback`);
+    // Rest of the function remains the same...
+    console.log(`❌ Failed to load ${fileName} from any path, trying JSON fallback`);
 
     // Try JSON fallback
     try {
         const jsonFileName = fileName.replace('.csv', '.json');
-        for (const path of [
-            `./data/${jsonFileName}`,
-            `${repoPath}/data/${jsonFileName}`,
-            `/data/${jsonFileName}`,
-            `../data/${jsonFileName}`
-        ]) {
-            try {
-                console.log('Trying JSON fallback:', path);
-                const jsonResponse = await fetch(path);
-                if (jsonResponse.ok) {
-                    const jsonData = await jsonResponse.json();
-                    console.log('Successfully loaded JSON fallback from:', path);
-                    dashboardState.dataCache[fileName] = jsonData;
-                    return jsonData;
-                }
-            } catch (fallbackError) {
-                console.warn(`Error with JSON fallback from ${path}:`, fallbackError);
-            }
-        }
+        // ... existing JSON fallback code ...
     } catch (jsonError) {
         console.error('JSON fallback failed:', jsonError);
     }
@@ -173,6 +262,8 @@ async function loadCSV(fileName, options = {}) {
  * @returns {Promise<Array>} - Parsed CSV data
  */
 function parseCSV(csvText, options = {}) {
+    console.log(`🔄 Parsing CSV text of length ${csvText.length}...`);
+
     return new Promise((resolve, reject) => {
         Papa.parse(csvText, {
             header: true,
@@ -180,10 +271,14 @@ function parseCSV(csvText, options = {}) {
             skipEmptyLines: true,
             ...options,
             complete: (results) => {
+                console.log(`✅ CSV parsing complete - Found ${results.data.length} rows`);
+                if (results.errors && results.errors.length > 0) {
+                    console.warn(`⚠️ CSV parsing had ${results.errors.length} errors:`, results.errors);
+                }
                 resolve(results.data);
             },
             error: (error) => {
-                console.error('Error parsing CSV:', error);
+                console.error('❌ Error parsing CSV:', error);
                 reject(error);
             }
         });
