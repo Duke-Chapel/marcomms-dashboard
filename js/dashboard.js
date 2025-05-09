@@ -821,6 +821,11 @@ async function loadYearlyData() {
  * This ensures the dashboard always has something to show
  */
 function validateLoadedData() {
+    // Initialize data quality issues tracker if it doesn't exist
+    if (!dashboardState.dataQualityIssues) {
+        dashboardState.dataQualityIssues = [];
+    }
+    
     // Check if we have the minimum required data
     if (!dashboardState.data.facebook || typeof dashboardState.data.facebook !== 'object') {
         console.warn('⚠️ Facebook data is missing or invalid, creating fallback data');
@@ -854,36 +859,36 @@ function validateLoadedData() {
     
     // Verify required properties in each dataset
     ensureRequiredProperties(dashboardState.data.facebook, {
-        reach: 150000,
-        engagement: 15000,
-        engagement_rate: 10,
+        reach: 0,
+        engagement: 0,
+        engagement_rate: 0,
         posts: [],
         performance_trend: []
     });
     
     ensureRequiredProperties(dashboardState.data.instagram, {
-        reach: 120000,
-        engagement: 12000,
-        engagement_rate: 10,
+        reach: 0,
+        engagement: 0,
+        engagement_rate: 0,
         posts: [],
         performance_trend: []
     });
     
     ensureRequiredProperties(dashboardState.data.email, {
-        totalSent: 50000,
-        totalDelivered: 48000,
-        totalOpens: 20000,
-        totalClicks: 5000,
-        openRate: 40,
-        clickRate: 10,
+        totalSent: 0,
+        totalDelivered: 0,
+        totalOpens: 0,
+        totalClicks: 0,
+        openRate: 0,
+        clickRate: 0,
         campaigns: [],
         performance_trend: []
     });
     
     ensureRequiredProperties(dashboardState.data.youtube, {
-        totalViews: 100000,
-        totalWatchTime: 7500,
-        averageViewDuration: '4:30',
+        totalViews: 0,
+        totalWatchTime: 0,
+        averageViewDuration: '0:00',
         demographics: {
             age: [],
             gender: []
@@ -903,7 +908,106 @@ function validateLoadedData() {
         demographics: { age: [] }
     });
     
+    // Check for unrealistic values
+    checkMetricRealism();
+    
     console.log('✅ Data validation complete');
+}
+
+/**
+ * Check for unrealistic or invalid metric values
+ * Flags problematic values and adds them to data quality issues
+ */
+function checkMetricRealism() {
+    // Reasonable threshold values
+    const MAX_REASONABLE_REACH = 1000000000; // 1 billion
+    const MAX_REASONABLE_ENGAGEMENT = 100000000; // 100 million
+    const MAX_REASONABLE_ENGAGEMENT_RATE = 100; // 100%
+    
+    // Check reach value
+    if (dashboardState.data.crossChannel?.reach?.total > MAX_REASONABLE_REACH) {
+        console.error('⚠️ Unrealistic reach value detected:', dashboardState.data.crossChannel.reach.total);
+        
+        // Flag the value as invalid
+        dashboardState.data.crossChannel.reach.total = null;
+        
+        // Add to data quality issues
+        dashboardState.dataQualityIssues.push({
+            metric: 'Total Reach',
+            issue: 'Unrealistic value detected',
+            severity: 'high'
+        });
+    }
+    
+    // Check engagement value
+    if (dashboardState.data.crossChannel?.engagement?.total > MAX_REASONABLE_ENGAGEMENT) {
+        console.error('⚠️ Unrealistic engagement value detected:', dashboardState.data.crossChannel.engagement.total);
+        
+        // Flag the value as invalid
+        dashboardState.data.crossChannel.engagement.total = null;
+        
+        // Add to data quality issues
+        dashboardState.dataQualityIssues.push({
+            metric: 'Total Engagement',
+            issue: 'Unrealistic value detected',
+            severity: 'high'
+        });
+    }
+    
+    // Check engagement rate
+    if (dashboardState.data.crossChannel?.engagement_rate?.overall > MAX_REASONABLE_ENGAGEMENT_RATE) {
+        console.error('⚠️ Unrealistic engagement rate detected:', dashboardState.data.crossChannel.engagement_rate.overall);
+        
+        // Flag the value as invalid
+        dashboardState.data.crossChannel.engagement_rate.overall = null;
+        
+        // Add to data quality issues
+        dashboardState.dataQualityIssues.push({
+            metric: 'Engagement Rate',
+            issue: 'Unrealistic value detected (>100%)',
+            severity: 'high'
+        });
+    }
+    
+    // Check performance trend values in crossChannel data
+    if (dashboardState.data.crossChannel?.performance_trend) {
+        dashboardState.data.crossChannel.performance_trend.forEach(item => {
+            ['facebook', 'instagram', 'youtube', 'email'].forEach(platform => {
+                if (item[platform] && item[platform] > MAX_REASONABLE_REACH) {
+                    console.warn(`Unrealistic ${platform} value in month ${item.month}:`, item[platform]);
+                    item[platform] = null;
+                }
+            });
+        });
+    }
+    
+    // Additional platform-specific checks
+    if (dashboardState.data.facebook?.reach > MAX_REASONABLE_REACH) {
+        dashboardState.data.facebook.reach = null;
+        dashboardState.dataQualityIssues.push({
+            metric: 'Facebook Reach',
+            issue: 'Unrealistic value detected',
+            severity: 'medium'
+        });
+    }
+    
+    if (dashboardState.data.instagram?.reach > MAX_REASONABLE_REACH) {
+        dashboardState.data.instagram.reach = null;
+        dashboardState.dataQualityIssues.push({
+            metric: 'Instagram Reach',
+            issue: 'Unrealistic value detected',
+            severity: 'medium'
+        });
+    }
+    
+    if (dashboardState.data.youtube?.totalViews > MAX_REASONABLE_REACH) {
+        dashboardState.data.youtube.totalViews = null;
+        dashboardState.dataQualityIssues.push({
+            metric: 'YouTube Total Views',
+            issue: 'Unrealistic value detected',
+            severity: 'medium'
+        });
+    }
 }
 
 /**

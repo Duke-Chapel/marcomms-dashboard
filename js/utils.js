@@ -7,10 +7,17 @@
 function formatNumber(value) {
   if (value === undefined || value === null) return '0';
   
+  // Add safety check for extremely large values
+  if (value > 1000000000) {
+    console.warn('Extremely large value detected:', value);
+    // Return null for unrealistic values to trigger error display
+    return null;
+  }
+  
   if (value >= 1000000) {
-      return (value / 1000000).toFixed(2) + 'M';
+    return (value / 1000000).toFixed(1) + 'M';
   } else if (value >= 1000) {
-      return (value / 1000).toFixed(1) + 'K';
+    return (value / 1000).toFixed(1) + 'K';
   }
   
   return value.toLocaleString();
@@ -19,6 +26,14 @@ function formatNumber(value) {
 // Format percentage
 function formatPercentage(value) {
   if (value === undefined || value === null) return '0%';
+  
+  // Add safety check for unrealistic percentage values
+  if (value > 100) {
+    console.warn('Unrealistic percentage detected:', value);
+    // Return null for unrealistic values to trigger error display
+    return null;
+  }
+  
   return `${parseFloat(value).toFixed(1)}%`;
 }
 
