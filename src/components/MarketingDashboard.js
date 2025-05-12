@@ -10,7 +10,6 @@ import { Loader } from 'lucide-react';
 
 // Main dashboard component
 const MarketingDashboard = () => {
-
     // State for all CSV data
     const [emailData, setEmailData] = useState(null);
     const [fbVideoData, setFbVideoData] = useState(null);
@@ -39,10 +38,23 @@ const MarketingDashboard = () => {
 
     // State for active tab
     const [activeTab, setActiveTab] = useState('overview');
-    const [activePlatformTab, setActivePlatformTab] = useState('email');
+    const [activePlatformTab, setActivePlatformTab] = useState('facebook');
 
     // Colors for charts
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#8dd1e1', '#a4de6c', '#d0ed57'];
+
+    // Helper function to fetch and parse CSV data
+    const fetchCsvData = async (fileName, encoding = 'utf-8') => {
+        try {
+            // For GitHub Pages, use relative paths to your CSV files
+            const response = await fetch(fileName);
+            const text = await response.text();
+            return Papa.parse(text, { header: true, dynamicTyping: true, skipEmptyLines: true });
+        } catch (error) {
+            console.error(`Error loading ${fileName}:`, error);
+            throw error;
+        }
+    };
 
     // Load CSV data on component mount
     useEffect(() => {
@@ -50,8 +62,7 @@ const MarketingDashboard = () => {
             try {
                 setLoadingStatus("Loading email data...");
                 try {
-                    const emailResponse = await window.fs.readFile('Email_Campaign_Performance.csv', { encoding: 'utf8' });
-                    const emailResult = Papa.parse(emailResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const emailResult = await fetchCsvData('Email_Campaign_Performance.csv');
                     setEmailData(emailResult.data);
                 } catch (error) {
                     setErrors(prev => [...prev, "Error loading Email data"]);
@@ -60,28 +71,23 @@ const MarketingDashboard = () => {
                 setLoadingStatus("Loading Facebook data...");
                 try {
                     // FB Videos
-                    const fbVideoResponse = await window.fs.readFile('FB_Videos.csv', { encoding: 'utf8' });
-                    const fbVideoResult = Papa.parse(fbVideoResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const fbVideoResult = await fetchCsvData('FB_Videos.csv');
                     setFbVideoData(fbVideoResult.data);
 
                     // FB Audience
-                    const fbAudienceResponse = await window.fs.readFile('FB_Audience.csv', { encoding: 'cp1252' });
-                    const fbAudienceResult = Papa.parse(fbAudienceResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const fbAudienceResult = await fetchCsvData('FB_Audience.csv');
                     setFbAudienceData(fbAudienceResult.data);
 
                     // FB Follows
-                    const fbFollowsResponse = await window.fs.readFile('FB_Follows.csv', { encoding: 'cp1252' });
-                    const fbFollowsResult = Papa.parse(fbFollowsResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const fbFollowsResult = await fetchCsvData('FB_Follows.csv');
                     setFbFollowsData(fbFollowsResult.data);
 
                     // FB Reach
-                    const fbReachResponse = await window.fs.readFile('FB_Reach.csv', { encoding: 'cp1252' });
-                    const fbReachResult = Papa.parse(fbReachResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const fbReachResult = await fetchCsvData('FB_Reach.csv');
                     setFbReachData(fbReachResult.data);
 
                     // FB Posts
-                    const fbPostsResponse = await window.fs.readFile('FB_Posts.csv', { encoding: 'utf8' });
-                    const fbPostsResult = Papa.parse(fbPostsResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const fbPostsResult = await fetchCsvData('FB_Posts.csv');
                     setFbPostsData(fbPostsResult.data);
                 } catch (error) {
                     setErrors(prev => [...prev, "Error loading Facebook data"]);
@@ -90,23 +96,19 @@ const MarketingDashboard = () => {
                 setLoadingStatus("Loading Instagram data...");
                 try {
                     // IG Posts
-                    const igPostsResponse = await window.fs.readFile('IG_Posts.csv', { encoding: 'utf8' });
-                    const igPostsResult = Papa.parse(igPostsResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const igPostsResult = await fetchCsvData('IG_Posts.csv');
                     setIgPostsData(igPostsResult.data);
 
                     // IG Audience
-                    const igAudienceResponse = await window.fs.readFile('IG_Audience.csv', { encoding: 'cp1252' });
-                    const igAudienceResult = Papa.parse(igAudienceResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const igAudienceResult = await fetchCsvData('IG_Audience.csv');
                     setIgAudienceData(igAudienceResult.data);
 
                     // IG Follows
-                    const igFollowsResponse = await window.fs.readFile('IG_Follows.csv', { encoding: 'cp1252' });
-                    const igFollowsResult = Papa.parse(igFollowsResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const igFollowsResult = await fetchCsvData('IG_Follows.csv');
                     setIgFollowsData(igFollowsResult.data);
 
                     // IG Reach
-                    const igReachResponse = await window.fs.readFile('IG_Reach.csv', { encoding: 'cp1252' });
-                    const igReachResult = Papa.parse(igReachResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const igReachResult = await fetchCsvData('IG_Reach.csv');
                     setIgReachData(igReachResult.data);
                 } catch (error) {
                     setErrors(prev => [...prev, "Error loading Instagram data"]);
@@ -115,28 +117,23 @@ const MarketingDashboard = () => {
                 setLoadingStatus("Loading YouTube data...");
                 try {
                     // YouTube Age
-                    const ytAgeResponse = await window.fs.readFile('YouTube_Age.csv', { encoding: 'utf8' });
-                    const ytAgeResult = Papa.parse(ytAgeResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const ytAgeResult = await fetchCsvData('YouTube_Age.csv');
                     setYtAgeData(ytAgeResult.data);
 
                     // YouTube Gender
-                    const ytGenderResponse = await window.fs.readFile('YouTube_Gender.csv', { encoding: 'utf8' });
-                    const ytGenderResult = Papa.parse(ytGenderResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const ytGenderResult = await fetchCsvData('YouTube_Gender.csv');
                     setYtGenderData(ytGenderResult.data);
 
                     // YouTube Geography
-                    const ytGeoResponse = await window.fs.readFile('YouTube_Geography.csv', { encoding: 'utf8' });
-                    const ytGeoResult = Papa.parse(ytGeoResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const ytGeoResult = await fetchCsvData('YouTube_Geography.csv');
                     setYtGeoData(ytGeoResult.data);
 
                     // YouTube Subscription Status
-                    const ytSubResponse = await window.fs.readFile('YouTube_Subscription_Status.csv', { encoding: 'utf8' });
-                    const ytSubResult = Papa.parse(ytSubResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const ytSubResult = await fetchCsvData('YouTube_Subscription_Status.csv');
                     setYtSubData(ytSubResult.data);
 
                     // YouTube Content
-                    const ytContentResponse = await window.fs.readFile('YouTube_Content.csv', { encoding: 'utf8' });
-                    const ytContentResult = Papa.parse(ytContentResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const ytContentResult = await fetchCsvData('YouTube_Content.csv');
                     setYtContentData(ytContentResult.data);
                 } catch (error) {
                     setErrors(prev => [...prev, "Error loading YouTube data"]);
@@ -145,23 +142,19 @@ const MarketingDashboard = () => {
                 setLoadingStatus("Loading Google Analytics data...");
                 try {
                     // GA Traffic Acquisition
-                    const gaTrafficResponse = await window.fs.readFile('GA_Traffic_Acquisition.csv', { encoding: 'utf8' });
-                    const gaTrafficResult = Papa.parse(gaTrafficResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const gaTrafficResult = await fetchCsvData('GA_Traffic_Acquisition.csv');
                     setGaTrafficData(gaTrafficResult.data);
 
                     // GA Demographics
-                    const gaDemographicsResponse = await window.fs.readFile('GA_Demographics.csv', { encoding: 'utf8' });
-                    const gaDemographicsResult = Papa.parse(gaDemographicsResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const gaDemographicsResult = await fetchCsvData('GA_Demographics.csv');
                     setGaDemographicsData(gaDemographicsResult.data);
 
                     // GA Pages And Screens
-                    const gaPagesResponse = await window.fs.readFile('GA_Pages_And_Screens.csv', { encoding: 'utf8' });
-                    const gaPagesResult = Papa.parse(gaPagesResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const gaPagesResult = await fetchCsvData('GA_Pages_And_Screens.csv');
                     setGaPagesData(gaPagesResult.data);
 
                     // GA UTMs
-                    const gaUtmsResponse = await window.fs.readFile('GA_UTMs.csv', { encoding: 'utf8' });
-                    const gaUtmsResult = Papa.parse(gaUtmsResponse, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                    const gaUtmsResult = await fetchCsvData('GA_UTMs.csv');
                     setGaUtmsData(gaUtmsResult.data);
                 } catch (error) {
                     setErrors(prev => [...prev, "Error loading Google Analytics data"]);
@@ -1129,7 +1122,7 @@ const MarketingDashboard = () => {
         </>
     );
 
-    // Render loading state
+    // Show loading state
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center h-screen">
@@ -1149,6 +1142,7 @@ const MarketingDashboard = () => {
         );
     }
 
+    // Main dashboard render
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
             <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Comprehensive Marketing Analytics Dashboard</h1>
@@ -1199,7 +1193,7 @@ const MarketingDashboard = () => {
             {/* Footer with Data Source Info */}
             <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
                 <p>Data last updated: Monday, May 12, 2025</p>
-                <p className="mt-1">This dashboard directly uses CSV files. No server or database required.</p>
+                <p className="mt-1">Dashboard loads CSV files directly using browser fetch API.</p>
             </div>
         </div>
     );
