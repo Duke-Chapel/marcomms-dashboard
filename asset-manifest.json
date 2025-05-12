@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/marcomms-dashboard/static/css/main.f855e6bc.css",
+    "main.js": "/marcomms-dashboard/static/js/main.92ac90f1.js",
+    "static/js/453.629e439d.chunk.js": "/marcomms-dashboard/static/js/453.629e439d.chunk.js",
+    "index.html": "/marcomms-dashboard/index.html",
+    "main.f855e6bc.css.map": "/marcomms-dashboard/static/css/main.f855e6bc.css.map",
+    "main.92ac90f1.js.map": "/marcomms-dashboard/static/js/main.92ac90f1.js.map",
+    "453.629e439d.chunk.js.map": "/marcomms-dashboard/static/js/453.629e439d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.92ac90f1.js"
+  ]
+}
