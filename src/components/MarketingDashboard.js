@@ -1,4 +1,42 @@
-import React, { useState, useEffect } from 'react';
+// Add a debugging component to show what's happening
+    const DebugInfo = () => (
+        <div className="bg-white p-4 rounded-lg shadow mb-6">
+            <h3 className="text-lg font-medium mb-4">Debugging Information</h3>
+            <div className="overflow-auto max-h-64 text-sm">
+                <p className="mb-2 font-bold">Current Base URL: {window.location.href}</p>
+                <p className="mb-2">Error Count: {errors.length}</p>
+                {errors.length > 0 && (
+                    <div className="mt-2 text-red-500">
+                        <p>Errors:</p>
+                        <ul>
+                            {errors.map((error, index) => (
+                                <li key={index}>• {error}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                <p className="mb-2 mt-4 font-bold">Data Load Status:</p>
+                <ul>
+                    <li>Email Data: {emailData ? `${emailData.length} rows` : 'Not loaded'}</li>
+                    <li>FB Video Data: {fbVideoData ? `${fbVideoData.length} rows` : 'Not loaded'}</li>
+                    <li>FB Audience Data: {fbAudienceData ? `${fbAudienceData.length} rows` : 'Not loaded'}</li>
+                    <li>IG Posts Data: {igPostsData ? `${igPostsData.length} rows` : 'Not loaded'}</li>
+                    <li>YT Age Data: {ytAgeData ? `${ytAgeData.length} rows` : 'Not loaded'}</li>
+                    <li>YT Gender Data: {ytGenderData ? `${ytGenderData.length} rows` : 'Not loaded'}</li>
+                    <li>YT Geography Data: {ytGeoData ? `${ytGeoData.length} rows` : 'Not loaded'}</li>
+                    <li>YT Subscription Data: {ytSubData ? `${ytSubData.length} rows` : 'Not loaded'}</li>
+                </ul>
+                <p className="mt-4 mb-2">
+                    <button 
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={() => window.location.reload()}
+                    >
+                        Reload Page
+                    </button>
+                </p>
+            </div>
+        </div>
+    );import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import {
     LineChart, Line, BarChart, Bar, PieChart, Pie,
@@ -46,13 +84,47 @@ const MarketingDashboard = () => {
     // Helper function to fetch and parse CSV data
     const fetchCsvData = async (fileName, encoding = 'utf-8') => {
         try {
-            // For GitHub Pages, use relative paths to your CSV files
-            const response = await fetch(fileName);
+            // Log fetch attempt to help with debugging
+            console.log(`Attempting to fetch ${fileName}...`);
+            
+            // For GitHub Pages, try both relative and repository-based paths
+            // Get the base URL for the current page
+            const baseUrl = window.location.href.split('/').slice(0, -1).join('/') || '.';
+            const fileUrl = `${baseUrl}/${fileName}`;
+            
+            console.log(`Fetching from: ${fileUrl}`);
+            const response = await fetch(fileUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
             const text = await response.text();
-            return Papa.parse(text, { header: true, dynamicTyping: true, skipEmptyLines: true });
+            console.log(`Successfully loaded ${fileName}. First 100 chars:`, text.substring(0, 100));
+            
+            const result = Papa.parse(text, { header: true, dynamicTyping: true, skipEmptyLines: true });
+            console.log(`Parsed ${fileName}:`, result.data.length, 'rows');
+            return result;
         } catch (error) {
             console.error(`Error loading ${fileName}:`, error);
-            throw error;
+            // Try an alternative approach if the first one fails
+            try {
+                console.log(`Retrying with direct path: ./${fileName}`);
+                const response = await fetch(`./${fileName}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const text = await response.text();
+                console.log(`Successfully loaded ${fileName} with alternative path. First 100 chars:`, text.substring(0, 100));
+                
+                const result = Papa.parse(text, { header: true, dynamicTyping: true, skipEmptyLines: true });
+                console.log(`Parsed ${fileName}:`, result.data.length, 'rows');
+                return result;
+            } catch (secondError) {
+                console.error(`Second attempt failed for ${fileName}:`, secondError);
+                // Return a default empty result to prevent the component from crashing
+                return { data: [] };
+            }
         }
     };
 
@@ -60,12 +132,16 @@ const MarketingDashboard = () => {
     useEffect(() => {
         const loadAllData = async () => {
             try {
+                // Adding overall debug info
+                console.log("Starting data loading process...");
+                console.log("Current page URL:", window.location.href);
+                
                 setLoadingStatus("Loading email data...");
                 try {
                     const emailResult = await fetchCsvData('Email_Campaign_Performance.csv');
                     setEmailData(emailResult.data);
                 } catch (error) {
-                    setErrors(prev => [...prev, "Error loading Email data"]);
+                    setErrors(prev => [...prev, `Error loading Email data: ${error.message}`]);
                 }
 
                 setLoadingStatus("Loading Facebook data...");
@@ -1146,6 +1222,9 @@ const MarketingDashboard = () => {
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
             <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Comprehensive Marketing Analytics Dashboard</h1>
+            
+            {/* Debug panel - display at the top during troubleshooting */}
+            <DebugInfo />
 
             {/* Main Navigation Tabs */}
             <div className="mb-6 flex border-b border-gray-200">
